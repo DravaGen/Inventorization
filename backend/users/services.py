@@ -26,7 +26,7 @@ class AuthUser(ABC):
 
 class WorkerService(AuthUser):
 
-    def add_item_cardt() -> None:
+    def add_item_cart() -> None:
         """"""
 
     def delete_item_cart() -> None:
