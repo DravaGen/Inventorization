@@ -7,7 +7,9 @@ from alembic import context
 
 from config import PostgresSQLConfig
 from databases.sqlalchemy import metadata
-
+from users.models import UserORM  # noqa
+from shops.models import ShopORM  # noqa
+from items.models import ItemORM  # noqa
 
 config = context.config
 
