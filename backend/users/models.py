@@ -15,17 +15,11 @@ class UserORM(Base):
         primary_key=True,
         server_default=func.gen_random_uuid()
     )
-    email: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False,
-        unique=True
-    )
-    password: Mapped[str] = mapped_column(String(32), nullable=False)
+    email: Mapped[str] = mapped_column(String(100), unique=True)
+    password: Mapped[str] = mapped_column(String(32))
     status: Mapped[UserStatus] = mapped_column(
-        Enum(UserStatus, values_callable=get_enum_values),
-        nullable=False
+        Enum(UserStatus, values_callable=get_enum_values)
     )
     createad_at: Mapped[datetime.datetime] = mapped_column(
-        nullable=False,
         server_default=func.now()
     )

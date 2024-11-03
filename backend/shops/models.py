@@ -18,7 +18,6 @@ class ShopORM(Base):
     city: Mapped[str] = mapped_column(String(32))
     address: Mapped[str] = mapped_column(String(64))
     createad_at: Mapped[datetime.datetime] = mapped_column(
-        nullable=False,
         server_default=func.now()
     )
 
@@ -37,22 +36,10 @@ class ShopUserORM(Base):
 class ShopCartORM(Base):
     __tablename__ = "shops_carts"
 
-    shop_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("shops.id"),
-        nullable=False
-    )
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id"),
-        nullable=False
-    )
-    item_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("items.id"),
-        nullable=False
-    )
-    quantity: Mapped[int] = mapped_column(
-        nullable=False,
-        server_default="1"
-    )
+    shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    item_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("items.id"))
+    quantity: Mapped[int] = mapped_column(server_default="1")
 
     __table_args__ = (
         PrimaryKeyConstraint(shop_id, user_id, item_id),
