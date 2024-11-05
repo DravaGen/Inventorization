@@ -1,3 +1,6 @@
 __pycache__
 venv
 .env
+test.py
+private.pem
+public.pem
