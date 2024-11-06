@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .jwt import JWTService
-from .schemas import AccessTokenResponse
+from .schemas import AccessTokenData, AccessTokenResponse
 from users.models import UserORM
 from security.users import validate_hash_password
 from databases.sqlalchemy import get_db
@@ -39,10 +39,10 @@ async def login(
             detail="Invalid email or password"
         )
 
-    access_token = JWTService.encode({
-        "sub": str(user.id),
-        "status": user.status.value,
-        "exp": int(time.time() + 12*60*60)  # Токен действителен 12 часов
-    })
+    access_token = JWTService.encode(
+        AccessTokenData(
+            sub=user.id, status=user.status
+        ).model_dump(mode="json")
+    )
 
     return AccessTokenResponse(access_token=access_token)
