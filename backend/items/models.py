@@ -36,7 +36,7 @@ class ItemQueueORM(Base):
     new_price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]
-    createad_at: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
 
@@ -50,12 +50,12 @@ class ItemSoldORM(Base):
     price: Mapped[int]
     quantity: Mapped[int] = mapped_column(server_default="1")
     income: Mapped[int]
-    createad_at: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
 
     __table_args__ = (
-        PrimaryKeyConstraint(item_id, user_id, shop_id, createad_at),
+        PrimaryKeyConstraint(item_id, user_id, shop_id, created_at),
         CheckConstraint("price > 0", name="check_price_positive"),
         CheckConstraint("quantity > 0", name="check_quantity_positive")
     )

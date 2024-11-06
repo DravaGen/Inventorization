@@ -17,7 +17,7 @@ class ShopORM(Base):
     )
     city: Mapped[str] = mapped_column(String(32))
     address: Mapped[str] = mapped_column(String(64))
-    createad_at: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
 
@@ -25,11 +25,14 @@ class ShopORM(Base):
 class ShopUserORM(Base):
     __tablename__ = "shops_users"
 
+    shop_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("shops.id"), primary_key=True
+    )
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id"), primary_key=True
     )
-    shop_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("shops.id"), primary_key=True
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now()
     )
 
 
