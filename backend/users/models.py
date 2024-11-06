@@ -20,6 +20,6 @@ class UserORM(Base):
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, values_callable=get_enum_values)
     )
-    createad_at: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
