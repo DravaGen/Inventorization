@@ -1,13 +1,20 @@
 from uuid import UUID
-from fastapi import HTTPException, status, Depends
+from typing import Annotated
+
+from fastapi import HTTPException, status, Depends, Form
 from fastapi.security import OAuth2PasswordBearer
 
-from .jwt import JWTService
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from jwt.exceptions import DecodeError, InvalidSignatureError, \
     ExpiredSignatureError
 
+from .jwt import JWTService
 from .schemas import AccessTokenData
+from shops.models import ShopUserORM
 from users.schemas import UserStatus, weights_user_status
+from databases.sqlalchemy import get_db
 
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/login")
@@ -35,6 +42,30 @@ def get_user_id(
     return data.sub
 
 
+async def get_shop_id(
+    shop_id: UUID,
+    user_id: UUID = Depends(get_user_id),
+    db: AsyncSession = Depends(get_db)
+) -> UUID:
+    """Возвращает shop_id и проверяет что к нему есть доступ"""
+
+    exists = await db.execute(
+        select(ShopUserORM)
+        .where(
+            (ShopUserORM.shop_id == shop_id)
+            & (ShopUserORM.user_id == user_id)
+        )
+    )
+
+    if not exists.scalar():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="not shop access"
+        )
+
+    return shop_id
+
+
 def get_user_status(
         data: AccessTokenData = Depends(get_token_data)
 ) -> UserStatus:
@@ -54,4 +85,9 @@ def check_user_min_status(min_status: UserStatus) -> Depends:
                 detail="Not enough rights"
             )
 
-    return Depends(logic)
+    return logic
+
+
+CurrentUserID = Annotated[UUID, Depends(get_user_id)]
+CurrentShopID = Annotated[UUID, Depends(get_shop_id)]
+UserStatusISOwner = Depends(check_user_min_status(UserStatus.OWNER))
