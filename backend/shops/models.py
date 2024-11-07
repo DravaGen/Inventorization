@@ -41,7 +41,9 @@ class ShopCartORM(Base):
 
     shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    item_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("items.id"))
+    item_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("items_in_shops.item_id")
+    )
     quantity: Mapped[int] = mapped_column(server_default="1")
 
     __table_args__ = (
