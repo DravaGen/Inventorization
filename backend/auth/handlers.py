@@ -16,7 +16,7 @@ from databases.sqlalchemy import get_db
 auth_router = APIRouter()
 
 
-@auth_router.post("/login", response_model=AccessTokenResponse)
+@auth_router.post("/login")
 async def login(
         form_data: OAuth2PasswordRequestForm = Depends(),
         db: AsyncSession = Depends(get_db)
