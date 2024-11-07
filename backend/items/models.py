@@ -1,7 +1,7 @@
 import uuid
 import datetime
 
-from sqlalchemy import String, ForeignKey, CheckConstraint, \
+from sqlalchemy import String, BigInteger, ForeignKey, CheckConstraint, \
     PrimaryKeyConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -16,11 +16,24 @@ class ItemORM(Base):
         server_default=func.gen_random_uuid()
     )
     name: Mapped[str] = mapped_column(String(50))
+
+
+class ItemShopORM(Base):
+    __tablename__ = "items_in_shops"
+
+    item_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("items.id"),
+        unique=True
+    )
+    shop_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("shops.id")
+    )
     price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]
 
     __table_args__ = (
+        PrimaryKeyConstraint(item_id, shop_id),
         CheckConstraint("price > 0", name="check_price_positive"),
         CheckConstraint("quantity >= 0", name="check_quantity")
     )
@@ -29,9 +42,11 @@ class ItemORM(Base):
 class ItemQueueORM(Base):
     __tablename__ = "items_queues"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     item_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("items.id")
+    )
+    shop_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("shops.id")
     )
     new_price: Mapped[int]
     quantity: Mapped[int]
@@ -39,6 +54,8 @@ class ItemQueueORM(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
+
+    __table_args__ = (PrimaryKeyConstraint(item_id, shop_id, created_at),)
 
 
 class ItemSoldORM(Base):
@@ -49,7 +66,7 @@ class ItemSoldORM(Base):
     shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
     price: Mapped[int]
     quantity: Mapped[int] = mapped_column(server_default="1")
-    income: Mapped[int]
+    income: Mapped[int] = mapped_column(BigInteger)
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
