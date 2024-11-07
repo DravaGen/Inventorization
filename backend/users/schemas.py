@@ -13,6 +13,13 @@ class UserStatus(Enum):
     OWNER = "owner"
 
 
+weights_user_status = {
+    UserStatus.WORKER: 50,
+    UserStatus.ADMIN: 80,
+    UserStatus.OWNER: 100
+}  # Веса прав пользователей
+
+
 class UserCreateForm(BaseModel):
     """Форма создания пользователя """
 
