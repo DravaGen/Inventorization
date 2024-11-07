@@ -1,4 +1,5 @@
-from typing import AsyncIterator
+from typing import AsyncIterator, Annotated
+from fastapi import Depends
 
 from sqlalchemy import MetaData
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -43,3 +44,6 @@ async def get_db() -> AsyncIterator[AsyncSession]:
         raise
     finally:
         await session.close()
+
+
+SessionDep = Annotated[AsyncSession, Depends(get_db)]
