@@ -2,7 +2,7 @@ import uuid
 import datetime
 
 from sqlalchemy import String, ForeignKey, CheckConstraint, \
-    PrimaryKeyConstraint, func
+    PrimaryKeyConstraint, ForeignKeyConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from databases.sqlalchemy import Base
@@ -39,14 +39,16 @@ class ShopUserORM(Base):
 class ShopCartORM(Base):
     __tablename__ = "shops_carts"
 
-    shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
+    shop_id: Mapped[uuid.UUID] = mapped_column()
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    item_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("items_in_shops.item_id")
-    )
+    item_id: Mapped[uuid.UUID] = mapped_column()
     quantity: Mapped[int] = mapped_column(server_default="1")
 
     __table_args__ = (
         PrimaryKeyConstraint(shop_id, user_id, item_id),
-        CheckConstraint("quantity > 0", name="check_quantity_positive")
+        CheckConstraint("quantity > 0", name="check_quantity_positive"),
+        ForeignKeyConstraint(
+            ["item_id", "shop_id"],
+            ["items_in_shops.item_id", "items_in_shops.shop_id"]
+        )
     )
