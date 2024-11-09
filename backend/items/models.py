@@ -2,7 +2,7 @@ import uuid
 import datetime
 
 from sqlalchemy import String, BigInteger, ForeignKey, CheckConstraint, \
-    PrimaryKeyConstraint, UniqueConstraint, func
+    PrimaryKeyConstraint, UniqueConstraint, ForeignKeyConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from databases.sqlalchemy import Base
@@ -38,12 +38,8 @@ class ItemShopORM(Base):
 class ItemQueueORM(Base):
     __tablename__ = "items_queues"
 
-    item_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("items.id")
-    )
-    shop_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("shops.id")
-    )
+    item_id: Mapped[uuid.UUID] = mapped_column()
+    shop_id: Mapped[uuid.UUID] = mapped_column()
     new_price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]
@@ -51,7 +47,13 @@ class ItemQueueORM(Base):
         server_default=func.now()
     )
 
-    __table_args__ = (PrimaryKeyConstraint(item_id, shop_id, created_at),)
+    __table_args__ = (
+        PrimaryKeyConstraint(item_id, shop_id, created_at),
+        ForeignKeyConstraint(
+            ["item_id", "shop_id"],
+            ["items_in_shops.item_id", "items_in_shops.shop_id"]
+        )
+    )
 
 
 class ItemSoldORM(Base):
