@@ -2,7 +2,7 @@ import uuid
 import datetime
 
 from sqlalchemy import String, BigInteger, ForeignKey, CheckConstraint, \
-    PrimaryKeyConstraint, UniqueConstraint, ForeignKeyConstraint, func
+    PrimaryKeyConstraint, ForeignKeyConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from databases.sqlalchemy import Base
@@ -30,8 +30,7 @@ class ItemShopORM(Base):
     __table_args__ = (
         PrimaryKeyConstraint(item_id, shop_id),
         CheckConstraint("price > 0", name="check_price_positive"),
-        CheckConstraint("quantity >= 0", name="check_quantity"),
-        UniqueConstraint(item_id, shop_id)
+        CheckConstraint("quantity >= 0", name="check_quantity")
     )
 
 
