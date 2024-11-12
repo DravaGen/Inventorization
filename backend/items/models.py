@@ -3,7 +3,7 @@ import datetime
 
 from sqlalchemy import String, BigInteger, ForeignKey, CheckConstraint, \
     PrimaryKeyConstraint, ForeignKeyConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from databases.sqlalchemy import Base
 
@@ -17,6 +17,9 @@ class ItemORM(Base):
     )
     name: Mapped[str] = mapped_column(String(50))
 
+    items_sold = relationship("ItemSoldORM", back_populates="item")
+    items_in_shops = relationship("ItemShopORM", back_populates="item")
+
 
 class ItemShopORM(Base):
     __tablename__ = "items_in_shops"
@@ -26,6 +29,10 @@ class ItemShopORM(Base):
     price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]
+
+    item = relationship("ItemORM", back_populates="items_in_shops")
+    shop = relationship("ShopORM", back_populates="items_in_shops")
+    queues = relationship("ItemQueueORM", back_populates="items_in_shops")
 
     __table_args__ = (
         PrimaryKeyConstraint(item_id, shop_id),
@@ -45,6 +52,8 @@ class ItemQueueORM(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
+
+    items_in_shops = relationship("ItemShopORM", back_populates="queues")
 
     __table_args__ = (
         PrimaryKeyConstraint(item_id, shop_id, created_at),
@@ -67,6 +76,8 @@ class ItemSoldORM(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
+
+    item = relationship("ItemORM", back_populates="items_sold")
 
     __table_args__ = (
         PrimaryKeyConstraint(item_id, user_id, shop_id, created_at),

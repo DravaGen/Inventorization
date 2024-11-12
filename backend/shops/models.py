@@ -3,7 +3,7 @@ import datetime
 
 from sqlalchemy import String, ForeignKey, CheckConstraint, \
     PrimaryKeyConstraint, ForeignKeyConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from databases.sqlalchemy import Base
 
@@ -20,6 +20,9 @@ class ShopORM(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
+
+    users = relationship("UserORM", "shops_users", back_populates="shops")
+    items_in_shops = relationship("ItemShopORM", back_populates="shop")
 
 
 class ShopUserORM(Base):
