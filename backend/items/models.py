@@ -46,7 +46,7 @@ class ItemQueueORM(Base):
 
     item_id: Mapped[uuid.UUID] = mapped_column()
     shop_id: Mapped[uuid.UUID] = mapped_column()
-    new_price: Mapped[int]
+    price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]
     created_at: Mapped[datetime.datetime] = mapped_column(
