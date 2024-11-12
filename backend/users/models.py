@@ -2,7 +2,7 @@ import uuid
 import datetime
 
 from sqlalchemy import String, Enum, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .schemas import UserStatus
 from databases.sqlalchemy import Base, get_enum_values
@@ -23,3 +23,5 @@ class UserORM(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
+
+    shops = relationship("ShopORM", "shops_users", back_populates="users")
