@@ -90,4 +90,6 @@ def check_user_min_status(min_status: UserStatus) -> Depends:
 
 CurrentUserID = Annotated[UUID, Depends(get_user_id)]
 CurrentShopID = Annotated[UUID, Depends(get_shop_id)]
+UserStatusISWorker = Depends(check_user_min_status(UserStatus.WORKER))
+UserStatusISAdmin = Depends(check_user_min_status(UserStatus.ADMIN))
 UserStatusISOwner = Depends(check_user_min_status(UserStatus.OWNER))
