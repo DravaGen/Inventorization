@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -20,15 +20,16 @@ weights_user_status = {
 }  # Веса прав пользователей
 
 
-class UserCreateForm(BaseModel):
-    """Форма создания пользователя """
+class UserSignupForm(BaseModel):
+    """Форма создания пользователя"""
 
     email: str = Field(..., pattern=email_pattern)
     password: str = Field(..., min_length=8, max_length=32)
+    status: UserStatus = UserStatus.WORKER
 
 
 class UserUpdateForm(BaseModel):
-    """Форма обновления пользователя """
+    """Форма обновления пользователя"""
 
     email: str | None = Field(None, pattern=email_pattern)
     password: str | None = Field(None, min_length=8, max_length=32)
@@ -42,3 +43,16 @@ class UserUpdateForm(BaseModel):
             raise ValueError("Empty data")
 
         return self
+
+
+class UserSoftSchema(BaseModel):
+    """
+        Вспомогательная схема пользователя
+        для UserSignupForm и UserUpdateForm
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    email: str | None
+    password: str | None
+    status: UserStatus | None
