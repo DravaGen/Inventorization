@@ -1,7 +1,7 @@
 from uuid import UUID
 from typing import Annotated
 
-from fastapi import HTTPException, status, Depends, Form
+from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from sqlalchemy import select
