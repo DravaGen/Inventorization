@@ -11,7 +11,7 @@ from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
 from .services import check_item_in_cart
 
 from auth.services import CurrentUserID, CurrentShopID, UserStatusISOwner
-from databases.sqlalchemy import SessionDep
+from databases.sqlalchemy import SessionDep, convert_query_to_list_dicts
 from responses import ResponseOK
 
 
@@ -130,11 +130,7 @@ async def get_items_cart(
             & (ShopCartORM.shop_id == shop_id)
         )
     )
-    return [
-        ShopCartItemResponse.model_validate(x)
-        for x in map(lambda q: q._asdict(), cart)
-    ]
-    # https://stackoverflow.com/questions/19406859
+    return convert_query_to_list_dicts(ShopCartItemResponse, cart)
 
 
 @shops_cards_router.post("/")

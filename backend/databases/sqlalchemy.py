@@ -23,6 +23,18 @@ def get_enum_values(enum):
     return [x.value for x in enum]
 
 
+def convert_query_to_list_dicts(schema_class, data):
+    """
+        Преобразует результат запроса SELECT в список dicts
+        https://stackoverflow.com/questions/19406859
+    """
+
+    return [
+        schema_class.model_validate(x)
+        for x in map(lambda q: q._asdict(), data)
+    ]
+
+
 def session_factory() -> AsyncSession:
     """Создаёт новую асинхронную сессию"""
 
