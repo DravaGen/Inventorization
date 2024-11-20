@@ -3,11 +3,11 @@ from fastapi import APIRouter
 from sqlalchemy import insert, update
 
 from .models import UserORM
-from .schemas import UserSignupForm, UserUpdateForm
-from .services import get_user_soft_data
+from .schemas import UserSignupForm, UserUpdateForm, EMAIL
+from .services import process_user_form
 
 from responses import ResponseOK
-from auth.services import UserStatusISWorker
+from auth.services import UserStatusISOwner
 from databases.sqlalchemy import SessionDep
 
 
@@ -16,7 +16,7 @@ users_router = APIRouter()
 
 @users_router.post(
     "/",
-    dependencies=[UserStatusISWorker]
+    dependencies=[UserStatusISOwner]
 )
 async def signup_user(
         form_data: UserSignupForm,
@@ -24,10 +24,10 @@ async def signup_user(
 ) -> ResponseOK:
     """Регистрирует пользотеля"""
 
-    schema = get_user_soft_data(form_data)
+    process_user_form(form_data)
     await db.execute(
         insert(UserORM)
-        .values(**schema.model_dump())
+        .values(**form_data.model_dump())
     )
 
     return ResponseOK(detail="user signuped")
@@ -35,18 +35,20 @@ async def signup_user(
 
 @users_router.put(
     "/",
-    dependencies=[UserStatusISWorker]
+    dependencies=[UserStatusISOwner]
 )
 async def update_user(
+        email: EMAIL,
         form_data: UserUpdateForm,
         db: SessionDep
 ) -> ResponseOK:
     """Обновляет пользотеля"""
 
-    schema = get_user_soft_data(form_data)
+    process_user_form(form_data)
     await db.execute(
         update(UserORM)
-        .values(**schema.model_dump(exclude_unset=True))
+        .values(**form_data.model_dump(exclude_unset=True))
+        .where(UserORM.email == email)
     )
 
     return ResponseOK(detail="user updated")

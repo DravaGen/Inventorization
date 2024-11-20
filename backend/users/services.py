@@ -1,19 +1,15 @@
-from .schemas import UserSignupForm, UserUpdateForm, UserSoftSchema
+from .schemas import UserSignupForm, UserUpdateForm
 from security.users import hash_password
 
 
-def get_user_soft_data(
-        user_data: UserSignupForm | UserUpdateForm
-) -> UserSoftSchema:
+def process_user_form(
+        form_data: UserSignupForm | UserUpdateForm
+) -> None:
     """
-        Выполняет дополнительные действия с данными
-        перед обновление и добавление пользователя
+        Обрабатывает данные формы.
+        Выполняет дополнительную логику, такую как хеширование пароля.
+        Может быть расширена для выполнения других операций.
     """
 
-    schema = UserSoftSchema.model_validate(user_data)
-
-    if user_data.password:
-        schema.password = hash_password(user_data.password)
-
-    return schema
-
+    if form_data.password:
+        form_data.password = hash_password(form_data.password)
