@@ -1,8 +1,11 @@
 from enum import Enum
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing import Annotated
+from pydantic import BaseModel, Field, model_validator
 
 
 email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+EMAIL = Annotated[str, Field(pattern=email_pattern, examples=["mail@example.com"])]
+PASSWORD = Annotated[str, Field(min_length=8, max_length=32, examples=["password"])]
 
 
 class UserStatus(Enum):
@@ -23,16 +26,15 @@ weights_user_status = {
 class UserSignupForm(BaseModel):
     """Форма создания пользователя"""
 
-    email: str = Field(..., pattern=email_pattern)
-    password: str = Field(..., min_length=8, max_length=32)
+    email: EMAIL
+    password: PASSWORD
     status: UserStatus = UserStatus.WORKER
 
 
 class UserUpdateForm(BaseModel):
     """Форма обновления пользователя"""
 
-    email: str | None = Field(None, pattern=email_pattern)
-    password: str | None = Field(None, min_length=8, max_length=32)
+    password: PASSWORD | None = None
     status: UserStatus | None = None
 
     @model_validator(mode="after")
@@ -43,16 +45,3 @@ class UserUpdateForm(BaseModel):
             raise ValueError("Empty data")
 
         return self
-
-
-class UserSoftSchema(BaseModel):
-    """
-        Вспомогательная схема пользователя
-        для UserSignupForm и UserUpdateForm
-    """
-
-    model_config = ConfigDict(from_attributes=True)
-
-    email: str | None
-    password: str | None
-    status: UserStatus | None
