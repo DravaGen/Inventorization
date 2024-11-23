@@ -7,7 +7,9 @@ from sqlalchemy.orm import joinedload, contains_eager
 from .models import ItemORM, ItemShopORM, ItemQueueORM, ItemSoldORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemResponse, ItemResponse, \
     ItemSoldResoinse, ItemReceivingForm
-from .services import format_items_quantity
+from .services import format_items_quantity, raise_if_item_not_exists, \
+    check_item_in_shop_exists
+
 
 from responses import ResponseOK
 from auth.services import CurrentShopID, UserStatusISWorker, UserStatusISAdmin
@@ -98,22 +100,17 @@ async def receiving_items_to_shop(
         Если товара в магазине нет, добавляет его, иначе – ставит в очередь.
     """
 
-    item_exists = await db.execute(
-        select(ItemShopORM)
-        .where(
-            (ItemShopORM.shop_id == shop_id)
-            & (ItemShopORM.item_id == form_data.item_id)
-        )
-    )
-    item_exists = item_exists.scalar()
+    item_id = form_data.item_id
+    await raise_if_item_not_exists(item_id, db)
+    item_exists = await check_item_in_shop_exists(item_id, shop_id, db)
 
     await db.execute(
-        insert(ItemShopORM if not item_exists else ItemQueueORM)
-        .values(**form_data.model_dump())
+        insert(ItemQueueORM if item_exists else ItemShopORM)
+        .values(**form_data.model_dump(), shop_id=shop_id)
     )
 
     return ResponseOK(
-        detail=f"Item added to shop {'' if not item_exists else 'queue'}"
+        detail=f"Item added to {'queue' if item_exists else 'shop'}"
     )
 
 
