@@ -2,6 +2,8 @@ from uuid import UUID
 from datetime import date
 from pydantic import BaseModel, ConfigDict, Field
 
+from databases.sqlalchemy import PositiveIntField
+
 
 class ItemInitForm(BaseModel):
     """Форма создания items"""
@@ -34,9 +36,9 @@ class ItemReceivingForm(BaseModel):
     """Форма создания продукта"""
 
     item_id: UUID
-    price: int
-    quantity: int
-    price_purchase: int
+    price: PositiveIntField = Field(examples=[120])
+    quantity: PositiveIntField = Field(examples=[10])
+    purchase_price: PositiveIntField = Field(examples=[100])
 
 
 class ItemSoldResoinse(BaseModel):

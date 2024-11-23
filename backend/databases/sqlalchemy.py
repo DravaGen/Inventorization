@@ -1,5 +1,7 @@
 from typing import AsyncIterator, Annotated
+
 from fastapi import Depends
+from pydantic import Field
 
 from sqlalchemy import MetaData
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -59,3 +61,4 @@ async def get_db() -> AsyncIterator[AsyncSession]:
 
 
 SessionDep = Annotated[AsyncSession, Depends(get_db)]
+PositiveIntField = Annotated[int, Field(ge=0, le=2_147_483_647)]
