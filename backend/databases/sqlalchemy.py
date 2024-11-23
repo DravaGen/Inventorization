@@ -61,4 +61,4 @@ async def get_db() -> AsyncIterator[AsyncSession]:
 
 
 SessionDep = Annotated[AsyncSession, Depends(get_db)]
-PositiveIntField = Annotated[int, Field(ge=0, le=2_147_483_647)]
+PositiveIntField = Annotated[int, Field(ge=1, le=2_147_483_647)]
