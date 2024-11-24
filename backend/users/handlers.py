@@ -33,7 +33,7 @@ async def signup_user(
     return ResponseOK(detail="user signuped")
 
 
-@users_router.put(
+@users_router.patch(
     "/",
     dependencies=[UserStatusISOwner]
 )
