@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Annotated
+from typing import Callable, Annotated
 
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -74,7 +74,9 @@ def get_user_status(
     return data.status
 
 
-def check_user_min_status(min_status: UserStatus) -> Depends:
+def check_user_min_status(
+        min_status: UserStatus
+) -> Callable[[UserStatus], None]:
     """Проверяет статус для доступа"""
 
     def logic(user_status: UserStatus = Depends(get_user_status)) -> None:
