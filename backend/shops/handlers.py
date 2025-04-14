@@ -22,6 +22,7 @@ shops_router = APIRouter()
     dependencies=[UserStatusISOwner]
 )
 async def create_shop(
+        user_id: CurrentUserID,
         form_data: ShopCrateForm,
         db: SessionDep
 ) -> ShopCrateResponse:
@@ -32,7 +33,17 @@ async def create_shop(
         .values(**form_data.model_dump())
         .returning(ShopORM)
     )
-    return ShopCrateResponse.model_validate(shop.scalar())
+    shop = shop.scalar()
+
+    await db.execute(
+        insert(ShopUserORM)
+        .values({
+            "user_id": user_id,
+            "shop_id": shop.id
+        })
+    )
+
+    return ShopCrateResponse.model_validate(shop)
 
 
 @shops_router.get(
