@@ -17,6 +17,12 @@ class ItemInitResponse(BaseModel):
     item_id: UUID
 
 
+class ItemDeleteForm(BaseModel):
+    """Форма удаления items"""
+
+    item_id: UUID
+
+
 class ItemSchema(BaseModel):
     """Схема items"""
 
