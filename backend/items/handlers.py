@@ -26,9 +26,9 @@ item_shop_route = APIRouter(
     prefix="/shop",
     tags=["Items In Shop"]
 )
-item_card_route = APIRouter(
-    prefix="/card",
-    tags=["Items In Card"]
+item_cart_route = APIRouter(
+    prefix="/cart",
+    tags=["Items In Cart"]
 )
 
 
@@ -188,10 +188,10 @@ async def add_shop_queue(
 
 
 
-@item_card_route.post(
+@item_cart_route.post(
     "/"
 )
-async def add_card_item(
+async def add_cart_item(
         user_id: CurrentUserID,
         shop_id: CurrentShopID,
         form_data: ShopCartItemForm,
@@ -219,11 +219,11 @@ async def add_card_item(
     return ResponseOK(detail="item added to cart")
 
 
-@item_card_route.get(
+@item_cart_route.get(
     "/",
     dependencies=[UserStatusISAdmin]
 )
-async def get_card_items(
+async def get_cart_items(
         user_id: CurrentUserID,
         shop_id: CurrentShopID,
         db: SessionDep
@@ -240,10 +240,10 @@ async def get_card_items(
     return convert_query_to_list_dicts(ShopCartItemResponse, cart)
 
 
-@item_card_route.delete(
+@item_cart_route.delete(
     "/"
 )
-async def del_card_item(
+async def del_cart_item(
         user_id: CurrentUserID,
         shop_id: CurrentShopID,
         form_data: ShopCartItemForm,
@@ -255,7 +255,7 @@ async def del_card_item(
     return ResponseOK(detail="item deleted from cart")
 
 
-@item_card_route.delete(
+@item_cart_route.delete(
     "/all"
 )
 async def del_cart_all_items(
@@ -275,7 +275,7 @@ async def del_cart_all_items(
     return ResponseOK(detail="cleaned cart")
 
 
-@item_card_route.post(
+@item_cart_route.post(
     "/confirmm"
 )
 async def confirm_cart(
@@ -290,4 +290,4 @@ async def confirm_cart(
 
 
 items_router.include_router(item_shop_route)
-items_router.include_router(item_card_route)
+items_router.include_router(item_cart_route)
