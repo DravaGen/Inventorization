@@ -5,19 +5,17 @@ from sqlalchemy import insert, select, update, delete, func
 from sqlalchemy.orm import joinedload, contains_eager
 from sqlalchemy.exc import IntegrityError
 
-from .models import ItemORM, ItemShopORM, ItemQueueORM, ItemSoldORM
+from .models import ItemORM, ItemShopORM, ItemSoldORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, ItemResponse, \
-    ItemSoldResoinse, ItemReceivingForm
-from .services import format_items_quantity, raise_if_item_not_exists, \
-    check_item_in_shop_exists
+    ItemSoldResoinse, ItemShopForm, ItemQueueForm
+from .services import add_item_shop, get_item_in_cart, get_item_in_shop, format_items_quantity
 
 from shops.models import ShopCartORM
 from shops.schemas import ShopCartItemResponse, ShopCartItemForm
-from shops.services import check_item_in_cart
 
 
 from responses import ResponseOK
-from auth.services import CurrentShopID,CurrentUserID, UserStatusISAdmin
+from auth.services import CurrentShopID, CurrentUserID, UserStatusISAdmin
 from databases.sqlalchemy import SessionDep, convert_query_to_list_dicts
 
 
@@ -125,9 +123,13 @@ async def get_solds(
     dependencies=[UserStatusISAdmin]
 )
 async def add_shop_item(
+        shop_id: CurrentShopID,
+        form_data: ItemShopForm,
+        db: SessionDep
+) -> ResponseOK:
+    """Добавляет товар в магазин или в очередь товаров в магазине"""
 
-):
-    raise NotImplementedError
+    return await add_item_shop(shop_id, form_data, db)
 
 
 @item_shop_route.get(
@@ -157,15 +159,28 @@ async def get_shop_items(
     dependencies=[UserStatusISAdmin]
 )
 async def del_shop_item(
-
+    form_data: ItemDeleteForm,
+    db: SessionDep
 ):
-    raise NotImplementedError
+    try:
+        await db.execute(
+            delete(ItemShopORM)
+            .where(ItemShopORM.id == form_data.item_id)
+        )
+        return ResponseOK(detail="item deleted")
+
+    except IntegrityError:
+        return HTTPException(
+            status_code=409,
+            detail="It is not possible to delete an item " \
+                   "because it is associated with other data."
+        )
 
 
 @item_shop_route.post("/queue")
 async def add_shop_queue(
         shop_id: CurrentShopID,
-        form_data: ItemReceivingForm,
+        form_data: ItemQueueForm,
         db: SessionDep,
 ) -> ResponseOK:
     """
@@ -173,19 +188,7 @@ async def add_shop_queue(
         Если товара в магазине нет, добавляет его, иначе – ставит в очередь.
     """
 
-    item_id = form_data.item_id
-    await raise_if_item_not_exists(item_id, db)
-    item_exists = await check_item_in_shop_exists(item_id, shop_id, db)
-
-    await db.execute(
-        insert(ItemQueueORM if item_exists else ItemShopORM)
-        .values(**form_data.model_dump(), shop_id=shop_id)
-    )
-
-    return ResponseOK(
-        detail=f"Item added to {'queue' if item_exists else 'shop'}"
-    )
-
+    return await add_item_shop(shop_id, form_data, db)
 
 
 @item_cart_route.post(
@@ -199,10 +202,26 @@ async def add_cart_item(
 ) -> ResponseOK:
     """Добавляет товар в корзину"""
 
-    if await check_item_in_cart(user_id, shop_id, form_data.item_id, db):
+    item_id = form_data.item_id
+
+    item_cart = await get_item_in_cart(user_id, shop_id, item_id, db)
+    item_shop = await get_item_in_shop(item_id, shop_id, db)
+
+    if (
+        item_shop.quantity
+        - (item_cart.quantity if item_cart else 0)
+        - form_data.quantity
+        < 0
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="exceed available quantity"
+        )
+
+    if item_cart:
         await db.execute(
             update(ShopCartORM)
-            .where(ShopCartORM.item_id == form_data.item_id)
+            .where(ShopCartORM.item_id == item_id)
             .values(quantity=ShopCartORM.quantity + form_data.quantity)
         )
 
@@ -251,7 +270,16 @@ async def del_cart_item(
 ) -> ResponseOK:
     """Удаляет товар из корзины"""
 
-    raise NotImplementedError
+    item = await get_item_in_cart(user_id, shop_id, form_data.item_id, db)
+
+    if item is None:
+        raise HTTPException(status_code=404, detail="item in cart not found")
+
+    if item.quantity - form_data.quantity > 0:
+        item.quantity -= form_data.quantity
+    else:
+        await db.delete(item)
+
     return ResponseOK(detail="item deleted from cart")
 
 

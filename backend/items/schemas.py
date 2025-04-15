@@ -38,13 +38,21 @@ class ItemResponse(ItemSchema):
     quantity: int
 
 
-class ItemReceivingForm(BaseModel):
-    """Форма создания продукта"""
+
+class ItemShopForm(BaseModel):
+    """Форма добавления товара в магазин"""
 
     item_id: UUID
     price: PositiveIntField = Field(examples=[120])
     quantity: PositiveIntField = Field(examples=[10])
     purchase_price: PositiveIntField = Field(examples=[100])
+
+
+
+class ItemQueueForm(ItemShopForm):
+    """Форма создания продукта"""
+
+    pass
 
 
 class ItemSoldResoinse(BaseModel):
