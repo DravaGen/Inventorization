@@ -43,7 +43,7 @@ async def add_item(
     item_id = await db.execute(
         insert(ItemORM)
         .values(**form_data.model_dump())
-        .returning("id")
+        .returning(ItemORM.id)
     )
 
     return ItemInitResponse(item_id=item_id.scalar())
