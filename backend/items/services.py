@@ -12,60 +12,6 @@ from shops.models import ShopCartORM
 from responses import ResponseOK
 
 
-def get_item_in_cart_conditions(
-        user_id: UUID,
-        shop_id: UUID,
-        item_id: UUID,
-):
-    """Возвращает условия поиска товара в корзине"""
-
-    return (
-        (ShopCartORM.user_id == user_id)
-        & (ShopCartORM.shop_id == shop_id)
-        & (ShopCartORM.item_id == item_id)
-    )
-
-
-async def get_item_in_cart(
-        user_id: UUID,
-        shop_id: UUID,
-        item_id: UUID,
-        db: AsyncSession
-) -> ShopCartORM | None:
-    """Проверяет есть ли товар в корзине"""
-
-    exists = await db.execute(
-        select(ShopCartORM)
-        .where(
-            get_item_in_cart_conditions(
-                user_id, shop_id, item_id
-            )
-        )
-    )
-    return exists.scalar()
-
-
-async def add_item_shop(
-        shop_id: UUID,
-        form_data: ItemShopForm | ItemQueueForm,
-        db: AsyncSession
-) -> ResponseOK:
-    """Добавляет товар в магазин или в очередь товаров в магазине """
-
-    item_id = form_data.item_id
-    await raise_if_item_not_exists(item_id, db)
-    item_exists = await get_item_in_cart(item_id, shop_id, db)
-
-    await db.execute(
-        insert(ItemQueueORM if item_exists else ItemShopORM)
-        .values(**form_data.model_dump(), shop_id=shop_id)
-    )
-
-    return ResponseOK(
-        detail=f"Item added to {'queue' if item_exists else 'shop'}"
-    )
-
-
 def format_items_quantity(
         items: list[ItemORM]
 ) -> list[ItemResponse]:
@@ -142,3 +88,58 @@ async def raise_if_item_in_shop_not_found(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="item in shop not found"
         )
+
+
+async def add_item_shop(
+        shop_id: UUID,
+        form_data: ItemShopForm | ItemQueueForm,
+        db: AsyncSession
+) -> ResponseOK:
+    """Добавляет товар в магазин или в очередь товаров в магазине """
+
+    item_id = form_data.item_id
+    await raise_if_item_not_exists(item_id, db)
+    item_exists = await get_item_in_shop(item_id, shop_id, db)
+
+    await db.execute(
+        insert(ItemQueueORM if item_exists else ItemShopORM)
+        .values(**form_data.model_dump(), shop_id=shop_id)
+    )
+
+    return ResponseOK(
+        status_code=202 if item_exists else 201,
+        detail=f"Item added to {'queue' if item_exists else 'shop'}"
+    )
+
+
+def get_item_in_cart_conditions(
+        user_id: UUID,
+        shop_id: UUID,
+        item_id: UUID,
+):
+    """Возвращает условия поиска товара в корзине"""
+
+    return (
+        (ShopCartORM.user_id == user_id)
+        & (ShopCartORM.shop_id == shop_id)
+        & (ShopCartORM.item_id == item_id)
+    )
+
+
+async def get_item_in_cart(
+        user_id: UUID,
+        shop_id: UUID,
+        item_id: UUID,
+        db: AsyncSession
+) -> ShopCartORM | None:
+    """Проверяет есть ли товар в корзине"""
+
+    exists = await db.execute(
+        select(ShopCartORM)
+        .where(
+            get_item_in_cart_conditions(
+                user_id, shop_id, item_id
+            )
+        )
+    )
+    return exists.scalar()

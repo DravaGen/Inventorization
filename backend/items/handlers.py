@@ -6,15 +6,15 @@ from sqlalchemy.orm import joinedload, contains_eager
 from sqlalchemy.exc import IntegrityError
 
 from .models import ItemORM, ItemShopORM, ItemSoldORM
-from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, ItemResponse, \
-    ItemSoldResoinse, ItemShopForm, ItemQueueForm
-from .services import add_item_shop, get_item_in_cart, get_item_in_shop, format_items_quantity
+from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
+    ItemResponse, ItemSoldResoinse, ItemShopForm, ItemQueueForm
+from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
+    format_items_quantity
 
 from shops.models import ShopCartORM
 from shops.schemas import ShopCartItemResponse, ShopCartItemForm
 
-
-from responses import ResponseOK
+from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentShopID, CurrentUserID, UserStatusISAdmin
 from databases.sqlalchemy import SessionDep, convert_query_to_list_dicts
 
@@ -71,7 +71,16 @@ async def get_items(
 
 @items_router.delete(
     "/",
-    dependencies=[UserStatusISAdmin]
+    dependencies=[UserStatusISAdmin],
+    responses=ResponseDescriptions(
+        responses=(
+            ResponseDescription(
+                status_code=409,
+                description="Удалить элемент невозможно, " \
+                    "поскольку он связан с другими данными."
+            ),
+        )
+    ).forming()
 )
 async def del_item(
         form_data: ItemDeleteForm,
@@ -87,10 +96,10 @@ async def del_item(
         return ResponseOK(detail="item deleted")
 
     except IntegrityError:
-        return HTTPException(
+        raise HTTPException(
             status_code=409,
             detail="It is not possible to delete an item " \
-                   "because it is associated with other data."
+                "because it is associated with other data."
         )
 
 
@@ -120,7 +129,22 @@ async def get_solds(
 
 @item_shop_route.post(
     "/",
-    dependencies=[UserStatusISAdmin]
+    status_code=201,
+    dependencies=[UserStatusISAdmin],
+    responses=ResponseDescriptions(
+        responses=(
+            ResponseDescription(
+                status_code=201,
+                model=str,
+                description="Товар добавлен в магазин."
+            ),
+            ResponseDescription(
+                status_code=202,
+                model=str,
+                description="Товар добавлен в очередь."
+            )
+        )
+    ).forming(),
 )
 async def add_shop_item(
         shop_id: CurrentShopID,
@@ -156,28 +180,57 @@ async def get_shop_items(
 
 @item_shop_route.delete(
     "/",
-    dependencies=[UserStatusISAdmin]
+    dependencies=[UserStatusISAdmin],
+    responses=ResponseDescriptions(
+        responses=(
+            ResponseDescription(
+                status_code=409,
+                description="Удалить элемент невозможно, " \
+                    "поскольку он связан с другими данными."
+            ),
+        )
+    ).forming()
 )
 async def del_shop_item(
+    shop_id: CurrentShopID,
     form_data: ItemDeleteForm,
     db: SessionDep
-):
+) -> ResponseOK:
     try:
         await db.execute(
             delete(ItemShopORM)
-            .where(ItemShopORM.id == form_data.item_id)
+            .where(
+                (ItemShopORM.item_id == form_data.item_id)
+                & (ItemShopORM.shop_id == shop_id)
+            )
         )
         return ResponseOK(detail="item deleted")
 
     except IntegrityError:
-        return HTTPException(
+        raise HTTPException(
             status_code=409,
             detail="It is not possible to delete an item " \
-                   "because it is associated with other data."
+                "because it is associated with other data."
         )
 
-
-@item_shop_route.post("/queue")
+@item_shop_route.post(
+    "/queue",
+    status_code=201,
+    responses=ResponseDescriptions(
+        responses=(
+            ResponseDescription(
+                status_code=201,
+                model=str,
+                description="Товар добавлен в магазин."
+            ),
+            ResponseDescription(
+                status_code=202,
+                model=str,
+                description="Товар добавлен в очередь."
+            )
+        )
+    ).forming()
+)
 async def add_shop_queue(
         shop_id: CurrentShopID,
         form_data: ItemQueueForm,
@@ -192,7 +245,17 @@ async def add_shop_queue(
 
 
 @item_cart_route.post(
-    "/"
+    "/",
+    status_code=201,
+    responses=ResponseDescriptions(
+        responses=(
+            ResponseDescription(
+                status_code=409,
+                description="Лимит на количество товаров, " \
+                    "которые могут быть добавлены в корзину, превышен."
+            ),
+        )
+    ).forming()
 )
 async def add_cart_item(
         user_id: CurrentUserID,
@@ -215,7 +278,7 @@ async def add_cart_item(
     ):
         raise HTTPException(
             status_code=409,
-            detail="exceed available quantity"
+            detail="Exceed available quantity"
         )
 
     if item_cart:
