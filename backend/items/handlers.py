@@ -9,7 +9,7 @@ from .models import ItemORM, ItemShopORM, ItemSoldORM, ItemQueueORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemResponse, ItemSoldResoinse, ItemShopForm, ItemQueueForm
 from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
-    format_items_quantity
+    get_items_quantity
 
 from shops.models import ShopCartORM
 from shops.schemas import ShopCartItemResponse, ShopCartItemForm
@@ -60,13 +60,10 @@ async def get_items(
 
     items = await db.execute(
         select(ItemORM)
-        .options(
-            joinedload(ItemORM.items_in_shops)
-            .joinedload(ItemShopORM.queues)
-        )
+        .options(joinedload(ItemORM.items_in_shops))
     )
 
-    return format_items_quantity(items.unique().scalars().all())
+    return get_items_quantity(items.unique().scalars().all())
 
 
 @items_router.delete(
@@ -166,16 +163,12 @@ async def get_shop_items(
     """Возвращает все товары которые есть в магазине"""
 
     items = await db.execute(
-        select(ItemORM)
-        .join(ItemORM.items_in_shops)
-        .options(
-            contains_eager(ItemORM.items_in_shops)
-            .joinedload(ItemShopORM.queues)
-        )
+        select(ItemShopORM)
+        .options(joinedload(ItemShopORM.item))
         .where(ItemShopORM.shop_id == shop_id)
     )
 
-    return format_items_quantity(items.unique().scalars().all())
+    return get_items_quantity(items.unique().scalars().all())
 
 
 @item_shop_route.delete(

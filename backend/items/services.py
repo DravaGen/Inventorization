@@ -12,8 +12,8 @@ from shops.models import ShopCartORM
 from responses import ResponseOK
 
 
-def format_items_quantity(
-        items: list[ItemORM]
+def get_items_quantity(
+        items: list[ItemORM | ItemShopORM]
 ) -> list[ItemResponse]:
     """
         Возвращает список информации о товаре и его общем количестве.
@@ -23,21 +23,28 @@ def format_items_quantity(
     response = []
 
     for item in items:
-        shops_quantity = sum(
-            shop.quantity
-            for shop in item.items_in_shops
-        )
-        queue_quantity = sum(
-            queue.quantity
-            for shop in item.items_in_shops
-            for queue in shop.queues
-        )
-        total_quantity = shops_quantity + queue_quantity
+
+        if type(item) == ItemORM:
+            item_data = item
+            quantity = sum(
+                shop.quantity
+                for shop in item.items_in_shops
+            )
+
+        elif type(item) == ItemShopORM:
+            item_data = item.item
+            quantity = item.quantity
+
+        else:
+            raise ValueError(
+                "the processing of calculating the quantity of goods " \
+                "in get_items_quantity was not found."
+            )
 
         response.append(
             ItemResponse(
-                **ItemSchema.model_validate(item).model_dump(),
-                quantity=total_quantity
+                **ItemSchema.model_validate(item_data).model_dump(),
+                quantity=quantity
             )
         )
 
