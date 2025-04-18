@@ -73,8 +73,8 @@ async def get_items(
         responses=(
             ResponseDescription(
                 status_code=409,
-                description="Удалить элемент невозможно, " \
-                    "поскольку он связан с другими данными."
+                description="It is not possible to delete an item " \
+                    "because it is associated with other data."
             ),
         )
     ).forming()
@@ -133,12 +133,12 @@ async def get_solds(
             ResponseDescription(
                 status_code=201,
                 model=str,
-                description="Товар добавлен в магазин."
+                description="Item added to shop"
             ),
             ResponseDescription(
                 status_code=202,
                 model=str,
-                description="Товар добавлен в очередь."
+                description="Item added to shop queue"
             )
         )
     ).forming(),
@@ -178,8 +178,8 @@ async def get_shop_items(
         responses=(
             ResponseDescription(
                 status_code=409,
-                description="Удалить элемент невозможно, " \
-                    "поскольку он связан с другими данными."
+                description="It is not possible to delete an item " \
+                    "because it is associated with other data."
             ),
         )
     ).forming()
@@ -214,12 +214,12 @@ async def del_shop_item(
             ResponseDescription(
                 status_code=201,
                 model=str,
-                description="Товар добавлен в магазин."
+                description="Item added to shop"
             ),
             ResponseDescription(
                 status_code=202,
                 model=str,
-                description="Товар добавлен в очередь."
+                description="Item added to shop queue"
             )
         )
     ).forming()
@@ -244,8 +244,7 @@ async def add_shop_queue(
         responses=(
             ResponseDescription(
                 status_code=409,
-                description="Лимит на количество товаров, " \
-                    "которые могут быть добавлены в корзину, превышен."
+                description="Exceed available quantity"
             ),
         )
     ).forming()
