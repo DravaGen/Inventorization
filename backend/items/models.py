@@ -32,6 +32,7 @@ class ItemShopORM(Base):
 
     item = relationship("ItemORM", back_populates="items_in_shops")
     shop = relationship("ShopORM", back_populates="items_in_shops")
+    cart = relationship("ShopCartORM", back_populates="items_in_shops")
     queues = relationship("ItemQueueORM", back_populates="items_in_shops")
 
     __table_args__ = (

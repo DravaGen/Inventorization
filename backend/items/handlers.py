@@ -5,7 +5,7 @@ from sqlalchemy import insert, select, update, delete, func
 from sqlalchemy.orm import joinedload, contains_eager
 from sqlalchemy.exc import IntegrityError
 
-from .models import ItemORM, ItemShopORM, ItemSoldORM
+from .models import ItemORM, ItemShopORM, ItemSoldORM, ItemQueueORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemResponse, ItemSoldResoinse, ItemShopForm, ItemQueueForm
 from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
@@ -376,7 +376,86 @@ async def confirm_cart(
 ) -> ResponseOK:
     """Подтверждает покупку"""
 
-    raise NotImplementedError
+    cart = await db.execute(
+        select(ShopCartORM)
+        .options(
+            joinedload(ShopCartORM.items_in_shops)
+        )
+        .where(
+            (ShopCartORM.user_id == user_id)
+            & (ShopCartORM.shop_id == shop_id)
+        )
+    )
+    cart = cart.scalars().all()
+
+    if bool(cart) is False:
+        raise HTTPException(
+            status_code=404,
+            detail="The cart is empty"
+        )
+
+    try:
+        for cart_item in cart:
+            item: ItemShopORM = cart_item.items_in_shops
+            if cart_item.quantity > item.quantity:
+                raise HTTPException(
+                    status_code=409,
+                    detail="There is not enough product in the store"
+                )
+            item.quantity -= cart_item.quantity
+
+            await db.execute(
+                insert(ItemSoldORM)
+                .values(
+                    item_id = cart_item.item_id,
+                    user_id = cart_item.user_id,
+                    shop_id = cart_item.shop_id,
+                    price = item.price,
+                    quantity = cart_item.quantity,
+                    income = (item.price - item.purchase_price) * cart_item.quantity
+                )
+            )
+
+            if item.quantity == 0:
+
+                queue = await db.execute(
+                    select(ItemQueueORM)
+                    .where(
+                        (ItemQueueORM.shop_id == shop_id)
+                        & (ItemQueueORM.item_id == cart_item.item_id)
+                    )
+                    .order_by(ItemQueueORM.created_at.asc())
+                )
+                queue = queue.scalars().all()
+                queue = queue[0] if queue else None
+
+                if not queue:
+                    continue
+
+                await db.execute(
+                    update(ItemShopORM)
+                    .values(
+                        price=queue.price,
+                        quantity=queue.quantity,
+                        purchase_price=queue.purchase_price
+                    )
+                    .where(ItemShopORM.item_id == cart_item.item_id)
+                )
+                await db.delete(queue)
+
+        await db.execute(
+            delete(ShopCartORM)
+            .where(
+                (ShopCartORM.shop_id == shop_id)
+                & (ShopCartORM.user_id == user_id)
+            )
+        )
+
+    except:
+        import traceback
+        traceback.print_exc()
+        await db.rollback()
+
     return ResponseOK(detail="purchase been confirmed")
 
 

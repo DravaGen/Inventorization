@@ -47,6 +47,8 @@ class ShopCartORM(Base):
     item_id: Mapped[uuid.UUID] = mapped_column()
     quantity: Mapped[int] = mapped_column(server_default="1")
 
+    items_in_shops = relationship("ItemShopORM", back_populates="cart")
+
     __table_args__ = (
         PrimaryKeyConstraint(shop_id, user_id, item_id),
         CheckConstraint("quantity > 0", name="check_quantity_positive"),
