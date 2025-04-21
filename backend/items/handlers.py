@@ -77,7 +77,7 @@ async def get_items(
                     "because it is associated with other data."
             ),
         )
-    ).forming()
+    )
 )
 async def del_item(
         form_data: ItemDeleteForm,
@@ -141,7 +141,7 @@ async def get_solds(
                 description="Item added to shop queue"
             )
         )
-    ).forming(),
+    )
 )
 async def add_shop_item(
         shop_id: CurrentShopID,
@@ -182,7 +182,7 @@ async def get_shop_items(
                     "because it is associated with other data."
             ),
         )
-    ).forming()
+    )
 )
 async def del_shop_item(
     shop_id: CurrentShopID,
@@ -222,7 +222,7 @@ async def del_shop_item(
                 description="Item added to shop queue"
             )
         )
-    ).forming()
+    )
 )
 async def add_shop_queue(
         shop_id: CurrentShopID,
@@ -247,7 +247,7 @@ async def add_shop_queue(
                 description="Exceed available quantity"
             ),
         )
-    ).forming()
+    )
 )
 async def add_cart_item(
         user_id: CurrentUserID,

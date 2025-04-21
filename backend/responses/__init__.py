@@ -52,7 +52,12 @@ class ResponseDescriptions(BaseModel):
     responses: tuple[ResponseDescription, ...]
 
 
-    def forming(self) -> dict[int, dict]:
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.__responses = self.__forming()
+
+
+    def __forming(self) -> dict[int, dict]:
 
         response = {}
 
@@ -66,3 +71,19 @@ class ResponseDescriptions(BaseModel):
                 response[x.status_code]["model"] = x.model
 
         return response
+
+
+    def keys(self):
+        return self.__responses.keys()
+
+
+    def __getitem__(self, key: int):
+        return self.__responses[key]
+
+
+    def __iter__(self):
+        return iter(self.__responses)
+
+
+    def __len__(self):
+        return len(self.__responses)
