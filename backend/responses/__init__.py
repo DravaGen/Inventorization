@@ -1,4 +1,4 @@
-from typing import Type, TypeVar, Optional
+from typing import Type, TypeVar, Optional, Iterator
 from pydantic import BaseModel, model_validator
 from fastapi.responses import JSONResponse
 
@@ -52,8 +52,11 @@ class ResponseDescriptions(BaseModel):
     responses: tuple[ResponseDescription, ...]
 
 
-    def __init__(self, **data):
-        super().__init__(**data)
+    def __init__(
+            self,
+            responses: tuple[ResponseDescription, ...]
+    ):
+        super().__init__(responses=responses)
         self.__responses = self.__forming()
 
 
@@ -73,17 +76,21 @@ class ResponseDescriptions(BaseModel):
         return response
 
 
+    def __call__(self, *args, **kwds) -> dict[int, dict]:
+        return self.__forming()
+
+
     def keys(self):
         return self.__responses.keys()
 
 
-    def __getitem__(self, key: int):
+    def __getitem__(self, key: int) -> dict:
         return self.__responses[key]
 
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         return iter(self.__responses)
 
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__responses)
