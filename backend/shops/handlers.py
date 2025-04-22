@@ -16,6 +16,10 @@ from databases.sqlalchemy import SessionDep
 
 
 shops_router = APIRouter()
+shops_access_router = APIRouter(
+    prefix="/access",
+    tags=["Shops Access"]
+)
 
 
 @shops_router.post(
@@ -54,12 +58,6 @@ async def get_shops(
         ShopResponse.model_validate(x)
         for x in shops.scalars()
     ]
-
-
-shops_access_router = APIRouter(
-    prefix="/access",
-    tags=["Shops Access"]
-)
 
 
 @shops_access_router.get(
