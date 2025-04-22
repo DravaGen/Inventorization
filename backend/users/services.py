@@ -1,5 +1,23 @@
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from .models import UserORM
 from .schemas import UserSignupForm, UserUpdateForm
 from security.users import hash_password
+
+
+
+async def get_user(
+        email: str,
+        db: AsyncSession
+) -> UserORM | None:
+    """Повращает пользователя по email"""
+
+    user = await db.execute(
+        select(UserORM)
+        .where(UserORM.email == email)
+    )
+    return user.scalar()
 
 
 def process_user_form(
