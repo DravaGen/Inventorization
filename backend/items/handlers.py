@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from sqlalchemy import insert, select, update, delete, func
-from sqlalchemy.orm import joinedload, contains_eager
+from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 
 from .models import ItemORM, ItemShopORM, ItemSoldORM, ItemQueueORM
@@ -15,7 +15,8 @@ from shops.models import ShopCartORM
 from shops.schemas import ShopCartItemResponse, ShopCartItemForm
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
-from auth.services import CurrentShopID, CurrentUserID, UserStatusISAdmin
+from auth.services import CurrentShopID, CurrentUserID, UserStatusISOwner, \
+    UserStatusISAdmin
 from databases.sqlalchemy import SessionDep, convert_query_to_list_dicts
 
 
@@ -34,11 +35,11 @@ item_cart_route = APIRouter(
     "/",
     dependencies=[UserStatusISAdmin]
 )
-async def add_item(
+async def create_item(
         form_data: ItemInitForm,
         db: SessionDep
 ) -> ItemInitResponse:
-    """Добавляет товар и описание о нем"""
+    """Создает карточку товара"""
 
     item_id = await db.execute(
         insert(ItemORM)
@@ -56,7 +57,7 @@ async def add_item(
 async def get_items(
         db: SessionDep
 ) -> list[Optional[ItemResponse]]:
-    """Возвращает все товары"""
+    """Возвращает все карточки товаров"""
 
     items = await db.execute(
         select(ItemORM)
@@ -69,21 +70,19 @@ async def get_items(
 @items_router.delete(
     "/",
     dependencies=[UserStatusISAdmin],
-    responses=ResponseDescriptions(
-        responses=(
-            ResponseDescription(
-                status_code=409,
-                description="It is not possible to delete an item " \
-                    "because it is associated with other data."
-            ),
-        )
-    )
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=409,
+            description="It is not possible to delete an item " \
+                "because it is associated with other data."
+        ),
+    ))
 )
-async def del_item(
+async def delete_item(
         form_data: ItemDeleteForm,
         db: SessionDep
 ) -> ResponseOK:
-    """Добавляет товар и описание о нем"""
+    """Удаляет товар если у нее нет связи"""
 
     try:
         await db.execute(
@@ -102,7 +101,7 @@ async def del_item(
 
 @items_router.get(
     "/sold",
-    dependencies=[UserStatusISAdmin]
+    dependencies=[UserStatusISOwner]
 )
 async def get_solds(
         db: SessionDep,
@@ -128,20 +127,18 @@ async def get_solds(
     "/",
     status_code=201,
     dependencies=[UserStatusISAdmin],
-    responses=ResponseDescriptions(
-        responses=(
-            ResponseDescription(
-                status_code=201,
-                model=str,
-                description="Item added to shop"
-            ),
-            ResponseDescription(
-                status_code=202,
-                model=str,
-                description="Item added to shop queue"
-            )
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=201,
+            model=str,
+            description="Item added to shop"
+        ),
+        ResponseDescription(
+            status_code=202,
+            model=str,
+            description="Item added to shop queue"
         )
-    )
+    ))
 )
 async def add_shop_item(
         shop_id: CurrentShopID,
@@ -174,21 +171,21 @@ async def get_shop_items(
 @item_shop_route.delete(
     "/",
     dependencies=[UserStatusISAdmin],
-    responses=ResponseDescriptions(
-        responses=(
-            ResponseDescription(
-                status_code=409,
-                description="It is not possible to delete an item " \
-                    "because it is associated with other data."
-            ),
-        )
-    )
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=409,
+            description="It is not possible to delete an item " \
+                "because it is associated with other data."
+        ),
+    ))
 )
-async def del_shop_item(
-    shop_id: CurrentShopID,
-    form_data: ItemDeleteForm,
-    db: SessionDep
+async def delete_shop_item(
+        shop_id: CurrentShopID,
+        form_data: ItemDeleteForm,
+        db: SessionDep
 ) -> ResponseOK:
+    """Удаляет товар из магазина если у нее нет связи"""
+
     try:
         await db.execute(
             delete(ItemShopORM)
@@ -206,23 +203,22 @@ async def del_shop_item(
                 "because it is associated with other data."
         )
 
+
 @item_shop_route.post(
     "/queue",
     status_code=201,
-    responses=ResponseDescriptions(
-        responses=(
-            ResponseDescription(
-                status_code=201,
-                model=str,
-                description="Item added to shop"
-            ),
-            ResponseDescription(
-                status_code=202,
-                model=str,
-                description="Item added to shop queue"
-            )
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=201,
+            model=str,
+            description="Item added to shop."
+        ),
+        ResponseDescription(
+            status_code=202,
+            model=str,
+            description="Item added to shop queue."
         )
-    )
+    ))
 )
 async def add_shop_queue(
         shop_id: CurrentShopID,
@@ -240,14 +236,12 @@ async def add_shop_queue(
 @item_cart_route.post(
     "/",
     status_code=201,
-    responses=ResponseDescriptions(
-        responses=(
-            ResponseDescription(
-                status_code=409,
-                description="Exceed available quantity"
-            ),
-        )
-    )
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=409,
+            description="Exceed available quantity"
+        ),
+    ))
 )
 async def add_cart_item(
         user_id: CurrentUserID,
@@ -315,7 +309,14 @@ async def get_cart_items(
 
 
 @item_cart_route.delete(
-    "/"
+    "/",
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=404,
+            description="You can't delete an item from the cart " \
+                "because it's not there."
+        ),
+    ))
 )
 async def del_cart_item(
         user_id: CurrentUserID,
@@ -328,7 +329,10 @@ async def del_cart_item(
     item = await get_item_in_cart(user_id, shop_id, form_data.item_id, db)
 
     if item is None:
-        raise HTTPException(status_code=404, detail="item in cart not found")
+        raise HTTPException(
+            status_code=404,
+            detail="You can't delete an item from the cart."
+        )
 
     if item.quantity - form_data.quantity > 0:
         item.quantity -= form_data.quantity
@@ -341,7 +345,7 @@ async def del_cart_item(
 @item_cart_route.delete(
     "/all"
 )
-async def del_cart_all_items(
+async def clear_cart(
         user_id: CurrentUserID,
         shop_id: CurrentShopID,
         db: SessionDep
@@ -359,7 +363,17 @@ async def del_cart_all_items(
 
 
 @item_cart_route.post(
-    "/confirmm"
+    "/confirmm",
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=404,
+            description="The shopping cart is empty."
+        ),
+        ResponseDescription(
+            status_code=409,
+            description="There is not enough product in the store."
+        )
+    ))
 )
 async def confirm_cart(
         user_id: CurrentUserID,
@@ -383,7 +397,7 @@ async def confirm_cart(
     if bool(cart) is False:
         raise HTTPException(
             status_code=404,
-            detail="The cart is empty"
+            detail="The shopping cart is empty."
         )
 
     try:
@@ -392,7 +406,7 @@ async def confirm_cart(
             if cart_item.quantity > item.quantity:
                 raise HTTPException(
                     status_code=409,
-                    detail="There is not enough product in the store"
+                    detail="There is not enough product in the store."
                 )
             item.quantity -= cart_item.quantity
 
@@ -444,8 +458,6 @@ async def confirm_cart(
         )
 
     except:
-        import traceback
-        traceback.print_exc()
         await db.rollback()
 
     return ResponseOK(detail="purchase been confirmed")
