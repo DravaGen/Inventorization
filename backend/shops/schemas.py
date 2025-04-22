@@ -26,11 +26,18 @@ class ShopCrateResponse(ShopResponse):
     pass
 
 
-class ShopAccessResponse(BaseModel):
+class UserAccessResponse(BaseModel):
     """Схема доступа к магазинам"""
 
     user_id: UUID
     shop_ids: list[Optional[UUID]]
+
+
+class ShopAccessResponse(BaseModel):
+    """Схема доступа к магазинам"""
+
+    shop_id: UUID
+    user_ids: list[Optional[UUID]]
 
 
 class ShopAccessForm(BaseModel):

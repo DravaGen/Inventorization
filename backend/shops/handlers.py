@@ -1,15 +1,18 @@
 from typing import Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
-from sqlalchemy import insert, select, delete
+from sqlalchemy import insert, select
 
 from .models import ShopORM, ShopUserORM
 from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
-    ShopAccessResponse, ShopAccessForm
+    UserAccessResponse, ShopAccessResponse, ShopAccessForm
+from .services import grant_shop_access, check_shop_access, \
+    delete_shop_access
 
-from auth.services import CurrentUserID, UserStatusISOwner
+from responses import ResponseOK, ResponseDescriptions, ResponseDescription
+from auth.services import CurrentUserID, CurrentShopID, \
+    UserStatusISOwner, UserStatusISWorker
 from databases.sqlalchemy import SessionDep
-from responses import ResponseOK
 
 
 shops_router = APIRouter()
@@ -24,7 +27,7 @@ async def create_shop(
         form_data: ShopCrateForm,
         db: SessionDep
 ) -> ShopCrateResponse:
-    """Создает магазин. Статус OWNER"""
+    """Создает магазин"""
 
     shop = await db.execute(
         insert(ShopORM)
@@ -33,14 +36,7 @@ async def create_shop(
     )
     shop = shop.scalar()
 
-    await db.execute(
-        insert(ShopUserORM)
-        .values({
-            "user_id": user_id,
-            "shop_id": shop.id
-        })
-    )
-
+    await grant_shop_access(user_id, shop.id, db)
     return ShopCrateResponse.model_validate(shop)
 
 
@@ -51,10 +47,13 @@ async def create_shop(
 async def get_shops(
         db: SessionDep
 ) -> list[Optional[ShopResponse]]:
-    """Возвращает все магазины. Статус OWNER"""
+    """Возвращает все магазины"""
 
     shops = await db.execute(select(ShopORM))
-    return [ShopResponse.model_validate(x) for x in shops.scalars()]
+    return [
+        ShopResponse.model_validate(x)
+        for x in shops.scalars()
+    ]
 
 
 shops_access_router = APIRouter(
@@ -63,37 +62,51 @@ shops_access_router = APIRouter(
 )
 
 
-@shops_access_router.get("/")
-async def get_self_access(
-        user_id: CurrentUserID,
+@shops_access_router.get(
+    "/",
+    dependencies=[UserStatusISOwner]
+)
+async def get_access(
+        shop_id: CurrentShopID,
         db: SessionDep
-)-> ShopAccessResponse:
-    """Возвращает магазины к которым прикреплен пользователь"""
+) -> ShopAccessResponse:
+    """Возвращает пользователей которые имеют доступ в магазин"""
 
-    shops = await db.execute(
-        select(ShopUserORM.shop_id)
-        .where(ShopUserORM.user_id == user_id)
+    users = await db.execute(
+        select(ShopUserORM.user_id)
+        .where(ShopUserORM.shop_id == shop_id)
     )
     return ShopAccessResponse(
-        user_id=user_id,
-        shop_ids=shops.scalars().all()
+        shop_id=shop_id,
+        user_ids=users.scalars().all()
     )
 
 
 @shops_access_router.post(
     "/",
-    dependencies=[UserStatusISOwner]
+    dependencies=[UserStatusISOwner],
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=409,
+            description="Access rights cannot be granted " \
+                "because they have already been granted"
+        ),
+    ))
 )
-async def issue_access(
+async def grant_access(
         form_data: ShopAccessForm,
         db: SessionDep
 )-> ResponseOK:
-    """Выдает доступ к магазину. Статус OWNER"""
+    """Выдает доступ к магазину"""
 
-    await db.execute(
-        insert(ShopUserORM)
-        .values(**form_data.model_dump())
-    )
+    form_data: dict = form_data.model_dump()
+    if await check_shop_access(**form_data, db=db):
+        raise HTTPException(
+            status_code=409,
+            detail="Access rights cannot be granted"
+        )
+
+    await grant_shop_access(**form_data, db=db)
     return ResponseOK(detail="access granted")
 
 
@@ -101,20 +114,34 @@ async def issue_access(
     "/",
     dependencies=[UserStatusISOwner]
 )
-async def take_access(
+async def delete_access(
         form_data: ShopAccessForm,
         db: SessionDep
 )-> ResponseOK:
-    """Отзывает доступ к магазину. Статус OWNER"""
+    """Удаляет доступ к магазину"""
 
-    await db.execute(
-        delete(ShopUserORM)
-        .where(
-            (ShopUserORM.shop_id == form_data.shop_id)
-            & (ShopUserORM.user_id == form_data.user_id)
-        )
-    )
+    await delete_shop_access(**form_data.model_dump(), db=db)
     return ResponseOK(detail="access revoked")
+
+
+@shops_access_router.get(
+    "/self",
+    dependencies=[UserStatusISWorker]
+)
+async def get_self_access(
+        user_id: CurrentUserID,
+        db: SessionDep
+)-> UserAccessResponse:
+    """Возвращает пользователей которые прикреплены к магазину"""
+
+    shops = await db.execute(
+        select(ShopUserORM.shop_id)
+        .where(ShopUserORM.user_id == user_id)
+    )
+    return UserAccessResponse(
+        user_id=user_id,
+        shop_ids=shops.scalars().all()
+    )
 
 
 shops_router.include_router(shops_access_router)
