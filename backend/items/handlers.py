@@ -403,12 +403,14 @@ async def confirm_cart(
     try:
         for cart_item in cart:
             item: ItemShopORM = cart_item.items_in_shops
-            if cart_item.quantity > item.quantity:
+
+            try:
+                item.quantity -= cart_item.quantity
+            except:
                 raise HTTPException(
                     status_code=409,
                     detail="There is not enough product in the store."
                 )
-            item.quantity -= cart_item.quantity
 
             await db.execute(
                 insert(ItemSoldORM)
@@ -457,8 +459,9 @@ async def confirm_cart(
             )
         )
 
-    except:
+    except Exception as ex:
         await db.rollback()
+        raise ex
 
     return ResponseOK(detail="purchase been confirmed")
 
