@@ -45,18 +45,16 @@ def openapi_depends(route: BaseRoute,  dep: Dependant) -> None:
     ) else str(dep.call)
 
     if check_user_min_status.__name__ in dep_name:
-        setattr(
-            route,
-            "responses",
-            ResponseDescriptions((
-                ResponseDescription(
-                    status_code=403,
-                    model=str,
-                    description="Access is denied. " \
-                        "Privileges are less than necessary."
-                ),
-            ))()
-        )
+        responses = getattr(route, "responses")
+        descript = ResponseDescriptions((
+            ResponseDescription(
+                status_code=403,
+                model=str,
+                description="Access is denied. " \
+                    "Privileges are less than necessary."
+            ),
+        ))()
+        responses[403] = descript[403]
 
     if bool(len(dep.dependencies)):
         openapi_depends(route, dep.dependencies[0])
