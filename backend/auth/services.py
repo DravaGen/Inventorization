@@ -12,7 +12,7 @@ from jwt.exceptions import DecodeError, InvalidSignatureError, \
 
 from .jwt import JWTService
 from .schemas import AccessTokenData
-from shops.models import ShopUserORM
+from shops.models import ShopAccessORM
 from users.schemas import UserStatus, weights_user_status
 from databases.sqlalchemy import get_db
 
@@ -50,10 +50,10 @@ async def get_shop_id(
     """Возвращает shop_id и проверяет что к нему есть доступ"""
 
     exists = await db.execute(
-        select(ShopUserORM)
+        select(ShopAccessORM)
         .where(
-            (ShopUserORM.shop_id == shop_id)
-            & (ShopUserORM.user_id == user_id)
+            (ShopAccessORM.shop_id == shop_id)
+            & (ShopAccessORM.user_id == user_id)
         )
     )
 

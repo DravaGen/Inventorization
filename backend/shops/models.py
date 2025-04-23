@@ -21,12 +21,12 @@ class ShopORM(Base):
         server_default=func.now()
     )
 
-    users = relationship("UserORM", "shops_users", back_populates="shops")
+    users = relationship("UserORM", "shop_access", back_populates="shops")
     items_in_shops = relationship("ItemShopORM", back_populates="shop")
 
 
-class ShopUserORM(Base):
-    __tablename__ = "shops_users"
+class ShopAccessORM(Base):
+    __tablename__ = "shop_access"
 
     shop_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("shops.id"), primary_key=True
@@ -40,7 +40,7 @@ class ShopUserORM(Base):
 
 
 class ShopCartORM(Base):
-    __tablename__ = "shops_carts"
+    __tablename__ = "shop_cart"
 
     shop_id: Mapped[uuid.UUID] = mapped_column()
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))

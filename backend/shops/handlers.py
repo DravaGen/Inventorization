@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 
 from sqlalchemy import insert, select
 
-from .models import ShopORM, ShopUserORM
+from .models import ShopORM, ShopAccessORM
 from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
     UserAccessResponse, ShopAccessResponse, ShopAccessForm
 from .services import grant_shop_access, check_shop_access, \
@@ -71,8 +71,8 @@ async def get_access(
     """Возвращает пользователей которые имеют доступ в магазин"""
 
     users = await db.execute(
-        select(ShopUserORM.user_id)
-        .where(ShopUserORM.shop_id == shop_id)
+        select(ShopAccessORM.user_id)
+        .where(ShopAccessORM.shop_id == shop_id)
     )
     return ShopAccessResponse(
         shop_id=shop_id,
@@ -133,8 +133,8 @@ async def get_self_access(
     """Возвращает пользователей которые прикреплены к магазину"""
 
     shops = await db.execute(
-        select(ShopUserORM.shop_id)
-        .where(ShopUserORM.user_id == user_id)
+        select(ShopAccessORM.shop_id)
+        .where(ShopAccessORM.user_id == user_id)
     )
     return UserAccessResponse(
         user_id=user_id,

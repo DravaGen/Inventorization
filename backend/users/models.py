@@ -24,4 +24,4 @@ class UserORM(Base):
         server_default=func.now()
     )
 
-    shops = relationship("ShopORM", "shops_users", back_populates="users")
+    shops = relationship("ShopORM", "shop_access", back_populates="users")
