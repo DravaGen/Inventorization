@@ -5,13 +5,13 @@ from sqlalchemy import insert, select, update, delete, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 
-from .models import ItemORM, ItemShopORM, ItemSoldORM, ItemQueueORM
+from .models import ItemORM, ItemSoldORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemResponse, ItemSoldResoinse, ItemShopForm, ItemQueueForm
 from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
     get_items_quantity
 
-from shops.models import ShopCartORM
+from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
 from shops.schemas import ShopCartItemResponse, ShopCartItemForm
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
@@ -61,7 +61,7 @@ async def get_items(
 
     items = await db.execute(
         select(ItemORM)
-        .options(joinedload(ItemORM.items_in_shops))
+        .options(joinedload(ItemORM.shop_items))
     )
 
     return get_items_quantity(items.unique().scalars().all())
@@ -160,9 +160,9 @@ async def get_shop_items(
     """Возвращает все товары которые есть в магазине"""
 
     items = await db.execute(
-        select(ItemShopORM)
-        .options(joinedload(ItemShopORM.item))
-        .where(ItemShopORM.shop_id == shop_id)
+        select(ShopItemsORM)
+        .options(joinedload(ShopItemsORM.item))
+        .where(ShopItemsORM.shop_id == shop_id)
     )
 
     return get_items_quantity(items.unique().scalars().all())
@@ -188,10 +188,10 @@ async def delete_shop_item(
 
     try:
         await db.execute(
-            delete(ItemShopORM)
+            delete(ShopItemsORM)
             .where(
-                (ItemShopORM.item_id == form_data.item_id)
-                & (ItemShopORM.shop_id == shop_id)
+                (ShopItemsORM.item_id == form_data.item_id)
+                & (ShopItemsORM.shop_id == shop_id)
             )
         )
         return ResponseOK(detail="item deleted")
@@ -385,7 +385,7 @@ async def confirm_cart(
     cart = await db.execute(
         select(ShopCartORM)
         .options(
-            joinedload(ShopCartORM.items_in_shops)
+            joinedload(ShopCartORM.shop_items)
         )
         .where(
             (ShopCartORM.user_id == user_id)
@@ -402,7 +402,7 @@ async def confirm_cart(
 
     try:
         for cart_item in cart:
-            item: ItemShopORM = cart_item.items_in_shops
+            item: ShopItemsORM = cart_item.shop_items
 
             try:
                 item.quantity -= cart_item.quantity
@@ -427,12 +427,12 @@ async def confirm_cart(
             if item.quantity == 0:
 
                 queue = await db.execute(
-                    select(ItemQueueORM)
+                    select(ShopQueueORM)
                     .where(
-                        (ItemQueueORM.shop_id == shop_id)
-                        & (ItemQueueORM.item_id == cart_item.item_id)
+                        (ShopQueueORM.shop_id == shop_id)
+                        & (ShopQueueORM.item_id == cart_item.item_id)
                     )
-                    .order_by(ItemQueueORM.created_at.asc())
+                    .order_by(ShopQueueORM.created_at.asc())
                 )
                 queue = queue.scalars().all()
                 queue = queue[0] if queue else None
@@ -441,13 +441,13 @@ async def confirm_cart(
                     continue
 
                 await db.execute(
-                    update(ItemShopORM)
+                    update(ShopItemsORM)
                     .values(
                         price=queue.price,
                         quantity=queue.quantity,
                         purchase_price=queue.purchase_price
                     )
-                    .where(ItemShopORM.item_id == cart_item.item_id)
+                    .where(ShopItemsORM.item_id == cart_item.item_id)
                 )
                 await db.delete(queue)
 

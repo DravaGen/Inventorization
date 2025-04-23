@@ -22,7 +22,7 @@ class ShopORM(Base):
     )
 
     users = relationship("UserORM", "shop_access", back_populates="shops")
-    items_in_shops = relationship("ItemShopORM", back_populates="shop")
+    shop_items = relationship("ShopItemsORM", back_populates="shop")
 
 
 class ShopAccessORM(Base):
@@ -47,13 +47,57 @@ class ShopCartORM(Base):
     item_id: Mapped[uuid.UUID] = mapped_column()
     quantity: Mapped[int] = mapped_column(server_default="1")
 
-    items_in_shops = relationship("ItemShopORM", back_populates="cart")
+    shop_items = relationship("ShopItemsORM", back_populates="cart")
 
     __table_args__ = (
         PrimaryKeyConstraint(shop_id, user_id, item_id),
         CheckConstraint("quantity > 0", name="check_quantity_positive"),
         ForeignKeyConstraint(
             ["item_id", "shop_id"],
-            ["items_in_shops.item_id", "items_in_shops.shop_id"]
+            ["shop_items.item_id", "shop_items.shop_id"]
+        )
+    )
+
+
+class ShopItemsORM(Base):
+    __tablename__ = "shop_items"
+
+    item_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("items.id"))
+    shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
+    price: Mapped[int]
+    quantity: Mapped[int]
+    purchase_price: Mapped[int]
+
+    item = relationship("ItemORM", back_populates="shop_items")
+    shop = relationship("ShopORM", back_populates="shop_items")
+    cart = relationship("ShopCartORM", back_populates="shop_items")
+    queues = relationship("ShopQueueORM", back_populates="shop_items")
+
+    __table_args__ = (
+        PrimaryKeyConstraint(item_id, shop_id),
+        CheckConstraint("price > 0", name="check_price_positive"),
+        CheckConstraint("quantity >= 0", name="check_quantity")
+    )
+
+
+class ShopQueueORM(Base):
+    __tablename__ = "shop_queues"
+
+    item_id: Mapped[uuid.UUID] = mapped_column()
+    shop_id: Mapped[uuid.UUID] = mapped_column()
+    price: Mapped[int]
+    quantity: Mapped[int]
+    purchase_price: Mapped[int]
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now()
+    )
+
+    shop_items = relationship("ShopItemsORM", back_populates="queues")
+
+    __table_args__ = (
+        PrimaryKeyConstraint(item_id, shop_id, created_at),
+        ForeignKeyConstraint(
+            ["item_id", "shop_id"],
+            ["shop_items.item_id", "shop_items.shop_id"]
         )
     )

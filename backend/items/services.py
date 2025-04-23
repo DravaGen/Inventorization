@@ -4,15 +4,15 @@ from fastapi import HTTPException, status
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import ItemORM, ItemShopORM, ItemQueueORM
+from .models import ItemORM
 from .schemas import ItemSchema, ItemResponse, ItemShopForm, ItemQueueForm
 
 from responses import ResponseOK
-from shops.models import ShopCartORM
+from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
 
 
 def get_items_quantity(
-        items: list[ItemORM | ItemShopORM]
+        items: list[ItemORM | ShopItemsORM]
 ) -> list[ItemResponse]:
     """
         Возвращает список информации о товаре и его общем количестве.
@@ -27,10 +27,10 @@ def get_items_quantity(
             item_data = item
             quantity = sum(
                 shop.quantity
-                for shop in item.items_in_shops
+                for shop in item.shop_items
             )
 
-        elif type(item) == ItemShopORM:
+        elif type(item) == ShopItemsORM:
             item_data = item.item
             quantity = item.quantity
 
@@ -76,10 +76,10 @@ async def get_item_in_shop(
         item_id: UUID,
         shop_id: UUID,
         db: AsyncSession
-) -> ItemShopORM | None:
+) -> ShopItemsORM | None:
     """Возрощяет True если item есть в магазине"""
 
-    return await db.get(ItemShopORM, (item_id, shop_id))
+    return await db.get(ShopItemsORM, (item_id, shop_id))
 
 
 async def raise_if_item_in_shop_not_found(
@@ -108,7 +108,7 @@ async def add_item_shop(
     item_exists = await get_item_in_shop(item_id, shop_id, db)
 
     await db.execute(
-        insert(ItemQueueORM if item_exists else ItemShopORM)
+        insert(ShopQueueORM if item_exists else ShopItemsORM)
         .values(**form_data.model_dump(), shop_id=shop_id)
     )
 
