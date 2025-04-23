@@ -7,9 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .models import ItemORM, ItemShopORM, ItemQueueORM
 from .schemas import ItemSchema, ItemResponse, ItemShopForm, ItemQueueForm
 
-from shops.models import ShopCartORM
-
 from responses import ResponseOK
+from shops.models import ShopCartORM
 
 
 def get_items_quantity(
