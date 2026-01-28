@@ -34,6 +34,13 @@ POSTGRESQL_PASSWORD=""  # Пароль пользователя postgresql
 POSTGRESQL_HOST=""  # Хост, на котором крутится база данных
 POSTGRESQL_PORT=""  # Порт, на котором крутится база данных
 POSTGRESQL_DATABASE=""  # Имя базы данных
+
+REDIS_HOST=""  # хост Redis
+REDIS_PORT=""  # порт Redis
+
+SMTP_EMAIL=""  # email-адрес, с которого будут отправлять сообщения
+SMTP_PASSWORD=""  # пароль от email
+SMTP_PORT="" # порт SMTP-сервера
 ```
 
 
