@@ -59,7 +59,7 @@ async def login(
 
 
 @auth_router.get(
-    "/otp",
+    "/send-otp",
     status_code=202,
     responses=ResponseDescriptions((
         ResponseDescription(
