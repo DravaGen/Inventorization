@@ -3,6 +3,7 @@ from uuid import UUID
 from pydantic import BaseModel
 from config import SMTPConfig, OTPConfig
 from auth.otp import OTPService
+from redis.client import Redis
 from databases.redis import get_redis
 
 
@@ -49,15 +50,14 @@ class SMTPServer:
         self.smtp_obj.sendmail(SMTPConfig.EMAIL, email, message)
 
 
-    def send_otp_code(self, user_id: UUID, email: str) -> None:
+    def send_otp_code(self, user_id: UUID, email: str, redis: Redis) -> None:
 
-        with get_redis() as redis:
-            delay = redis.ttl(f"{user_id}:smtp_otp_delay")
+        delay = redis.ttl(f"{user_id}:smtp_otp_delay")
 
-            if delay > 0:
-                raise SMTPDelayError(delay)
+        if delay > 0:
+            raise SMTPDelayError(delay)
 
-            redis.set(f"{user_id}:smtp_otp_delay", 1, OTPConfig.DELAY)
+        redis.set(f"{user_id}:smtp_otp_delay", 1, OTPConfig.DELAY)
 
-        code = OTPService.issue_code(user_id)
+        code = OTPService.issue_code(user_id, redis)
         self.send_text(email, f"Your code: {code}")

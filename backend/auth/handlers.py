@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from redis.client import Redis
 
 from .jwt import JWTService
 from .otp import OTPService
@@ -13,6 +14,7 @@ from users.models import UserORM
 from users.services import get_user
 from security.users import validate_hash_password
 from databases.sqlalchemy import get_db
+from databases.redis import get_redis
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 
 
@@ -22,7 +24,8 @@ auth_router = APIRouter()
 @auth_router.post("/login")
 async def login(
         form_data: OAuth2PasswordRequestForm = Depends(),
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        redis: Redis = Depends(get_redis)
 ) -> AccessTokenResponse:
 
     user = await db.execute(
@@ -37,7 +40,7 @@ async def login(
             form_data.password, user.password
         )
         and not OTPService.validate_code(
-            user.id, form_data.password
+            user.id, form_data.password, redis
         )
 
     ):
@@ -72,7 +75,8 @@ async def login(
 )
 async def send_otp_code(
         email: str,
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        redis: Redis = Depends(get_redis)
 ) -> ResponseOK:
     """"""
     user = await get_user(email, db)
@@ -84,7 +88,7 @@ async def send_otp_code(
         )
 
     try:
-        SMTPServer().send_otp_code(user.id, email)
+        SMTPServer().send_otp_code(user.id, email, redis)
 
     except SMTPDelayError as error:
         return JSONResponse(

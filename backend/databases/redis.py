@@ -1,13 +1,19 @@
 from redis.client import Redis
+from typing import AsyncIterator
 from config import RedisConfig
 
 
-def get_redis() -> Redis:
+async def get_redis() -> AsyncIterator[Redis]:
     """Подключение к redis"""
 
-    cursor = Redis(
+    session = Redis(
         host=RedisConfig.HOST,
         port=RedisConfig.PORT,
         decode_responses=True,  # Переводит данные из байт-кода
     )
-    return cursor
+
+    try:
+        yield session
+
+    finally:
+        session.close()
