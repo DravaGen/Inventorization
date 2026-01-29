@@ -2,7 +2,6 @@ import random
 from uuid import UUID
 from config import OTPConfig
 from redis.client import Redis
-from databases.redis import get_redis
 
 
 class OTPService:

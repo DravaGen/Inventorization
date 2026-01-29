@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from config import SMTPConfig, OTPConfig
 from auth.otp import OTPService
 from redis.client import Redis
-from databases.redis import get_redis
 
 
 class SMTPDelayErrorResponse(BaseModel):
