@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .jwt import JWTService
 from .otp import OTPService
 from .schemas import AccessTokenData, AccessTokenResponse
-from smtp import SMTPServer, SMTPDelayError
+from smtp import SMTPServer, SMTPDelayError, SMTPDelayErrorResponse
 from users.models import UserORM
 from users.services import get_user
 from security.users import validate_hash_password
@@ -64,8 +65,9 @@ async def login(
         ),
         ResponseDescription(
             status_code=429,
+            model=SMTPDelayErrorResponse(detail="", delay=0),
             description="Too Many Requests, wait in {x} sec"
-        ),
+        )
     ))
 )
 async def send_otp_code(
@@ -85,9 +87,9 @@ async def send_otp_code(
         SMTPServer().send_otp_code(user.id, email)
 
     except SMTPDelayError as error:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail={"message": str(error), "delay": error.delay}
+            content=error.response.model_dump()
         )
 
     return ResponseOK(detail="otp code sended", status_code=202)

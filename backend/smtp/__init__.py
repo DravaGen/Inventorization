@@ -1,8 +1,14 @@
 import smtplib
 from uuid import UUID
+from pydantic import BaseModel
 from config import SMTPConfig, OTPConfig
 from auth.otp import OTPService
 from databases.redis import get_redis
+
+
+class SMTPDelayErrorResponse(BaseModel):
+    detail: str
+    delay: int
 
 
 class SMTPDelayError(Exception):
@@ -11,8 +17,20 @@ class SMTPDelayError(Exception):
         self.delay = delay
         super().__init__(*args)
 
-    def __str__(self):
+
+    @property
+    def message(self) -> str:
         return f"Too Many Requests, wait in {self.delay} sec"
+
+    def __str__(self):
+        return self.message
+
+    @property
+    def response(self) -> SMTPDelayErrorResponse:
+        return SMTPDelayErrorResponse(
+            detail=self.message,
+            delay=self.delay
+        )
 
 
 class SMTPServer:
