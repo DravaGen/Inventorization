@@ -1,6 +1,8 @@
-import smtplib
+# import smtplib
 from uuid import UUID
 from pydantic import BaseModel
+from smtplibaio import SMTP
+
 from config import SMTPConfig, OTPConfig
 from auth.otp import OTPService
 from redis.client import Redis
@@ -38,20 +40,20 @@ class SMTPDelayError(Exception):
 class SMTPServer:
 
     def __init__(self):
-        self.smtp_obj = smtplib.SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT)
-        self.smtp_obj.starttls()
-        self.smtp_obj.login(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
+        pass
 
 
-    def __del__(self):
-        self.smtp_obj.quit()
+    async def send_text(self, email: str, message: str) -> None:
+
+        client = SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT, use_aioopenssl=True)
+        await client.connect()
+        await client.starttls()
+        await client.auth(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
+        await client.sendmail(SMTPConfig.EMAIL, email, message)
+        await client.quit()
 
 
-    def send_text(self, email: str, message: str) -> None:
-        self.smtp_obj.sendmail(SMTPConfig.EMAIL, email, message)
-
-
-    def send_otp_code(self, user_id: UUID, email: str, redis: Redis) -> None:
+    async def send_otp_code(self, user_id: UUID, email: str, redis: Redis) -> None:
 
         delay = redis.ttl(f"{user_id}:smtp_otp_delay")
 
@@ -61,4 +63,4 @@ class SMTPServer:
         redis.set(f"{user_id}:smtp_otp_delay", 1, OTPConfig.DELAY)
 
         code = OTPService.issue_code(user_id, redis)
-        self.send_text(email, f"Your code: {code}")
+        await self.send_text(email, f"Your code: {code}")

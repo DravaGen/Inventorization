@@ -88,7 +88,7 @@ async def send_otp_code(
         )
 
     try:
-        SMTPServer().send_otp_code(user.id, email, redis)
+        await SMTPServer().send_otp_code(user.id, email, redis)
 
     except SMTPDelayError as error:
         return JSONResponse(
