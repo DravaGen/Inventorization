@@ -1,6 +1,7 @@
 from typing import get_type_hints
 from fastapi import FastAPI, APIRouter
 from fastapi.routing import BaseRoute
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.dependencies.models import Dependant
 from responses import ResponseOK, TextResponse, \
     ResponseDescriptions, ResponseDescription
@@ -82,3 +83,11 @@ app = FastAPI(
     debug=Config.DEBUG
 )
 app.include_router(root_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*" if Config.DEBUG else r'https?://localhost:[0-9]{1,5}'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
