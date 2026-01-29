@@ -22,8 +22,10 @@ class SMTPDelayError(Exception):
     def message(self) -> str:
         return f"Too Many Requests, wait in {self.delay} sec"
 
+
     def __str__(self):
         return self.message
+
 
     @property
     def response(self) -> SMTPDelayErrorResponse:
