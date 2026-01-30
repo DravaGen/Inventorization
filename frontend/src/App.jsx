@@ -2,11 +2,11 @@ import "./App.css"
 
 const App = () => {
   return (
-    <div id="handshake">
+    <div id="login-block">
       <div className="block">
 
         <label>Inventorization</label>
-        <div id="login_form">
+        <div id="login-form">
           <input
             type="text"
             placeholder="Введите email"
