@@ -1,30 +1,10 @@
 import "./App.css"
+import LoginBlock from "./assets/components/LoginBlock"
 
 const App = () => {
-  return (
-    <div id="login-block">
-      <div className="block">
-
-        <label>Inventorization</label>
-        <div id="login-form">
-          <input
-            type="text"
-            placeholder="Введите email"
-          />
-          <div className="inline-group">
-            <input
-              type="text"
-              placeholder="Код"
-            />
-            <button>Отправить</button>
-
-          </div>
-          <button>Войти</button>
-        </div>
-
-      </div>
-    </div>
-  )
+    return (
+        <LoginBlock />
+    )
 }
 
 export default App
