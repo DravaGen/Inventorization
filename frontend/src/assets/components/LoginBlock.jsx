@@ -8,12 +8,12 @@ const LoginBlock = () => {
 
                 <label>Вход в Inventorization</label>
                 <div id="login-form">
-                <Input type={"text"} placeholder={"Введите email"} />
-                <div className="inline-group">
-                    <Input type={"text"} placeholder={"Код"} />
-                    <Button children={"Отправить"} />
-                </div>
-                <Button children={"Войти"} />
+                    <Input type={"text"} placeholder={"Введите email"} />
+                    <div className="inline-group">
+                        <Input type={"text"} placeholder={"Код"} />
+                        <Button children={"Отправить"} />
+                    </div>
+                    <Button children={"Войти"} />
                 </div>
 
             </div>
