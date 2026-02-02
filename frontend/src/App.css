@@ -111,3 +111,43 @@ button,
 .inline-group .readonly {
     flex: 1;
 }
+
+#notifications {
+    width: 100vw;
+    z-index: 1000;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.notification {
+    width: 100%;
+    max-width: 75%;
+    background-color: #fefebe;
+
+    margin-top: 12px;
+    padding: 3px 10px;
+    border-radius: 8px;
+
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+
+}
+
+.notification-content {
+    font-size: 21px;
+    display: flex;
+    align-items: center;
+}
+
+.notification-close {
+    max-height: 32px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #fefebe;
+}
