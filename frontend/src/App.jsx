@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import "./App.css"
 import LoginBlock from "./assets/components/LoginBlock"
-import Natifications from "./assets/components/Natifications"
+import Natifications from "./assets/components/Notifications/Natifications"
 
 const App = () => {
 

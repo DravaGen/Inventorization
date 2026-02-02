@@ -1,11 +1,14 @@
 import { useEffect } from "react"
-import Button from "./Button"
+
+import "./Notifications.css"
+import Button from "../Button"
+
 
 
 const Notification = ({data, deleteNotif}) => {
 
     useEffect(() => {
-        const timeout = setTimeout(() => deleteNotif(data.id), 5000)
+        const timeout = setTimeout(() => deleteNotif(data.id), 8000)
         return () => clearTimeout(timeout)
     }, [data.id])
 
