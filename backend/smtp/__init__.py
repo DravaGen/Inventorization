@@ -45,7 +45,7 @@ class SMTPServer:
 
     async def send_text(self, email: str, message: str) -> None:
 
-        client = SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT, use_aioopenssl=True)
+        client = SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT use_aioopenssl=True)
         await client.connect()
         await client.starttls()
         await client.auth(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
@@ -60,7 +60,6 @@ class SMTPServer:
         if delay > 0:
             raise SMTPDelayError(delay)
 
-        redis.set(f"{user_id}:smtp_otp_delay", 1, OTPConfig.DELAY)
-
         code = OTPService.issue_code(user_id, redis)
         await self.send_text(email, f"Your code: {code}")
+        redis.set(f"{user_id}:smtp_otp_delay", 1, OTPConfig.DELAY)
