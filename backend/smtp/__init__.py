@@ -45,12 +45,13 @@ class SMTPServer:
 
     async def send_text(self, email: str, message: str) -> None:
 
-        client = SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT use_aioopenssl=True)
-        await client.connect()
-        await client.starttls()
-        await client.auth(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
-        await client.sendmail(SMTPConfig.EMAIL, email, message)
-        await client.quit()
+        async with SMTP(
+            f"smtp.{SMTPConfig.DOMEN}",
+            SMTPConfig.PORT, use_aioopenssl=True
+        ) as client:
+            await client.starttls()
+            await client.auth(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
+            await client.sendmail(SMTPConfig.EMAIL, email, message)
 
 
     async def send_otp_code(self, user_id: UUID, email: str, redis: Redis) -> None:
