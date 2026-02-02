@@ -6,7 +6,7 @@ const LoginBlock = () => {
         <div id="login-block">
             <div className="block">
 
-                <label>Вход в Inventorization</label>
+                <h3>Вход в Inventorization</h3>
                 <div id="login-form">
                     <Input type={"text"} placeholder={"Введите email"} />
                     <div className="inline-group">

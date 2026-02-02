@@ -29,7 +29,7 @@ div:not(input):not(textarea):not([contenteditable]) {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-.block label {
+.block h3 {
     width: 100%;
     position: relative;
     text-align: center;
@@ -41,7 +41,7 @@ div:not(input):not(textarea):not([contenteditable]) {
     margin-bottom: 20px;
 }
 
-.block > label::after {
+.block > h3::after {
     left: 0;
     bottom: 0;
 
