@@ -11,34 +11,35 @@
 .notification {
     width: 100%;
     max-width: 75%;
+    background-color: #fff;
 
     margin-top: 12px;
     padding: 3px 10px;
     border-radius: 8px;
 
+    gap: 10px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 
 }
 
-.info {
-    background-color: #2196F3;
+.notification.info {
+    border-left: 6px solid #4A90E2;
 }
 
-.warning {
-    background-color: #ff9800;
+.notification.warning {
+    border-left: 6px solid #F5A623;
 }
 
-.error {
-    background-color: #f44336;
+.notification.error {
+    border-left: 6px solid #D32F2F;
 }
 
 .notification-content {
     font-size: 21px;
-    display: flex;
-    align-items: center;
+    word-break: break-word;
 }
 
 .notification-close {
