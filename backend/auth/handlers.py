@@ -81,19 +81,14 @@ async def send_otp_code(
     """"""
     user = await get_user(email, db)
 
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+    if user:
+        try:
+            await SMTPServer().send_otp_code(user.id, email, redis)
 
-    try:
-        await SMTPServer().send_otp_code(user.id, email, redis)
-
-    except SMTPDelayError as error:
-        return JSONResponse(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            content=error.response.model_dump()
-        )
+        except SMTPDelayError as error:
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content=error.response.model_dump()
+            )
 
     return ResponseOK(detail="otp code sended", status_code=202)
