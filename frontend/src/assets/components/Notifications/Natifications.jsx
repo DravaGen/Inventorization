@@ -12,7 +12,7 @@ const Notification = ({data}) => {
     } = useContext(NotificationsContext)
 
     useEffect(() => {
-        const timeout = setTimeout(() => deleteNotification(data.id), 8000)
+        const timeout = setTimeout(() => deleteNotification(data.id), 12000)
         return () => clearTimeout(timeout)
     }, [data.id])
 

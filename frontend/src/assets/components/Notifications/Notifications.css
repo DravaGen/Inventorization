@@ -8,6 +8,23 @@
     align-items: center;
 }
 
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  3% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .notification {
     width: 100%;
     max-width: 75%;
@@ -23,6 +40,7 @@
     align-items: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 
+    animation: fadeInOut 12s ease forwards;
 }
 
 .notification.info {
