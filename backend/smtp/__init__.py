@@ -2,7 +2,7 @@ from uuid import UUID
 from pydantic import BaseModel
 from smtplib import SMTP
 
-from config import SMTPConfig, OTPConfig
+from config import SMTPConfig, OTPConfig, Config
 from auth.otp import OTPService
 from redis.client import Redis
 
@@ -44,11 +44,14 @@ class SMTPServer:
 
     async def send_text(self, email: str, message: str) -> None:
 
-        client = SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT)
-        client.starttls()
-        client.login(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
-        client.sendmail(SMTPConfig.EMAIL, email, message)
-        client.quit()
+        if (not Config.DEBUG):
+            client = SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT)
+            client.starttls()
+            client.login(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
+            client.sendmail(SMTPConfig.EMAIL, email, message)
+            client.quit()
+        else:
+            print(f"\n\nsend email message: {email} {message}\n\n")
 
 
     async def send_otp_code(self, user_id: UUID, email: str, redis: Redis) -> None:
