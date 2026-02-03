@@ -113,7 +113,8 @@ async def add_item_shop(
     )
 
     return ResponseOK(
-        status_code=202 if item_exists else 201,
+        status_code=status.HTTP_202_ACCEPTED
+            if item_exists else status.HTTP_201_CREATED,
         detail=f"Item added to {'queue' if item_exists else 'shop'}"
     )
 

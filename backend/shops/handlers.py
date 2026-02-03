@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 
 from sqlalchemy import insert, select
 
@@ -11,7 +11,7 @@ from .services import grant_shop_access, check_shop_access, \
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentUserID, CurrentShopID, \
-    UserStatusISOwner, UserStatusISWorker
+    UserStatusISOwner, UserStatusISWorker, UserStatusISAdmin
 from databases.sqlalchemy import SessionDep
 
 
@@ -62,7 +62,7 @@ async def get_shops(
 
 @shops_access_router.get(
     "/",
-    dependencies=[UserStatusISOwner]
+    dependencies=[UserStatusISAdmin]
 )
 async def get_access(
         shop_id: CurrentShopID,
@@ -85,7 +85,7 @@ async def get_access(
     dependencies=[UserStatusISOwner],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             description="Access rights cannot be granted " \
                 "because they have already been granted"
         ),
@@ -100,7 +100,7 @@ async def grant_access(
     form_data: dict = form_data.model_dump()
     if await check_shop_access(**form_data, db=db):
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Access rights cannot be granted"
         )
 

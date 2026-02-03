@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 
 from sqlalchemy import insert, update
 
@@ -19,7 +19,7 @@ users_router = APIRouter()
     dependencies=[UserStatusISOwner],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             description="You can't create a user " \
                 "because it already exists."
         ),
@@ -33,7 +33,7 @@ async def signup_user(
 
     if await get_user(form_data.email, db):
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             detail="You can't create a user"
         )
 
@@ -51,7 +51,7 @@ async def signup_user(
     dependencies=[UserStatusISOwner],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             description="You cannot update the user's data " \
                 "because he is not registered"
         ),
@@ -66,7 +66,7 @@ async def update_user(
 
     if not await get_user(email, db):
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="You cannot update the user's data"
         )
 

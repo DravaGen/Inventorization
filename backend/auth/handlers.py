@@ -60,14 +60,14 @@ async def login(
 
 @auth_router.get(
     "/send-otp",
-    status_code=202,
+    status_code=status.HTTP_202_ACCEPTED,
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             description="User not found"
         ),
         ResponseDescription(
-            status_code=429,
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             model=SMTPDelayErrorResponse(detail="", delay=0),
             description="Too Many Requests, wait in {x} sec"
         )
@@ -91,4 +91,7 @@ async def send_otp_code(
                 content=error.response.model_dump()
             )
 
-    return ResponseOK(detail="otp code sended", status_code=202)
+    return ResponseOK(
+        detail="otp code sended",
+        status_code=status.HTTP_202_ACCEPTED
+    )

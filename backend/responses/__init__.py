@@ -1,3 +1,4 @@
+from fastapi import status
 from typing import Type, TypeVar, Optional, Iterator
 from pydantic import BaseModel, model_validator
 from fastapi.responses import JSONResponse
@@ -15,7 +16,7 @@ class ResponseOK(JSONResponse):
     def __init__(
         self,
         detail: str,
-        status_code: int = 200,
+        status_code: int = status.HTTP_200_OK,
     ):
         # content = BaseResponseContent(detail) if type(detail) == str else detail
         super().__init__(

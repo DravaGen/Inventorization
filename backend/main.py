@@ -1,5 +1,5 @@
 from typing import get_type_hints
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, status
 from fastapi.routing import BaseRoute
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.dependencies.models import Dependant
@@ -49,7 +49,7 @@ def openapi_depends(route: BaseRoute,  dep: Dependant) -> None:
         responses = getattr(route, "responses")
         descript = ResponseDescriptions((
             ResponseDescription(
-                status_code=403,
+                status_code=status.HTTP_403_FORBIDDEN,
                 model=str,
                 description="Access is denied. " \
                     "Privileges are less than necessary."

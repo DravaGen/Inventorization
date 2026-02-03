@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, status, Query
 
 from sqlalchemy import insert, select, update, delete, func
 from sqlalchemy.orm import joinedload
@@ -16,7 +16,7 @@ from shops.schemas import ShopCartItemResponse, ShopCartItemForm
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentShopID, CurrentUserID, UserStatusISOwner, \
-    UserStatusISAdmin
+    UserStatusISAdmin, UserStatusISWorker
 from databases.sqlalchemy import SessionDep, convert_query_to_list_dicts
 
 
@@ -33,7 +33,7 @@ item_cart_route = APIRouter(
 
 @items_router.post(
     "/",
-    dependencies=[UserStatusISAdmin]
+    dependencies=[UserStatusISOwner]
 )
 async def create_item(
         form_data: ItemInitForm,
@@ -69,10 +69,10 @@ async def get_items(
 
 @items_router.delete(
     "/",
-    dependencies=[UserStatusISAdmin],
+    dependencies=[UserStatusISOwner],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             description="It is not possible to delete an item " \
                 "because it is associated with other data."
         ),
@@ -93,7 +93,7 @@ async def delete_item(
 
     except IntegrityError:
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             detail="It is not possible to delete an item " \
                 "because it is associated with other data."
         )
@@ -125,16 +125,16 @@ async def get_solds(
 
 @item_shop_route.post(
     "/",
-    status_code=201,
+    status_code=status.HTTP_201_CREATED,
     dependencies=[UserStatusISAdmin],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=201,
+            status_code=status.HTTP_201_CREATED,
             model=str,
             description="Item added to shop"
         ),
         ResponseDescription(
-            status_code=202,
+            status_code=status.HTTP_202_ACCEPTED,
             model=str,
             description="Item added to shop queue"
         )
@@ -151,7 +151,8 @@ async def add_shop_item(
 
 
 @item_shop_route.get(
-    "/"
+    "/",
+    dependencies=[UserStatusISWorker]
 )
 async def get_shop_items(
         shop_id: CurrentShopID,
@@ -173,7 +174,7 @@ async def get_shop_items(
     dependencies=[UserStatusISAdmin],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             description="It is not possible to delete an item " \
                 "because it is associated with other data."
         ),
@@ -198,7 +199,7 @@ async def delete_shop_item(
 
     except IntegrityError:
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             detail="It is not possible to delete an item " \
                 "because it is associated with other data."
         )
@@ -206,15 +207,16 @@ async def delete_shop_item(
 
 @item_shop_route.post(
     "/queue",
-    status_code=201,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[UserStatusISAdmin],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=201,
+            status_code=status.HTTP_201_CREATED,
             model=str,
             description="Item added to shop."
         ),
         ResponseDescription(
-            status_code=202,
+            status_code=status.HTTP_202_ACCEPTED,
             model=str,
             description="Item added to shop queue."
         )
@@ -235,10 +237,11 @@ async def add_shop_queue(
 
 @item_cart_route.post(
     "/",
-    status_code=201,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[UserStatusISWorker],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             description="Exceed available quantity"
         ),
     ))
@@ -263,7 +266,7 @@ async def add_cart_item(
         < 0
     ):
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Exceed available quantity"
         )
 
@@ -289,7 +292,7 @@ async def add_cart_item(
 
 @item_cart_route.get(
     "/",
-    dependencies=[UserStatusISAdmin]
+    dependencies=[UserStatusISWorker]
 )
 async def get_cart_items(
         user_id: CurrentUserID,
@@ -310,9 +313,10 @@ async def get_cart_items(
 
 @item_cart_route.delete(
     "/",
+    dependencies=[UserStatusISWorker],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             description="You can't delete an item from the cart " \
                 "because it's not there."
         ),
@@ -330,7 +334,7 @@ async def del_cart_item(
 
     if item is None:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="You can't delete an item from the cart."
         )
 
@@ -343,7 +347,8 @@ async def del_cart_item(
 
 
 @item_cart_route.delete(
-    "/all"
+    "/all",
+    dependencies=[UserStatusISWorker]
 )
 async def clear_cart(
         user_id: CurrentUserID,
@@ -364,13 +369,14 @@ async def clear_cart(
 
 @item_cart_route.post(
     "/confirmm",
+    dependencies=[UserStatusISWorker],
     responses=ResponseDescriptions((
         ResponseDescription(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             description="The shopping cart is empty."
         ),
         ResponseDescription(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             description="There is not enough product in the store."
         )
     ))
@@ -396,7 +402,7 @@ async def confirm_cart(
 
     if bool(cart) is False:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="The shopping cart is empty."
         )
 
@@ -408,7 +414,7 @@ async def confirm_cart(
                 item.quantity -= cart_item.quantity
             except:
                 raise HTTPException(
-                    status_code=409,
+                    status_code=status.HTTP_409_CONFLICT,
                     detail="There is not enough product in the store."
                 )
 
