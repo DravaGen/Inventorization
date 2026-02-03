@@ -3,6 +3,7 @@ import { useState } from "react"
 import "./App.css"
 import LoginBlock from "./assets/components/LoginBlock"
 import Natifications from "./assets/components/Notifications/Natifications"
+import NotificationsContext from "./assets/components/Notifications/NotificationsContext"
 
 const App = () => {
 
@@ -23,13 +24,15 @@ const App = () => {
     }
 
     return (
-        <>
-            <Natifications
-                deleteNotif={deleteNotification}
-                notifications={notifications}
-            />
+
+        <NotificationsContext.Provider value={{
+            notifications,
+            deleteNotification,
+            addNotification
+        }}>
+            <Natifications />
             <LoginBlock />
-        </>
+        </NotificationsContext.Provider>
     )
 }
 

@@ -1,14 +1,18 @@
-import { useEffect } from "react"
+import { useEffect, useContext } from "react"
 
 import "./Notifications.css"
 import Button from "../Button"
+import NotificationsContext from "./NotificationsContext"
 
 
+const Notification = ({data}) => {
 
-const Notification = ({data, deleteNotif}) => {
+    const {
+        deleteNotification
+    } = useContext(NotificationsContext)
 
     useEffect(() => {
-        const timeout = setTimeout(() => deleteNotif(data.id), 8000)
+        const timeout = setTimeout(() => deleteNotification(data.id), 8000)
         return () => clearTimeout(timeout)
     }, [data.id])
 
@@ -17,14 +21,18 @@ const Notification = ({data, deleteNotif}) => {
             <div className="notification-content">{data.text}</div>
             <Button
                 className={`notification-close ${data.type}`}
-                onClick={() => deleteNotif(data.id)}
+                onClick={() => deleteNotification(data.id)}
             >Скрыть</Button>
         </div>
     )
 }
 
 
-const Notifications = ({notifications, deleteNotif}) => {
+const Notifications = () => {
+
+    const {
+        notifications
+    } = useContext(NotificationsContext)
 
     return (
         <div id="notifications">
@@ -32,7 +40,6 @@ const Notifications = ({notifications, deleteNotif}) => {
                 (data) => <Notification
                     key={data.id}
                     data={data}
-                    deleteNotif={deleteNotif}
                 />
             )}
         </div>
