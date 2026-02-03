@@ -1,7 +1,6 @@
-# import smtplib
 from uuid import UUID
 from pydantic import BaseModel
-from smtplibaio import SMTP
+from smtplib import SMTP
 
 from config import SMTPConfig, OTPConfig
 from auth.otp import OTPService
@@ -45,13 +44,11 @@ class SMTPServer:
 
     async def send_text(self, email: str, message: str) -> None:
 
-        async with SMTP(
-            f"smtp.{SMTPConfig.DOMEN}",
-            SMTPConfig.PORT, use_aioopenssl=True
-        ) as client:
-            await client.starttls()
-            await client.auth(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
-            await client.sendmail(SMTPConfig.EMAIL, email, message)
+        client = SMTP(f"smtp.{SMTPConfig.DOMEN}", SMTPConfig.PORT)
+        client.starttls()
+        client.login(SMTPConfig.EMAIL, SMTPConfig.PASSWORD)
+        client.sendmail(SMTPConfig.EMAIL, email, message)
+        client.quit()
 
 
     async def send_otp_code(self, user_id: UUID, email: str, redis: Redis) -> None:
