@@ -21,13 +21,13 @@ const App = () => {
             text: text,
             type: type
         }])
-    })
+    }, [])
 
     const deleteNotification = useCallback((id) => {
         setNotifications(prev =>
             prev.filter(notification => notification.id !== id)
         )
-    })
+    }, [])
 
     return (
 
