@@ -10,3 +10,7 @@ div:not(input):not(textarea):not([contenteditable]) {
     user-select: none;
     cursor: default;
 }
+
+body, input, select, button, textarea {
+    font-family: sans-serif;
+}
