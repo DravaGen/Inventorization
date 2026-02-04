@@ -10,7 +10,15 @@ class AccessTokenData(BaseModel):
 
     sub: UUID  # user_id
     status: UserStatus  # user_status
-    exp: int = int(time() + 12*60*60)  # Токен действителен 12 часов
+    exp: int  # time() + sec - когда закончится токен
+
+    @classmethod
+    def create(cls, sub: UUID, status: UserStatus):
+        return cls(
+            sub=sub,
+            status=status,
+            exp=int(time() + 12*60*60)  # Токен действителен 12 часов
+        )
 
 
 class AccessTokenResponse(BaseModel):

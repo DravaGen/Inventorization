@@ -50,7 +50,7 @@ async def login(
         )
 
     access_token = JWTService.encode(
-        AccessTokenData(
+        AccessTokenData.create(
             sub=user.id, status=user.status
         ).model_dump(mode="json")
     )
