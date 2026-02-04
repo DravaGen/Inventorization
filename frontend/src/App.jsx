@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react"
 
 import "./App.css"
+import Readonly from "./assets/components/Readonly/Readonly"
 import LoginBlock from "./assets/components/Login/LoginBlock"
 import Notifications from "./assets/components/Notifications/Notifications"
 import NotificationsContext from "./assets/components/Notifications/NotificationsContext"
@@ -8,6 +9,10 @@ import NotificationsContext from "./assets/components/Notifications/Notification
 const App = () => {
 
     const [notifications, setNotifications] = useState([])
+    const login = Boolean(
+        localStorage?.user_id
+        && localStorage?.exp > new Date().getTime() / 1000
+    )
 
     const addNotification = useCallback((text, type="info") => {
         if (!text) return
@@ -32,7 +37,8 @@ const App = () => {
             addNotification
         }}>
             <Notifications />
-            <LoginBlock />
+            {!login && <LoginBlock />}
+            {login && <Readonly>user_id: {localStorage.user_id}</Readonly>}
         </NotificationsContext.Provider>
     )
 }
