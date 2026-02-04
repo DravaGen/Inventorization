@@ -7,7 +7,7 @@ import NotificationsContext from "../Notifications/NotificationsContext"
 import RestAPI from "../../../RestAPI"
 
 
-const LoginForm = () => {
+const LoginForm = ({ logining }) => {
 
     const emailInput = useRef(null)
     const codeInput = useRef(null)
@@ -64,12 +64,12 @@ const LoginForm = () => {
                         localStorage.setItem("exp", payload.exp)
                         localStorage.setItem("access_token", access_token)
 
+                        logining()
                         addNotification("Вход выполнен", "info")
                     } else {
                         addNotification(response.message, response.type)
 
                     }
-                    console.log(response.data)
                 }}
             />
         </div>

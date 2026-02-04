@@ -1,0 +1,13 @@
+header {
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+header .block {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

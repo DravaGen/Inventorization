@@ -4,13 +4,13 @@ import Block from "../Block/Block"
 import LoginForm from "./LoginForm"
 
 
-const LoginBlock = () => {
+const LoginBlock = ({ logining }) => {
 
     return (
         <div id="login-block">
             <Block>
                 <h3>Вход в Inventorization</h3>
-                <LoginForm></LoginForm>
+                <LoginForm logining={logining}></LoginForm>
             </Block>
 
         </div>
