@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react"
 
 import "./App.css"
-import LoginBlock from "./assets/components/LoginBlock"
-import Natifications from "./assets/components/Notifications/Natifications"
+import LoginBlock from "./assets/components/Login/LoginBlock"
+import Notifications from "./assets/components/Notifications/Notifications"
 import NotificationsContext from "./assets/components/Notifications/NotificationsContext"
 
 const App = () => {
@@ -31,7 +31,7 @@ const App = () => {
             deleteNotification,
             addNotification
         }}>
-            <Natifications />
+            <Notifications />
             <LoginBlock />
         </NotificationsContext.Provider>
     )

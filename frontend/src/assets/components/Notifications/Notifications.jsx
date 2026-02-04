@@ -1,7 +1,7 @@
 import { useEffect, useContext } from "react"
 
-import "./Notifications.css"
-import Button from "../Button"
+import "./index.css"
+import Button from "../Button/Button"
 import NotificationsContext from "./NotificationsContext"
 
 

@@ -56,10 +56,12 @@
 }
 
 .notification-content {
+    flex: 1;
     font-size: 21px;
     word-break: break-word;
 }
 
 .notification-close {
+    flex: 0 0 auto;
     border: 1px solid #333;
 }
