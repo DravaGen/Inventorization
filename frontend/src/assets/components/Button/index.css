@@ -5,7 +5,6 @@ button {
     border-radius: 4px;
     border: 1px solid #ccc;
     background-color: #fff;
-    flex: 1;
     transition: transform 0.1s ease, box-shadow 0.01s ease;
 }
 
