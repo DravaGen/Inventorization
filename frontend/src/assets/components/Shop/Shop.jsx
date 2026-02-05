@@ -1,10 +1,10 @@
 import "./index.css"
 import Block from "../Block/Block"
 import BlockHeader from "../Block/BlockHeader"
+import Button from "../Button/Button"
 
 
 const Shop = ({ id, name, address }) => {
-
 
     return (
         <div className="shop">
@@ -14,7 +14,14 @@ const Shop = ({ id, name, address }) => {
                     <p>{address}</p>
                     <p>{id}</p>
                 </BlockHeader>
-
+                <div className="shop-content">
+                    <Button className={"edit-button"}>Изменить</Button>
+                    <Button>Корзина</Button>
+                    <Button>Добавить товар</Button>
+                    <Button>Принять товар</Button>
+                    <Button>Выдать доступ</Button>
+                    <Button>Статистика</Button>
+                </div>
             </Block>
         </div>
     )

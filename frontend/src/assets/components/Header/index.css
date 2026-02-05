@@ -1,8 +1,8 @@
 header {
-    padding: 10px 20px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
-    min-width: 350px;
+    min-width: 300px;
 }
 
 header .block {

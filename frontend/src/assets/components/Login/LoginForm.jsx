@@ -20,7 +20,7 @@ const LoginForm = ({ logining }) => {
         <div id="login-form">
             <Input
                 id={"email"}
-                type={"text"}
+                type={"email"}
                 placeholder={"Введите email"}
                 ref={emailInput}
             />

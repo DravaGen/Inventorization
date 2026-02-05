@@ -1,5 +1,3 @@
-
-
 const SERVER_URL = "http://localhost:8000"
 const TRFNSLATION_API_ERROR = {
     "invalid email or password": "Неправильный адрес почты или пароль",
@@ -32,8 +30,19 @@ const TRFNSLATION_API_ERROR = {
     "cant connect to server": "Не удается подключиться к серверу",
     "internal server error": "Внутренняя ошибка сервера"
 }
-
 const TRFNSLATION_API_ERROR_KEYS = Object.keys(TRFNSLATION_API_ERROR)
+
+const UserStatus = Object.freeze({
+    WORKER: "worker",
+    ADMIN: "admin",
+    OWNER: "owner",
+});
+
+const weightsUserStatus = {
+    [UserStatus.WORKER]: 50,
+    [UserStatus.ADMIN]: 80,
+    [UserStatus.OWNER]: 100,
+};
 
 
 class RestAPI {
@@ -82,6 +91,13 @@ class RestAPI {
         return detail
     }
 
+    static checkUserMinStatus(userStatus, minStatus) {
+        if (weightsUserStatus[userStatus] < weightsUserStatus[minStatus]) {
+            return false
+        }
+        return true
+    }
+
     static async _makeRequest(url, args) {
         args.signal = this._timeout(5000).signal;
         // args.credentials = 'include'
@@ -113,6 +129,7 @@ class RestAPI {
             })
             .catch(() => {
                 return {
+                    ok: false,
                     status: null,
                     data: {detail: "Cant connect to server"},
                     response: null
@@ -121,6 +138,7 @@ class RestAPI {
         const response = server_response.response
 
         return {
+            ok: response?.ok,
             status: response?.status,
             data: server_response.data,
             type: this.notif_type(response),
