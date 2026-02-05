@@ -12,7 +12,6 @@ from .schemas import AccessTokenData, AccessTokenResponse
 from smtp import SMTPServer, SMTPDelayError, SMTPDelayErrorResponse
 from users.models import UserORM
 from users.services import get_user
-from security.users import validate_hash_password
 from databases.sqlalchemy import get_db
 from databases.redis import get_redis
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
@@ -36,10 +35,7 @@ async def login(
 
     if (
         user is None
-        or not validate_hash_password(
-            form_data.password, user.password
-        )
-        and not OTPService.validate_code(
+        or not OTPService.validate_code(
             user.id, form_data.password, redis
         )
 

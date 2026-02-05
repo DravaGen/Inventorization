@@ -16,7 +16,6 @@ class UserORM(Base):
         server_default=func.gen_random_uuid()
     )
     email: Mapped[str] = mapped_column(String(100), unique=True)
-    password: Mapped[str] = mapped_column(String(60))
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, values_callable=get_enum_values)
     )

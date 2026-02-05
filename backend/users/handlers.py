@@ -4,7 +4,7 @@ from sqlalchemy import insert, update
 
 from .models import UserORM
 from .schemas import UserSignupForm, UserUpdateForm, EMAIL
-from .services import get_user, process_user_form
+from .services import get_user
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import UserStatusISOwner
@@ -37,7 +37,6 @@ async def signup_user(
             detail="You can't create a user"
         )
 
-    process_user_form(form_data)
     await db.execute(
         insert(UserORM)
         .values(**form_data.model_dump())
@@ -70,7 +69,6 @@ async def update_user(
             detail="You cannot update the user's data"
         )
 
-    process_user_form(form_data)
     await db.execute(
         update(UserORM)
         .values(**form_data.model_dump(exclude_unset=True))
