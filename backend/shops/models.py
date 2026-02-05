@@ -23,6 +23,7 @@ class ShopORM(Base):
 
     users = relationship("UserORM", "shop_access", back_populates="shops")
     shop_items = relationship("ShopItemsORM", back_populates="shop")
+    shop_access = relationship("ShopAccessORM", back_populates="shop")
 
 
 class ShopAccessORM(Base):
@@ -37,6 +38,8 @@ class ShopAccessORM(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
+
+    shop = relationship("ShopORM", back_populates="shop_access")
 
 
 class ShopCartORM(Base):

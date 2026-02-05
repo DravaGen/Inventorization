@@ -2,6 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 
 from sqlalchemy import insert, select
+from sqlalchemy.orm import joinedload
 
 from .models import ShopORM, ShopAccessORM
 from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
@@ -57,6 +58,28 @@ async def get_shops(
     return [
         ShopResponse.model_validate(x)
         for x in shops.scalars()
+    ]
+
+
+@shops_router.get(
+    "/accessible",
+    dependencies=[UserStatusISWorker]
+)
+async def get_accessible_shops(
+        user_id: CurrentUserID,
+        db: SessionDep
+) -> list[ShopResponse]:
+    """Возвращает данные о магазинах к котором есть доступ"""
+
+    accesses = await db.execute(
+        select(ShopAccessORM)
+        .options(joinedload(ShopAccessORM.shop))
+        .where(ShopAccessORM.user_id == user_id)
+    )
+
+    return [
+        ShopResponse.model_validate(x.shop)
+        for x in accesses.scalars().all()
     ]
 
 
