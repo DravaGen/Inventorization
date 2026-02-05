@@ -10,7 +10,7 @@ class ShopResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
-    city: str
+    name: str
     address: str
     created_at: datetime
 
@@ -18,7 +18,7 @@ class ShopResponse(BaseModel):
 class ShopCrateForm(BaseModel):
     """Форма создания магазина"""
 
-    city: str = Field(..., max_length=32)
+    name: str = Field(..., max_length=32)
     address: str = Field(..., max_length=64)
 
 

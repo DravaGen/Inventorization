@@ -15,7 +15,7 @@ class ShopORM(Base):
         primary_key=True,
         server_default=func.gen_random_uuid()
     )
-    city: Mapped[str] = mapped_column(String(32))
+    name: Mapped[str] = mapped_column(String(32))
     address: Mapped[str] = mapped_column(String(64))
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()

@@ -27,7 +27,7 @@ def upgrade() -> None:
     )
     op.create_table('shops',
     sa.Column('id', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
-    sa.Column('city', sa.String(length=32), nullable=False),
+    sa.Column('name', sa.String(length=32), nullable=False),
     sa.Column('address', sa.String(length=64), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')
