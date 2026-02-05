@@ -17,7 +17,7 @@ const LoginForm = ({ logining }) => {
     } = useContext(NotificationsContext)
 
     return (
-        <div id="login-form">
+        <>
             <Input
                 id={"email"}
                 type={"email"}
@@ -74,7 +74,7 @@ const LoginForm = ({ logining }) => {
                     }
                 }}
             />
-        </div>
+        </>
     )
 }
 

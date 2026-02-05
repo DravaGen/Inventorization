@@ -8,9 +8,3 @@
     right: 0;
     margin: 5px;
 }
-
-.shop-content {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
