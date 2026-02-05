@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 
 import Header from "../Header/Header"
+import Shops from "../Shops/Shops"
 
 
 const CurrentPage = ({ logouting }) => {
@@ -16,6 +17,7 @@ const CurrentPage = ({ logouting }) => {
     return (
         <>
             <Header logouting={logouting}></Header>
+            <Shops></Shops>
         </>
     )
 }

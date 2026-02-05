@@ -90,10 +90,10 @@ class RestAPI {
             args.headers = {}
         }
 
-        // const accessToken = store.getState().global.accessToken;
-        // if (accessToken) {
-        //     args.headers['Authorization'] = `Bearer ${accessToken}`
-        // }
+        const accessToken = localStorage?.access_token;
+        if (accessToken) {
+            args.headers['Authorization'] = `Bearer ${accessToken}`
+        }
 
         if (args.json) {
             args.headers['Content-Type'] = 'application/json';
@@ -154,6 +154,13 @@ class RestAPI {
                 method: 'POST',
                 body: formData
             }
+        )
+    }
+
+    static async get_shops() {
+        return await this._makeRequest(
+            `${SERVER_URL}/shops/list`,
+            {method: "GET"}
         )
     }
 
