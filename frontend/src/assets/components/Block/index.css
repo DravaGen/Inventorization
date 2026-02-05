@@ -9,7 +9,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-.block h3 {
+.block .block-header {
     width: 100%;
     position: relative;
     text-align: center;
@@ -21,7 +21,7 @@
     margin-bottom: 20px;
 }
 
-.block > h3::after {
+.block > .block-header::after {
     left: 0;
     bottom: 0;
 
