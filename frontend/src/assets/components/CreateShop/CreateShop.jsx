@@ -10,11 +10,11 @@ const CreateShop = () => {
             <Block>
                 <BlockHeader>Добавить магазин</BlockHeader>
                 <Input
-                    maxlength={32}
+                    maxLength={32}
                     placeholder={"Название магазина"}
                 ></Input>
                 <Input
-                    maxlength={64}
+                    maxLength={64}
                     placeholder={"Адрес"}
                 ></Input>
                 <Button>Добавить</Button>
