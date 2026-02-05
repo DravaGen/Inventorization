@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from "react"
 import "./index.css"
 import Shop from "../Shop/Shop"
+import CreateShop from "../CreateShop/CreateShop"
 import RestAPI from "../../../RestAPI"
 import NotificationsContext from "../Notifications/NotificationsContext"
+
 
 const Shops = () => {
 
@@ -26,6 +28,7 @@ const Shops = () => {
     return (
         <div className="shops">
             {shops.map((shop) => <Shop key={shop.id} {...shop}></Shop>)}
+            <CreateShop></CreateShop>
         </div>
     )
 }
