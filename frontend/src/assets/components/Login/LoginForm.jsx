@@ -46,8 +46,9 @@ const LoginForm = ({ logining }) => {
             <Button
                 children={"Войти"}
                 onClick={async () => {
+                    const email = emailInput.current.value.trim()
                     const response = await RestAPI.login(
-                        emailInput.current.value.trim(),
+                        email,
                         codeInput.current.value.trim()
                     )
                     if (response.status == 200) {
@@ -59,6 +60,7 @@ const LoginForm = ({ logining }) => {
                         )
                         const payload = JSON.parse(payloadBase64)
 
+                        localStorage.setItem("email", email)
                         localStorage.setItem("user_id", payload.sub)
                         localStorage.setItem("status", payload.status)
                         localStorage.setItem("exp", payload.exp)

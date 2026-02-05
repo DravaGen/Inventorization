@@ -7,7 +7,9 @@ const Header = ({ logouting }) => {
     return (
         <header>
             <Block>
-                <div></div>
+                <div className="email">
+                    {localStorage.email}
+                </div>
                 <Button
                     onClick={() => {
                         logouting()

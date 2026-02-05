@@ -10,6 +10,7 @@ import NotificationsContext from "./assets/components/Notifications/Notification
 const App = () => {
 
     const [login, setLogin] = useState(
+        localStorage?.email &&
         localStorage?.status &&
         localStorage?.user_id &&
         localStorage?.access_token &&

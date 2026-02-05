@@ -11,3 +11,8 @@ header .block {
     flex-direction: row;
     justify-content: space-between;
 }
+
+header .email {
+    display: flex;
+    align-items: center;
+}
