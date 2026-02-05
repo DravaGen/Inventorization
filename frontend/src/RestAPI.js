@@ -167,7 +167,7 @@ class RestAPI {
         formData.append('password', password);
 
         return await this._makeRequest(
-            SERVER_URL + '/login',
+            `${SERVER_URL}/login`,
             {
                 method: 'POST',
                 body: formData
@@ -179,6 +179,230 @@ class RestAPI {
         return await this._makeRequest(
             `${SERVER_URL}/shops/list`,
             {method: "GET"}
+        )
+    }
+
+    static async signup_user(email, status) {
+        let formData = new FormData();
+        formData.append('email', email);
+        formData.append('status', status);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/users/`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        )
+    }
+
+    static async update_user(email, status) {
+        let formData = new FormData();
+        formData.append('status', status);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/users/?email=${email}`,
+            {
+                method: 'PATCH',
+                body: formData
+            }
+        )
+    }
+
+    static async create_shop(name, address) {
+        let formData = new FormData();
+        formData.append('name', name);
+        formData.append('address', address);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/shops/`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        )
+    }
+
+    static async get_access(shopId) {
+        return await this._makeRequest(
+            `${SERVER_URL}/shops/access/?shop_id=${shopId}`,
+            {method: 'GET'}
+        )
+    }
+
+    static async grant_access(userId, shopId) {
+        let formData = new FormData();
+        formData.append('user_id', userId);
+        formData.append('shop_id', shopId);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/shops/access/`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        )
+    }
+
+    static async delete_access(userId, shopId) {
+        let formData = new FormData();
+        formData.append('user_id', userId);
+        formData.append('shop_id', shopId);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/shops/access/`,
+            {
+                method: 'DELETE',
+                body: formData
+            }
+        )
+    }
+
+    static async get_self_access() {
+        return await this._makeRequest(
+            `${SERVER_URL}/shops/access/self`,
+            {method: 'GET'}
+        )
+    }
+
+    static async get_items() {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/`,
+            {method: 'GET'}
+        )
+    }
+
+    static async create_item(name) {
+        let formData = new FormData();
+        formData.append('name', name);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/items/`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        )
+    }
+
+    static async delete_item(itemId) {
+        let formData = new FormData();
+        formData.append('item_id', itemId);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/items/`,
+            {
+                method: 'DELETE',
+                body: formData
+            }
+        )
+    }
+
+    static async get_solds(offset, limit) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/sold?offset=${offset}&limit=${limit}`,
+            {method: 'GET'}
+        )
+    }
+
+    static async add_shop_item(shopId, itemId, price, quantity, purchasePrice) {
+        let formData = new FormData();
+        formData.append('item_id', itemId);
+        formData.append('price', price);
+        formData.append('quantity', quantity);
+        formData.append('purchase_price', purchasePrice);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        )
+    }
+
+    static async get_shop_items(shopId) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
+            {method: 'GET'}
+        )
+    }
+
+    static async delete_shop_item(shopId, itemId) {
+        let formData = new FormData();
+        formData.append('item_id', itemId);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
+            {
+                method: 'DELETE',
+                body: formData
+            }
+        )
+    }
+
+    static async add_shop_queue(shopId, itemId, price, quantity, purchasePrice) {
+        let formData = new FormData();
+        formData.append('item_id', itemId);
+        formData.append('price', price);
+        formData.append('quantity', quantity);
+        formData.append('purchase_price', purchasePrice);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/items/shop/queue?shop_id=${shopId}`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        )
+    }
+
+    static async add_cart_item(shopId, itemId, quantity) {
+        let formData = new FormData();
+        formData.append('item_id', itemId);
+        formData.append('quantity', quantity);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
+            {
+                method: 'POST',
+                body: formData
+            }
+        )
+    }
+
+    static async get_cart_items(shopId) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
+            {method: 'GET'}
+        )
+    }
+
+    static async del_cart_item(shopId, itemId, quantity) {
+        let formData = new FormData();
+        formData.append('item_id', itemId);
+        formData.append('quantity', quantity);
+
+        return await this._makeRequest(
+            `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
+            {
+                method: 'DELETE',
+                body: formData
+            }
+        )
+    }
+
+    static async clear_cart(shopId) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/cart/all?shop_id=${shopId}`,
+            {method: 'DELETE'}
+        )
+    }
+
+    static async confirm_cart(shopId) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/cart/confirm?shop_id=${shopId}`,
+            {method: 'POST'}
         )
     }
 
