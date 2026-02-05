@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +20,20 @@ async def get_user(
         .where(UserORM.email == email)
     )
     return user.scalar()
+
+
+async def get_user_by_id(
+        id: UUID,
+        db: AsyncSession
+) -> UserORM | None:
+    """Повращает пользователя по id"""
+
+    user = await db.execute(
+        select(UserORM)
+        .where(UserORM.id == id)
+    )
+    return user.scalar()
+
 
 
 def process_user_form(

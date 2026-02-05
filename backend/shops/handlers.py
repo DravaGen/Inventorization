@@ -13,6 +13,8 @@ from .services import grant_shop_access, check_shop_access, \
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentUserID, CurrentShopID, \
     UserStatusISOwner, UserStatusISWorker, UserStatusISAdmin
+from users.schemas import UserStatus
+from users.services import get_user_by_id
 from databases.sqlalchemy import SessionDep
 
 
@@ -47,40 +49,30 @@ async def create_shop(
 
 @shops_router.get(
     "/list",
-    dependencies=[UserStatusISOwner]
-)
-async def get_shops(
-        db: SessionDep
-) -> list[Optional[ShopResponse]]:
-    """Возвращает все магазины"""
-
-    shops = await db.execute(select(ShopORM))
-    return [
-        ShopResponse.model_validate(x)
-        for x in shops.scalars()
-    ]
-
-
-@shops_router.get(
-    "/accessible",
     dependencies=[UserStatusISWorker]
 )
-async def get_accessible_shops(
+async def get_shops(
         user_id: CurrentUserID,
         db: SessionDep
-) -> list[ShopResponse]:
-    """Возвращает данные о магазинах к котором есть доступ"""
+) -> list[Optional[ShopResponse]]:
+    """Возвращает все магазины в зависимости от доступа"""
 
-    accesses = await db.execute(
-        select(ShopAccessORM)
-        .options(joinedload(ShopAccessORM.shop))
-        .where(ShopAccessORM.user_id == user_id)
-    )
+    user = await get_user_by_id(user_id, db)
+    shops = []
 
-    return [
-        ShopResponse.model_validate(x.shop)
-        for x in accesses.scalars().all()
-    ]
+    if (user.status == UserStatus.OWNER):
+        shops = await db.execute(select(ShopORM))
+        shops = shops.scalars()
+    else:
+        accesses = await db.execute(
+            select(ShopAccessORM)
+            .options(joinedload(ShopAccessORM.shop))
+            .where(ShopAccessORM.user_id == user_id)
+        )
+        accesses = accesses.scalars().all()
+        shops = [accesse.shop for accesse in accesses]
+
+    return [ShopResponse.model_validate(x) for x in shops]
 
 
 @shops_access_router.get(
