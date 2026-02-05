@@ -2,6 +2,7 @@ header {
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
+    min-width: 350px;
 }
 
 header .block {
