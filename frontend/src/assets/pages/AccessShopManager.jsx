@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 
 import Manager from "../components/Manager/Manager"
 import ManagerBlock from "../components/Manager/ManagerBlock"
+import ManagerItem from "../components/Manager/ManagerItem"
 import ManagerContent from "../components/Manager/ManagerContent"
 import ManagerControlButton from "../components/Manager/ManagerControlButton"
 import Block from "../components/Block/Block"
 import BlockHeader from "../components/Block/BlockHeader"
-import Readonly from "../components/Readonly/Readonly"
 import AppContext from "../AppContext"
 import RestAPI from "../../RestAPI"
 
@@ -50,6 +50,19 @@ const AccessShopManager = () => {
         getAccessUsers()
     }, [])
 
+    const get_status_translate = useCallback((status) => {
+        switch(status) {
+            case "owner":
+                return "Владелец"
+            case "admin":
+                return "Администратор"
+            case "worker":
+                return "Работник"
+            default:
+                return status
+        }
+    }, [])
+
     return (
         <Manager>
 
@@ -58,7 +71,12 @@ const AccessShopManager = () => {
                     <BlockHeader>Работники имеющие доступ</BlockHeader>
                     <ManagerContent>
                         {accessUsers.map(
-                            (user) => <Readonly key={user.id}>{user.email}</Readonly>
+                            (user) => (
+                                <ManagerItem key={user.id} title={user.email}>
+                                    <div>id: {user.id}</div>
+                                    <div>Статус: {get_status_translate(user.status)}</div>
+                                </ManagerItem>
+                            )
                         )}
                     </ManagerContent>
                     <ManagerControlButton>Удалить</ManagerControlButton>
@@ -71,7 +89,12 @@ const AccessShopManager = () => {
                     <BlockHeader>Работники </BlockHeader>
                     <ManagerContent>
                         {allUsers.map(
-                            (user) => <Readonly key={user.id}>{user.email}</Readonly>
+                            (user) => (
+                                <ManagerItem key={user.id} title={user.email}>
+                                    <div>id: {user.id}</div>
+                                    <div>Статус: {get_status_translate(user.status)}</div>
+                                </ManagerItem>
+                            )
                         )}
                     </ManagerContent>
                     <ManagerControlButton>Переместить</ManagerControlButton>
