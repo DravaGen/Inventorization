@@ -43,6 +43,10 @@ const App = () => {
         )
     }, [])
 
+    if (!login) {
+        return <Login logining={logining}/>
+    }
+
     return (
 
         <AppContext.Provider value={{
@@ -54,18 +58,13 @@ const App = () => {
             <Routes>
                 <Route
                     path="/"
-                    element={
-                        login
-                            ? <Page logouting={logouting}/>
-                            : <Login logining={logining}/>
-                    }
+                    element={<Page logouting={logouting}/>}
                 />
                 <Route
                     path="/access/:shop_id"
                     element={<AccessShopManager />}
                 />
             </Routes>
-
         </AppContext.Provider>
     )
 }
