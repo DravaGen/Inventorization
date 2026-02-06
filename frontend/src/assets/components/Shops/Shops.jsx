@@ -25,18 +25,13 @@ const Shops = () => {
         initShops()
     }, [])
 
-    return (
-        <div className="shops">
-            {shops.map((shop) => (
-                <Shop
-                    key={shop.id}
-                    shop_id={shop.id}
-                    {...shop}
-                ></Shop>
-            ))}
-            <CreateShop></CreateShop>
-        </div>
+
+    let shops_elements = shops.map(
+        (shop) => <Shop key={shop.id} shop_id={shop.id} {...shop}/>
     )
+    shops_elements.push(<CreateShop key={"add-shop"} />)
+
+    return <div className="shops">{shops_elements}</div>
 }
 
 export default Shops
