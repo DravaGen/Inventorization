@@ -406,6 +406,20 @@ class RestAPI {
         )
     }
 
+    static async get_users(userIds) {
+        return await this._makeRequest(
+            `${SERVER_URL}/users/get`,
+            {
+                method: 'POST',
+                json: { user_ids: userIds }
+            }
+        )
+    }
+
+    static async get_all_users() {
+        return this.get_users([])
+    }
+
 }
 
 export default RestAPI;
