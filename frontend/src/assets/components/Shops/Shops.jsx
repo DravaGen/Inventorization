@@ -27,7 +27,13 @@ const Shops = () => {
 
     return (
         <div className="shops">
-            {shops.map((shop) => <Shop key={shop.id} {...shop}></Shop>)}
+            {shops.map((shop) => {
+                <Shop
+                    key={shop.id}
+                    shop_id={shop.id}
+                    {...shop}
+                ></Shop>
+            })}
             <CreateShop></CreateShop>
         </div>
     )
