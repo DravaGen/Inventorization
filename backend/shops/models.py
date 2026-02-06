@@ -21,9 +21,18 @@ class ShopORM(Base):
         server_default=func.now()
     )
 
-    users = relationship("UserORM", "shop_access", back_populates="shops")
+    users = relationship(
+        "UserORM",
+        secondary="shop_access",
+        back_populates="shops",
+        overlaps="shop_access"
+    )
     shop_items = relationship("ShopItemsORM", back_populates="shop")
-    shop_access = relationship("ShopAccessORM", back_populates="shop")
+    shop_access = relationship(
+        "ShopAccessORM",
+        back_populates="shop",
+        overlaps="users"
+    )
 
 
 class ShopAccessORM(Base):
@@ -39,7 +48,11 @@ class ShopAccessORM(Base):
         server_default=func.now()
     )
 
-    shop = relationship("ShopORM", back_populates="shop_access")
+    shop = relationship(
+        "ShopORM",
+        back_populates="shop_access",
+        overlaps="users"
+    )
 
 
 class ShopCartORM(Base):
