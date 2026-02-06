@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react"
 
 import "./App.css"
-import LoginBlock from "./assets/components/Login/LoginBlock"
-import CurrentPage from "./assets/components/CurrentPage/CurrentPage"
+import Page from "./assets/pages/Page"
+import Login from "./assets/pages/Login"
 import Notifications from "./assets/components/Notifications/Notifications"
 import NotificationsContext from "./assets/components/Notifications/NotificationsContext"
 
@@ -51,8 +51,8 @@ const App = () => {
             <Notifications />
             {
                 login
-                    ? <CurrentPage logouting={logouting}/>
-                    : <LoginBlock logining={logining}/>
+                    ? <Page logouting={logouting}/>
+                    : <Login logining={logining}/>
             }
 
         </NotificationsContext.Provider>

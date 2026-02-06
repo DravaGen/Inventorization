@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 
-import Header from "../Header/Header"
-import Shops from "../Shops/Shops"
+import Header from "../components/Header/Header"
+import Shops from "../components/Shops/Shops"
 
 
-const CurrentPage = ({ logouting }) => {
+const Page = ({ logouting }) => {
 
     useEffect(() => {
         const ttl = (localStorage.exp - new Date().getTime() / 1000)
@@ -22,4 +22,4 @@ const CurrentPage = ({ logouting }) => {
     )
 }
 
-export default CurrentPage
+export default Page
