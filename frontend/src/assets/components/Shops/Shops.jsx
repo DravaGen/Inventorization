@@ -16,6 +16,7 @@ const Shops = () => {
     useEffect(() => {
         async function initShops() {
             const response = await RestAPI.get_shops()
+            console.log(response)
             if (response.ok) {
                 setShops(response.data)
             } else {
@@ -27,13 +28,13 @@ const Shops = () => {
 
     return (
         <div className="shops">
-            {shops.map((shop) => {
+            {shops.map((shop) => (
                 <Shop
                     key={shop.id}
                     shop_id={shop.id}
                     {...shop}
                 ></Shop>
-            })}
+            ))}
             <CreateShop></CreateShop>
         </div>
     )
