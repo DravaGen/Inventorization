@@ -1,6 +1,8 @@
+from uuid import UUID
 from enum import Enum
 from typing import Annotated
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+from datetime import datetime
 
 
 email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -20,6 +22,22 @@ weights_user_status = {
     UserStatus.ADMIN: 80,
     UserStatus.OWNER: 100
 }  # Веса прав пользователей
+
+
+class GetUserRequest(BaseModel):
+    """"""
+    user_ids: list[UUID | None] = []
+
+
+class UserResponse(BaseModel):
+    """"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    email: str
+    status: UserStatus
+    created_at: datetime
 
 
 class UserSignupForm(BaseModel):

@@ -1,9 +1,11 @@
+from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 
-from sqlalchemy import insert, update
+from sqlalchemy import select, insert, update
 
 from .models import UserORM
-from .schemas import UserSignupForm, UserUpdateForm, EMAIL
+from .schemas import UserSignupForm, UserUpdateForm, EMAIL, \
+    GetUserRequest, UserResponse
 from .services import get_user
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
@@ -76,3 +78,23 @@ async def update_user(
     )
 
     return ResponseOK(detail="user updated")
+
+
+@users_router.post(
+    "/get",
+    dependencies=[UserStatusISOwner],
+)
+async def get_users(
+        db: SessionDep,
+        data: GetUserRequest
+) -> list[UserResponse]:
+    """"""
+
+    query = select(UserORM)
+
+    if data.user_ids:
+        query = query.where(UserORM.id.in_(data.user_ids))
+
+    result = await db.execute(query)
+    users = result.scalars().all()
+    return [UserResponse.model_validate(x) for x in users]
