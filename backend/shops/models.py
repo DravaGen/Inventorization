@@ -51,7 +51,7 @@ class ShopAccessORM(Base):
     shop = relationship(
         "ShopORM",
         back_populates="shop_access",
-        overlaps="users"
+        overlaps="shops,users"
     )
 
 
