@@ -49,6 +49,6 @@ async def delete_shop_access(
         delete(ShopAccessORM)
         .where(
             (ShopAccessORM.user_id == user_id)
-            % (ShopAccessORM.shop_id == shop_id)
+            & (ShopAccessORM.shop_id == shop_id)
         )
     )
