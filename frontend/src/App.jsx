@@ -7,6 +7,7 @@ import ShopsPage from "./assets/pages/ShopsPage"
 import Login from "./assets/pages/Login"
 import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
+import Header from "./assets/components/Header/Header"
 
 
 const App = () => {
@@ -65,16 +66,19 @@ const App = () => {
             {
             !login
                 ? <Login/>
-                : <Routes>
-                    <Route
-                        path="/"
-                        element={<ShopsPage />}
-                    />
-                    <Route
-                        path="/access/:shop_id"
-                        element={<AccessShopManager />}
-                    />
-                </Routes>
+                : <>
+                    <Header></Header>
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={<ShopsPage />}
+                        />
+                        <Route
+                            path="/access/:shop_id"
+                            element={<AccessShopManager />}
+                        />
+                    </Routes>
+                </>
             }
         </AppContext.Provider>
     )
