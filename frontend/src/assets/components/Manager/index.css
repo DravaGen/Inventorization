@@ -36,3 +36,61 @@
         flex-direction: column;
     }
 }
+
+.manager-item {
+    position: relative;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.manager-item-header {
+    padding: 8px 10px;
+    cursor: pointer;
+    user-select: none;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    position: relative;
+}
+
+.manager-item-header:hover {
+    background-color: #f0f0f0;
+}
+
+.manager-item.open .manager-item-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+}
+
+.manager-item-body {
+    max-height: 0;
+    overflow: hidden;
+
+    padding: 0 10px;
+    font-size: 13px;
+    color: #555;
+    opacity: 0;
+
+    transition:
+    max-height 0.25s ease,
+    padding 0.25s ease,
+    opacity 0.2s ease;
+}
+
+.manager-item.open .manager-item-body {
+    max-height: 1000px;
+    padding: 10px;
+    opacity: 1;
+}

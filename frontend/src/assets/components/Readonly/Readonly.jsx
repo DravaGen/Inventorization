@@ -1,7 +1,7 @@
 import "./index.css"
 
-const Readonly = ({ children }) => {
-    return <div className="readonly">{children}</div>
+const Readonly = ({ children, className='', ...props }) => {
+    return <div className={`readonly ${className}`} {...props}>{children}</div>
 }
 
 export default Readonly

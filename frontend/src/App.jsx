@@ -5,6 +5,7 @@ import "./App.css"
 import AppContext from "./assets/AppContext"
 import ShopsPage from "./assets/pages/ShopsPage"
 import Login from "./assets/pages/Login"
+import ItemsManager from "./assets/pages/ItemsManager"
 import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
 import Header from "./assets/components/Header/Header"
@@ -72,6 +73,10 @@ const App = () => {
                         <Route
                             path="/"
                             element={<ShopsPage />}
+                        />
+                        <Route
+                            path="/items/:shop_id"
+                            element={<ItemsManager />}
                         />
                         <Route
                             path="/access/:shop_id"

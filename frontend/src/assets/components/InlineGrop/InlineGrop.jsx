@@ -1,7 +1,7 @@
 import "./index.css"
 
-const InlineGrop = ({ children }) => {
-    return <div className="inline-group">{children}</div>
+const InlineGrop = ({ children, className='', ...props }) => {
+    return <div className={`inline-group ${className}`}>{children}</div>
 }
 
 export default InlineGrop

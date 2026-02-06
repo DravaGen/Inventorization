@@ -19,7 +19,9 @@ const Shop = ({ id, name, address }) => {
                 </BlockHeader>
                 <Button className={"edit-button"}>Изменить</Button>
                 <Button>Корзина</Button>
-                <Button>Добавить товар</Button>
+                <Button
+                    onClick={() => navigate(`/items/${id}`)}
+                >Добавить товар</Button>
                 <Button>Принять товар</Button>
                 <Button
                     onClick={() => navigate(`/access/${id}`)}
