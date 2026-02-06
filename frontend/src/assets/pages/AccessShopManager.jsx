@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 
 import Manager from "../components/Manager/Manager"
 import ManagerBlock from "../components/Manager/ManagerBlock"
@@ -6,9 +7,15 @@ import ManagerContent from "../components/Manager/ManagerContent"
 import ManagerControlButton from "../components/Manager/ManagerControlButton"
 import Block from "../components/Block/Block"
 import BlockHeader from "../components/Block/BlockHeader"
+import Readonly from "../components/Readonly/Readonly"
+import NotificationsContext from "../components/Notifications/NotificationsContext"
+import RestAPI from "../../RestAPI"
 
 
-const AccessShopManager = ({ shop_id }) => {
+const AccessShopManager = () => {
+    const {
+        shop_id
+    } = useParams()
 
     const {
         addNotification

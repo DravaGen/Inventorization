@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom"
+
 import "./index.css"
 import Block from "../Block/Block"
 import BlockHeader from "../Block/BlockHeader"
@@ -5,6 +7,7 @@ import Button from "../Button/Button"
 
 
 const Shop = ({ id, name, address }) => {
+    const navigate = useNavigate()
 
     return (
         <div className="shop">
@@ -18,7 +21,9 @@ const Shop = ({ id, name, address }) => {
                 <Button>Корзина</Button>
                 <Button>Добавить товар</Button>
                 <Button>Принять товар</Button>
-                <Button>Выдать доступ</Button>
+                <Button
+                    onClick={() => navigate(`/access/${id}`)}
+                >Выдать доступ</Button>
                 <Button>Статистика</Button>
             </Block>
         </div>

@@ -16,7 +16,6 @@ const Shops = () => {
     useEffect(() => {
         async function initShops() {
             const response = await RestAPI.get_shops()
-            console.log(response)
             if (response.ok) {
                 setShops(response.data)
             } else {

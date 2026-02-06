@@ -1,8 +1,10 @@
 import { useState, useCallback } from "react"
+import { Routes, Route } from "react-router-dom"
 
 import "./App.css"
 import Page from "./assets/pages/Page"
 import Login from "./assets/pages/Login"
+import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
 import NotificationsContext from "./assets/components/Notifications/NotificationsContext"
 
@@ -49,11 +51,20 @@ const App = () => {
             addNotification
         }}>
             <Notifications />
-            {
-                login
-                    ? <Page logouting={logouting}/>
-                    : <Login logining={logining}/>
-            }
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        login
+                            ? <Page logouting={logouting}/>
+                            : <Login logining={logining}/>
+                    }
+                />
+                <Route
+                    path="/access/:shop_id"
+                    element={<AccessShopManager />}
+                />
+            </Routes>
 
         </NotificationsContext.Provider>
     )
