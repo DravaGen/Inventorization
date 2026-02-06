@@ -1,9 +1,17 @@
+import { useContext } from "react"
+
 import "./index.css"
 import Block from "../Block/Block"
 import Button from "../Button/Button"
+import AppContext from "../../AppContext"
 
 
-const Header = ({ logouting }) => {
+const Header = () => {
+
+    const {
+        logouting
+    } = useContext(AppContext)
+
     return (
         <header>
             <Block>

@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { Routes, Route } from "react-router-dom"
 
 import "./App.css"
 import AppContext from "./assets/AppContext"
-import Page from "./assets/pages/Page"
+import ShopsPage from "./assets/pages/ShopsPage"
 import Login from "./assets/pages/Login"
 import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
@@ -43,28 +43,39 @@ const App = () => {
         )
     }, [])
 
-    if (!login) {
-        return <Login logining={logining}/>
-    }
+    useEffect(() => {
+        if (!login) return
+
+        const ttl = (localStorage.exp - new Date().getTime() / 1000)
+        const interval = setTimeout(logouting,
+            (ttl > 0 ? ttl : 0) * 1000
+        )
+        return () => {clearTimeout(interval)}
+    }, [login, logouting])
 
     return (
-
         <AppContext.Provider value={{
             notifications,
             deleteNotification,
-            addNotification
+            addNotification,
+            logining,
+            logouting
         }}>
             <Notifications />
-            <Routes>
-                <Route
-                    path="/"
-                    element={<Page logouting={logouting}/>}
-                />
-                <Route
-                    path="/access/:shop_id"
-                    element={<AccessShopManager />}
-                />
-            </Routes>
+            {
+            !login
+                ? <Login/>
+                : <Routes>
+                    <Route
+                        path="/"
+                        element={<ShopsPage />}
+                    />
+                    <Route
+                        path="/access/:shop_id"
+                        element={<AccessShopManager />}
+                    />
+                </Routes>
+            }
         </AppContext.Provider>
     )
 }

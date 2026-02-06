@@ -1,4 +1,4 @@
-import { useRef, useContext } from "react"
+import { useContext, useRef } from "react"
 
 import Input from "../Input/Input"
 import Button from "../Button/Button"
@@ -7,14 +7,15 @@ import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
 
 
-const LoginForm = ({ logining }) => {
+const LoginForm = () => {
+
+    const {
+        logining,
+        addNotification
+    } = useContext(AppContext)
 
     const emailInput = useRef(null)
     const codeInput = useRef(null)
-
-    const {
-        addNotification
-    } = useContext(AppContext)
 
     return (
         <>

@@ -3,13 +3,13 @@ import LoginForm from "../components/Login/LoginForm"
 import Block from "../components/Block/Block"
 import BlockHeader from "../components/Block/BlockHeader"
 
-const Login = ({ logining }) => {
+const Login = () => {
 
     return (
         <LoginBlock>
             <Block>
                 <BlockHeader>Вход в Inventorization</BlockHeader>
-                <LoginForm logining={logining}></LoginForm>
+                <LoginForm></LoginForm>
             </Block>
         </LoginBlock>
     )
