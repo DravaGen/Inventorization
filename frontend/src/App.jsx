@@ -2,11 +2,11 @@ import { useState, useCallback } from "react"
 import { Routes, Route } from "react-router-dom"
 
 import "./App.css"
+import AppContext from "./assets/AppContext"
 import Page from "./assets/pages/Page"
 import Login from "./assets/pages/Login"
 import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
-import NotificationsContext from "./assets/components/Notifications/NotificationsContext"
 
 
 const App = () => {
@@ -45,7 +45,7 @@ const App = () => {
 
     return (
 
-        <NotificationsContext.Provider value={{
+        <AppContext.Provider value={{
             notifications,
             deleteNotification,
             addNotification
@@ -66,7 +66,7 @@ const App = () => {
                 />
             </Routes>
 
-        </NotificationsContext.Provider>
+        </AppContext.Provider>
     )
 }
 

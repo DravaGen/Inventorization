@@ -3,7 +3,7 @@ import { useRef, useContext } from "react"
 import Input from "../Input/Input"
 import Button from "../Button/Button"
 import InlineGrop from "../InlineGrop/InlineGrop"
-import NotificationsContext from "../Notifications/NotificationsContext"
+import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
 
 
@@ -14,7 +14,7 @@ const LoginForm = ({ logining }) => {
 
     const {
         addNotification
-    } = useContext(NotificationsContext)
+    } = useContext(AppContext)
 
     return (
         <>

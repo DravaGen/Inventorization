@@ -2,14 +2,14 @@ import { useEffect, useContext } from "react"
 
 import "./index.css"
 import Button from "../Button/Button"
-import NotificationsContext from "./NotificationsContext"
+import AppContext from "../../AppContext"
 
 
 const Notification = ({data}) => {
 
     const {
         deleteNotification
-    } = useContext(NotificationsContext)
+    } = useContext(AppContext)
 
     useEffect(() => {
         const timeout = setTimeout(() => deleteNotification(data.id), 12000)
@@ -32,7 +32,7 @@ const Notifications = () => {
 
     const {
         notifications
-    } = useContext(NotificationsContext)
+    } = useContext(AppContext)
 
     return (
         <div id="notifications">

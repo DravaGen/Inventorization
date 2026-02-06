@@ -8,7 +8,7 @@ import ManagerControlButton from "../components/Manager/ManagerControlButton"
 import Block from "../components/Block/Block"
 import BlockHeader from "../components/Block/BlockHeader"
 import Readonly from "../components/Readonly/Readonly"
-import NotificationsContext from "../components/Notifications/NotificationsContext"
+import AppContext from "../AppContext"
 import RestAPI from "../../RestAPI"
 
 
@@ -19,7 +19,7 @@ const AccessShopManager = () => {
 
     const {
         addNotification
-    } = useContext(NotificationsContext)
+    } = useContext(AppContext)
 
     const [allUsers, setAllUsers] = useState([])
     const [accessUsers, setAccessUsers] = useState([])

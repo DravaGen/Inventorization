@@ -2,8 +2,8 @@ import { useContext, useEffect, useState } from "react"
 import "./index.css"
 import Shop from "../Shop/Shop"
 import CreateShop from "../CreateShop/CreateShop"
+import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
-import NotificationsContext from "../Notifications/NotificationsContext"
 
 
 const Shops = () => {
@@ -11,7 +11,7 @@ const Shops = () => {
     const [shops, setShops] = useState([])
     const {
         addNotification
-    } = useContext(NotificationsContext)
+    } = useContext(AppContext)
 
     useEffect(() => {
         async function initShops() {
