@@ -8,6 +8,7 @@ import Login from "./assets/pages/Login"
 import ItemsManager from "./assets/pages/ItemsManager"
 import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
+import QrCodeReader from "./assets/components/QrCodeReader/QrCodeReader"
 import Header from "./assets/components/Header/Header"
 
 
@@ -21,6 +22,8 @@ const App = () => {
         localStorage?.exp > new Date().getTime() / 1000
     )
     const [notifications, setNotifications] = useState([])
+    const [openQrCodeReader, setOpenQrCodeReader] = useState(false)
+    const [dataQrCodeReader, setDataQrCodeReader] = useState(null)
 
     const logining = useCallback(() => {
         setLogin(true)
@@ -61,9 +64,14 @@ const App = () => {
             deleteNotification,
             addNotification,
             logining,
-            logouting
+            logouting,
+            openQrCodeReader,
+            setOpenQrCodeReader,
+            dataQrCodeReader,
+            setDataQrCodeReader
         }}>
             <Notifications />
+            <QrCodeReader />
             {
             !login
                 ? <Login/>

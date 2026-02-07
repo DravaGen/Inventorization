@@ -1,0 +1,18 @@
+#qr-code-reader {
+    background-color: rgb(51, 51, 51, 0.4);
+
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    z-index: 100000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.qr-code-reader-hide {
+    visibility: hidden;
+}
