@@ -12,6 +12,7 @@
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-qr-barcode-scanner": "^2.1.23",
     "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
