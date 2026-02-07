@@ -6,7 +6,7 @@ body, html {
     background: #f0f0f0;
 }
 
-#root {
+#root:not(:has(#login-block)) {
     padding: 20px;
 }
 
