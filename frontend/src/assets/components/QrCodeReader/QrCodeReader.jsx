@@ -9,14 +9,11 @@ import "./index.css"
 
 const QrCodeReader = () => {
 
-
     const {
         openQrCodeReader,
         setOpenQrCodeReader,
         setDataQrCodeReader
     } = useContext(AppContext)
-
-
 
     return (
         <div id="qr-code-reader" className={!openQrCodeReader ? "qr-code-reader-hide" : ""}>
@@ -25,7 +22,7 @@ const QrCodeReader = () => {
                     openQrCodeReader &&
                     <BarcodeScanner
                         onUpdate={(error, result) => {
-                            setDataQrCodeReader(result ? result : null)
+                            result ? setDataQrCodeReader(result) : null
                             result ? setOpenQrCodeReader(false) : null
                         }}
                         onError={(error) => {setDataQrCodeReader(error)}}
