@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react"
+import { useContext, useEffect, useRef } from "react"
 
 import Input from "../Input/Input"
 import Button from "../Button/Button"
@@ -11,20 +11,34 @@ const LoginForm = () => {
 
     const {
         logining,
-        addNotification
+        addNotification,
+        setOpenQrCodeReader,
+        dataQrCodeReader,
+        setDataQrCodeReader
     } = useContext(AppContext)
 
     const emailInput = useRef(null)
     const codeInput = useRef(null)
 
+    useEffect(() => {
+        if (!dataQrCodeReader) return
+        emailInput.current.value = dataQrCodeReader
+        setDataQrCodeReader(null)
+    }, [dataQrCodeReader])
+
     return (
         <>
-            <Input
-                id={"email"}
-                type={"email"}
-                placeholder={"Введите email"}
-                ref={emailInput}
-            />
+            <InlineGrop>
+                <Input
+                    id={"email"}
+                    type={"email"}
+                    placeholder={"Введите email"}
+                    ref={emailInput}
+                />
+                <Button
+                    onClick={() => setOpenQrCodeReader(true)}
+                >QR</Button>
+            </InlineGrop>
 
             <InlineGrop>
                 <Input
