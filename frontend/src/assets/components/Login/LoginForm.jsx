@@ -21,9 +21,16 @@ const LoginForm = () => {
     const codeInput = useRef(null)
 
     useEffect(() => {
-        if (!dataQrCodeReader) return
-        emailInput.current.value = dataQrCodeReader
-        setDataQrCodeReader(null)
+        async function loginAboutQrCode() {
+            if (!dataQrCodeReader) return
+            emailInput.current.value = dataQrCodeReader
+            const response = await RestAPI.sendOtp(
+                emailInput.current.value.trim()
+            )
+            addNotification(response.message, response.type)
+            setDataQrCodeReader(null)
+        }
+        loginAboutQrCode()
     }, [dataQrCodeReader])
 
     return (
