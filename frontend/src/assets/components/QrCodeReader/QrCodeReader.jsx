@@ -25,7 +25,6 @@ const QrCodeReader = () => {
                             result ? setDataQrCodeReader(result) : null
                             result ? setOpenQrCodeReader(false) : null
                         }}
-                        onError={(error) => {setDataQrCodeReader(error)}}
                         facingMode="environment"
                     />
                 }
