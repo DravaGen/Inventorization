@@ -4,7 +4,6 @@ from typing import Callable, Annotated
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from jwt.exceptions import DecodeError, InvalidSignatureError, \
@@ -12,8 +11,9 @@ from jwt.exceptions import DecodeError, InvalidSignatureError, \
 
 from .jwt import JWTService
 from .schemas import AccessTokenData
-from shops.models import ShopAccessORM
+from users.services import get_user_by_id
 from users.schemas import UserStatus, weights_user_status
+from shops.services import check_shop_access
 from databases.sqlalchemy import get_db
 
 
@@ -49,15 +49,12 @@ async def get_shop_id(
 ) -> UUID:
     """Возвращает shop_id и проверяет что к нему есть доступ"""
 
-    exists = await db.execute(
-        select(ShopAccessORM)
-        .where(
-            (ShopAccessORM.shop_id == shop_id)
-            & (ShopAccessORM.user_id == user_id)
-        )
+    access = (
+        await check_shop_access(user_id, shop_id, db)
+        or (await get_user_by_id(user_id, db)).status == UserStatus.OWNER
     )
 
-    if not exists.scalar():
+    if not access:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="not shop access"
