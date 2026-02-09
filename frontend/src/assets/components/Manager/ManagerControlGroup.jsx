@@ -1,8 +1,8 @@
-import InlineGrop from "../InlineGrop/InlineGrop"
+import InlineGroup from "../InlineGroup/InlineGroup"
 import "./index.css"
 
 const ManagerControlGroup = ({ children }) => {
-    return <InlineGrop className="control-button">{children}</InlineGrop>
+    return <InlineGroup className="control-button">{children}</InlineGroup>
 }
 
 export default ManagerControlGroup

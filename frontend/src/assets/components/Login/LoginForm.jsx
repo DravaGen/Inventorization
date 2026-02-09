@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef } from "react"
 
 import Input from "../Input/Input"
 import Button from "../Button/Button"
-import InlineGrop from "../InlineGrop/InlineGrop"
+import InlineGroup from "../InlineGroup/InlineGroup"
 import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
 
@@ -35,7 +35,7 @@ const LoginForm = () => {
 
     return (
         <>
-            <InlineGrop>
+            <InlineGroup>
                 <Input
                     id={"email"}
                     type={"email"}
@@ -45,9 +45,9 @@ const LoginForm = () => {
                 <Button
                     onClick={() => setOpenQrCodeReader(true)}
                 >QR</Button>
-            </InlineGrop>
+            </InlineGroup>
 
-            <InlineGrop>
+            <InlineGroup>
                 <Input
                     id={"code"}
                     type={"text"}
@@ -63,7 +63,7 @@ const LoginForm = () => {
                         addNotification(response.message, response.type)
                     }}
                 />
-            </InlineGrop>
+            </InlineGroup>
 
             <Button
                 children={"Войти"}
