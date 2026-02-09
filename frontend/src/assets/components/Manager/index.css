@@ -37,11 +37,23 @@
     }
 }
 
+.manager-item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.manager-item-row > input[type="checkbox"] {
+    transform: scale(1.4);
+}
+
 .manager-item {
     position: relative;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     background: #fafafa;
+    width: 100%;
 }
 
 .manager-item-header {
