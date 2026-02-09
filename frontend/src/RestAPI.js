@@ -84,11 +84,14 @@ class RestAPI {
             return null
         }
 
-        if (TRFNSLATION_API_ERROR_KEYS.includes(detail.toLowerCase())) {
+        if (
+            typeof detail == "string"
+            && TRFNSLATION_API_ERROR_KEYS.includes(detail.toLowerCase())
+        ) {
             return TRFNSLATION_API_ERROR[detail.toLowerCase()]
         }
 
-        return detail
+        return JSON.stringify(detail)
     }
 
     static checkUserMinStatus(userStatus, minStatus) {
@@ -231,15 +234,11 @@ class RestAPI {
     }
 
     static async grant_access(userId, shopId) {
-        let formData = new FormData();
-        formData.append('user_id', userId);
-        formData.append('shop_id', shopId);
-
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/`,
             {
                 method: 'POST',
-                body: formData
+                data: {userId, shopId}
             }
         )
     }
