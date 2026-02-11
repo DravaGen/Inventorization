@@ -238,21 +238,25 @@ class RestAPI {
             `${SERVER_URL}/shops/access/`,
             {
                 method: 'POST',
-                data: {userId, shopId}
+                json: {
+                    user_id: userId,
+                    shop_id: shopId
+                }
             }
         )
     }
 
     static async delete_access(userId, shopId) {
         let formData = new FormData();
-        formData.append('user_id', userId);
-        formData.append('shop_id', shopId);
 
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/`,
             {
                 method: 'DELETE',
-                body: formData
+                json: {
+                    user_id: userId,
+                    shop_id: shopId
+                }
             }
         )
     }

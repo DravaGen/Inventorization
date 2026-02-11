@@ -1,7 +1,7 @@
 import "./index.css"
 
-const ManagerBlock = ({ children }) => {
-    return <div className="manager-block">{children}</div>
+const ManagerBlock = ({ children, ...props}) => {
+    return <div className="manager-block" {...props}>{children}</div>
 }
 
 export default ManagerBlock
