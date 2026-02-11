@@ -47,6 +47,19 @@ const weightsUserStatus = {
 
 class RestAPI {
 
+    static _add_notif = (message, type) => {}
+    static _old_notif_message = null
+
+    static set_add_notif(fn) {
+        this._add_notif = fn
+    }
+
+    static send_notif(message, type) {
+        if (this._old_notif_message == message) return
+        this._add_notif(message, type)
+        this._old_notif_message = message
+    }
+
     static async handleError(error) {
         const body = await error.text();
 
@@ -60,38 +73,6 @@ class RestAPI {
             // Unknown errors
             return error;
         }
-    }
-
-    static notif_type(response) {
-        const status = response?.status
-
-        if (response?.ok) {
-            return "info"
-        }
-
-        if ([404, 409].includes(status)) {
-            return "warning"
-        }
-
-        return "error"
-
-    }
-
-    static notif_message(response_data) {
-        const detail = response_data?.detail
-
-        if (!detail) {
-            return null
-        }
-
-        if (
-            typeof detail == "string"
-            && TRFNSLATION_API_ERROR_KEYS.includes(detail.toLowerCase())
-        ) {
-            return TRFNSLATION_API_ERROR[detail.toLowerCase()]
-        }
-
-        return JSON.stringify(detail)
     }
 
     static checkUserMinStatus(userStatus, minStatus) {
@@ -120,33 +101,27 @@ class RestAPI {
             delete args.json;
         }
 
-        const server_response = await fetch(url, args)
+        let ok = false
+        let data = undefined
+
+        await fetch(url, args)
             .then(async (response) => {
-                let obj = {response: response}
                 if (response.ok) {
-                    obj.data = await response.json()
+                    ok = true
+                    data = await response.json()
                 } else {
-                    obj.data = await this.handleError(response)
+                    data = await this.handleError(response)
                 }
-                return obj
             })
             .catch(() => {
-                return {
-                    ok: false,
-                    status: null,
-                    data: {detail: "Cant connect to server"},
-                    response: null
-                }
+                data = {detail: "Cant connect to server"}
             })
-        const response = server_response.response
 
-        return {
-            ok: response?.ok,
-            status: response?.status,
-            data: server_response.data,
-            type: this.notif_type(response),
-            message: this.notif_message(server_response.data)
+        if (!ok) {
+            this.send_notif(JSON.stringify(data), "error")
         }
+
+        return [ok, data]
 
     }
 

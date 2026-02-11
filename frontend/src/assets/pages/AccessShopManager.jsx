@@ -29,13 +29,12 @@ const AccessShopManager = () => {
     const otherBlock = useRef(null)
 
     const getAccessUsers = useCallback(async (shop_id) => {
-        let response = await RestAPI.get_access(shop_id)
-        const user_ids = response.ok ? response.data.user_ids : []
+        let [ok_access, access] = await RestAPI.get_access(shop_id)
+        const user_ids = ok_access ? access.user_ids : []
         if (user_ids.length == 0) return []
 
-        response = await RestAPI.get_users(user_ids)
-        const users_data = response.ok ? response.data : []
-        return users_data
+        let [ok_users_data, users_data] = await RestAPI.get_users(user_ids)
+        return ok_users_data ? users_data : []
     }, [])
 
     const filterOtherUsers = useCallback((all_users, access_users) => {
@@ -45,8 +44,8 @@ const AccessShopManager = () => {
 
     const getOtherUsers = useCallback(async (shop_id) => {
         const access_users = await getAccessUsers(shop_id)
-        const response = await RestAPI.get_all_users()
-        const all_users = response.ok ? response.data : []
+        const [ok, response] = await RestAPI.get_all_users()
+        const all_users = ok ? response : []
         return filterOtherUsers(all_users, access_users)
     }, [])
 

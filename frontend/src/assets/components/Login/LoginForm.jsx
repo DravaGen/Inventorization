@@ -24,10 +24,10 @@ const LoginForm = () => {
         async function loginAboutQrCode() {
             if (!dataQrCodeReader) return
             emailInput.current.value = dataQrCodeReader
-            const response = await RestAPI.sendOtp(
+            const [ok, ] = await RestAPI.sendOtp(
                 emailInput.current.value.trim()
             )
-            addNotification(response.message, response.type)
+            ok && addNotification("Код отправлен")
             setDataQrCodeReader(null)
         }
         loginAboutQrCode()
@@ -57,10 +57,10 @@ const LoginForm = () => {
                 <Button
                     children={"Отправить код"}
                     onClick={async () => {
-                        const response = await RestAPI.sendOtp(
+                        const [ok, ] = await RestAPI.sendOtp(
                             emailInput.current.value.trim()
                         )
-                        addNotification(response.message, response.type)
+                        ok && addNotification("Код отправлен")
                     }}
                 />
             </InlineGroup>
@@ -69,31 +69,28 @@ const LoginForm = () => {
                 children={"Войти"}
                 onClick={async () => {
                     const email = emailInput.current.value.trim()
-                    const response = await RestAPI.login(
+                    const [ok, response] = await RestAPI.login(
                         email,
                         codeInput.current.value.trim()
                     )
-                    if (response.status == 200) {
-                        const access_token = response.data.access_token
-                        const payloadBase64 = atob(
-                            access_token.split(".")[1]
-                                .replace("/-/g", "+")
-                                .replace("/_/g", "/")
-                        )
-                        const payload = JSON.parse(payloadBase64)
 
-                        localStorage.setItem("email", email)
-                        localStorage.setItem("user_id", payload.sub)
-                        localStorage.setItem("status", payload.status)
-                        localStorage.setItem("exp", payload.exp)
-                        localStorage.setItem("access_token", access_token)
+                    if (!ok) return
+                    const access_token = response.access_token
+                    const payloadBase64 = atob(
+                        access_token.split(".")[1]
+                            .replace("/-/g", "+")
+                            .replace("/_/g", "/")
+                    )
+                    const payload = JSON.parse(payloadBase64)
 
-                        logining()
-                        addNotification("Вход выполнен", "info")
-                    } else {
-                        addNotification(response.message, response.type)
+                    localStorage.setItem("email", email)
+                    localStorage.setItem("user_id", payload.sub)
+                    localStorage.setItem("status", payload.status)
+                    localStorage.setItem("exp", payload.exp)
+                    localStorage.setItem("access_token", access_token)
 
-                    }
+                    logining()
+                    addNotification("Вход выполнен")
                 }}
             />
         </>

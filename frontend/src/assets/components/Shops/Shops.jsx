@@ -9,18 +9,11 @@ import RestAPI from "../../../RestAPI"
 const Shops = () => {
 
     const [shops, setShops] = useState([])
-    const {
-        addNotification
-    } = useContext(AppContext)
 
     useEffect(() => {
         async function initShops() {
-            const response = await RestAPI.get_shops()
-            if (response.ok) {
-                setShops(response.data)
-            } else {
-                addNotification(response.message, response.type)
-            }
+            const [ok, response] = await RestAPI.get_shops()
+            ok && setShops(response)
         }
         initShops()
     }, [])

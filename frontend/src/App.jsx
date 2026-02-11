@@ -10,6 +10,7 @@ import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
 import QrCodeReader from "./assets/components/QrCodeReader/QrCodeReader"
 import Header from "./assets/components/Header/Header"
+import RestAPI from "./RestAPI"
 
 
 const App = () => {
@@ -57,6 +58,10 @@ const App = () => {
         )
         return () => {clearTimeout(interval)}
     }, [login, logouting])
+
+    useEffect(() => {
+        RestAPI.set_add_notif(addNotification)
+    }, [])
 
     return (
         <AppContext.Provider value={{

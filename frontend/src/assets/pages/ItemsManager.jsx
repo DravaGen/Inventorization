@@ -29,17 +29,13 @@ const ItemsManager = () => {
     useEffect(() => {
 
         async function getAllItems() {
-            const response = await RestAPI.get_items()
-            response.ok
-                ? setAllItems(response.data)
-                : addNotification(response.message, response.type)
+            const [ok, response] = await RestAPI.get_items()
+            ok && setAllItems(response)
         }
 
         async function getItemsInShop() {
-            const response = await RestAPI.get_shop_items(shop_id)
-            response.ok
-                ? setItemsInShop(response.data)
-                : addNotification(response.message, response.type)
+            const [ok, response] = await RestAPI.get_shop_items(shop_id)
+            ok && setItemsInShop(response)
         }
 
         getAllItems()
