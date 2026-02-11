@@ -49,15 +49,21 @@ class RestAPI {
 
     static _add_notif = (message, type) => {}
     static _old_notif_message = null
+    static _send_notif_datetime = null
 
     static set_add_notif(fn) {
         this._add_notif = fn
     }
 
     static send_notif(message, type) {
-        if (this._old_notif_message == message) return
+        if (
+            this._old_notif_message == message
+            && this._send_notif_datetime + 8000 > new Date().getTime()
+        ) return
+
         this._add_notif(message, type)
         this._old_notif_message = message
+        this._send_notif_datetime = new Date().getTime()
     }
 
     static async handleError(error) {
@@ -118,7 +124,14 @@ class RestAPI {
             })
 
         if (!ok) {
-            this.send_notif(JSON.stringify(data), "error")
+            let message = JSON.stringify(data)
+            const detail = data?.detail
+
+            if (detail && typeof detail == "string") {
+                message = detail
+            }
+
+            this.send_notif(message, "error")
         }
 
         return [ok, data]
@@ -161,15 +174,11 @@ class RestAPI {
     }
 
     static async signup_user(email, status) {
-        let formData = new FormData();
-        formData.append('email', email);
-        formData.append('status', status);
-
         return await this._makeRequest(
             `${SERVER_URL}/users/`,
             {
                 method: 'POST',
-                body: formData
+                json: {email, status}
             }
         )
     }

@@ -145,7 +145,7 @@ const AccessShopManager = () => {
                 <Block>
                     <BlockHeader>Работники</BlockHeader>
                     <ManagerContent>
-                        <AddUser></AddUser>
+                        <AddUser initBlocksData={initBlocksData} />
                         {otherUsers.map(
                             (user) => (
                                 <ManagerItem key={user.id} title={user.email}>
