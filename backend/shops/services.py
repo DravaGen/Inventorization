@@ -3,6 +3,7 @@ from sqlalchemy import insert, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import ShopAccessORM
+from .schemas import ShopAccessResponse
 
 
 async def grant_shop_access(
@@ -51,4 +52,20 @@ async def delete_shop_access(
             (ShopAccessORM.user_id == user_id)
             & (ShopAccessORM.shop_id == shop_id)
         )
+    )
+
+
+async def get_shop_access(
+        shop_id: UUID,
+        db: AsyncSession
+) -> ShopAccessResponse:
+    """"""
+
+    users = await db.execute(
+        select(ShopAccessORM.user_id)
+        .where(ShopAccessORM.shop_id == shop_id)
+    )
+    return ShopAccessResponse(
+        shop_id=shop_id,
+        user_ids=users.scalars().all()
     )

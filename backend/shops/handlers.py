@@ -8,9 +8,9 @@ from .models import ShopORM, ShopAccessORM
 from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
     UserAccessResponse, ShopAccessResponse, ShopAccessForm
 from .services import grant_shop_access, check_shop_access, \
-    delete_shop_access
+    delete_shop_access, get_shop_access
 
-from responses import ResponseOK, ResponseDescriptions, ResponseDescription
+from responses import ResponseDescriptions, ResponseDescription
 from auth.services import CurrentUserID, CurrentShopID, \
     UserStatusISOwner, UserStatusISWorker, UserStatusISAdmin
 from users.schemas import UserStatus
@@ -85,14 +85,8 @@ async def get_access(
 ) -> ShopAccessResponse:
     """Возвращает пользователей которые имеют доступ в магазин"""
 
-    users = await db.execute(
-        select(ShopAccessORM.user_id)
-        .where(ShopAccessORM.shop_id == shop_id)
-    )
-    return ShopAccessResponse(
-        shop_id=shop_id,
-        user_ids=users.scalars().all()
-    )
+    access = await get_shop_access(shop_id, db)
+    return access
 
 
 @shops_access_router.post(
@@ -109,10 +103,12 @@ async def get_access(
 async def grant_access(
         form_data: ShopAccessForm,
         db: SessionDep
-)-> ResponseOK:
+)-> ShopAccessResponse:
     """Выдает доступ к магазину"""
 
     form_data: dict = form_data.model_dump()
+    shop_id = form_data.get("shop_id")
+
     if await check_shop_access(**form_data, db=db):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -120,7 +116,8 @@ async def grant_access(
         )
 
     await grant_shop_access(**form_data, db=db)
-    return ResponseOK(detail="access granted")
+    access = await get_shop_access(shop_id, db)
+    return access
 
 
 @shops_access_router.delete(
@@ -130,11 +127,15 @@ async def grant_access(
 async def delete_access(
         form_data: ShopAccessForm,
         db: SessionDep
-)-> ResponseOK:
+)-> ShopAccessResponse:
     """Удаляет доступ к магазину"""
 
-    await delete_shop_access(**form_data.model_dump(), db=db)
-    return ResponseOK(detail="access revoked")
+    form_data: dict = form_data.model_dump()
+    await delete_shop_access(**form_data, db=db)
+
+    shop_id = form_data.get("shop_id")
+    access = await get_shop_access(shop_id, db)
+    return access
 
 
 @shops_access_router.get(
