@@ -8,6 +8,7 @@ import ManagerContent from "../components/Manager/ManagerContent"
 import ManagerControlButton from "../components/Manager/ManagerControlButton"
 import Block from "../components/Block/Block"
 import BlockHeader from "../components/Block/BlockHeader"
+import AddUser from "../components/AddUser/AddUser"
 import AppContext from "../AppContext"
 import RestAPI from "../../RestAPI"
 
@@ -143,8 +144,9 @@ const AccessShopManager = () => {
 
             <ManagerBlock ref={otherBlock}>
                 <Block>
-                    <BlockHeader>Работники </BlockHeader>
+                    <BlockHeader>Работники</BlockHeader>
                     <ManagerContent>
+                        <AddUser></AddUser>
                         {otherUsers.map(
                             (user) => (
                                 <ManagerItem key={user.id} title={user.email}>
