@@ -247,8 +247,6 @@ class RestAPI {
     }
 
     static async delete_access(userId, shopId) {
-        let formData = new FormData();
-
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/`,
             {
