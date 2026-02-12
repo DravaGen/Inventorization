@@ -1,8 +1,7 @@
 import { useRef, useContext } from "react"
 import Input from "../Input/Input"
 import Button from "../Button/Button"
-import Select from "../Select/Select"
-import SelectOption from "../Select/SelectOption"
+import SlectUserStatus from "../Select/SlectUserStatus"
 import InlineGroup from "../InlineGroup/InlineGroup"
 import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
@@ -28,11 +27,7 @@ const AddUser = ({ initBlocksData }) => {
                     placeholder="email нового работника"
                     ref={emailRef}
                 />
-                <Select ref={statusRef}>
-                    <SelectOption value="worker">Работник</SelectOption>
-                    <SelectOption value="admin">Администратор</SelectOption>
-                    <SelectOption value="owner">Владелец</SelectOption>
-                </Select>
+                <SlectUserStatus ref={statusRef} />
                 <Button
                     onClick={async () => {
                         const email = emailRef.current.value.trim()
