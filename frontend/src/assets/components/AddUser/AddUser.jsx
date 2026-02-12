@@ -1,7 +1,7 @@
 import { useRef, useContext } from "react"
 import Input from "../Input/Input"
 import Button from "../Button/Button"
-import SlectUserStatus from "../Select/SlectUserStatus"
+import SelectUserStatus from "../Select/SelectUserStatus"
 import InlineGroup from "../InlineGroup/InlineGroup"
 import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
@@ -27,7 +27,7 @@ const AddUser = ({ initBlocksData }) => {
                     placeholder="email нового работника"
                     ref={emailRef}
                 />
-                <SlectUserStatus ref={statusRef} />
+                <SelectUserStatus ref={statusRef} />
                 <Button
                     onClick={async () => {
                         const email = emailRef.current.value.trim()

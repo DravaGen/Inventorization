@@ -2,7 +2,7 @@ import Select from "./Select"
 import SelectOption from "./SelectOption"
 
 
-const SlectUserStatus = ({ ...props }) => {
+const SelectUserStatus = ({ ...props }) => {
     return (
         <Select {...props}>
             <SelectOption value="worker">Работник</SelectOption>
@@ -13,4 +13,4 @@ const SlectUserStatus = ({ ...props }) => {
 }
 
 
-export default SlectUserStatus
+export default SelectUserStatus
