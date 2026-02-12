@@ -1,7 +1,6 @@
-import Block from "../Block/Block"
-import BlockHeader from "../Block/BlockHeader"
-import Input from "../Input/Input"
-import Button from "../Button/Button"
+import { Block, BlockHeader} from "../Block"
+import { Input } from "../Input"
+import { Button } from "../Button"
 
 
 const CreateShop = () => {
@@ -22,5 +21,6 @@ const CreateShop = () => {
         </div>
     )
 }
+
 
 export default CreateShop

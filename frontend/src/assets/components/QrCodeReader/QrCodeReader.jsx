@@ -1,10 +1,9 @@
 import { useContext } from "react"
 
 import BarcodeScanner from "react-qr-barcode-scanner"
-import Block from "../Block/Block"
-import Button from "../Button/Button"
+import { Block } from "../Block"
+import { Button } from "../Button"
 import AppContext from "../../AppContext"
-import "./index.css"
 
 
 const QrCodeReader = () => {
@@ -35,5 +34,6 @@ const QrCodeReader = () => {
         </div>
     )
 }
+
 
 export default QrCodeReader

@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef } from "react"
 
-import Input from "../Input/Input"
-import Button from "../Button/Button"
-import InlineGroup from "../InlineGroup/InlineGroup"
+import { Input } from "../Input"
+import { Button } from "../Button"
+import { InlineGroup } from "../InlineGroup"
 import AppContext from "../../AppContext"
 import RestAPI, { UserStatus } from "../../../RestAPI"
 
@@ -102,5 +102,6 @@ const LoginForm = () => {
         </>
     )
 }
+
 
 export default LoginForm

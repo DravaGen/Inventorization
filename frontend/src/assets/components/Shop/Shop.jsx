@@ -1,9 +1,7 @@
 import { useNavigate } from "react-router-dom"
 
-import "./index.css"
-import Block from "../Block/Block"
-import BlockHeader from "../Block/BlockHeader"
-import Button from "../Button/Button"
+import { Block, BlockHeader} from "../Block"
+import { Button } from "../Button"
 import { UserStatus, checkUserMinStatus } from "../../../RestAPI"
 
 
@@ -50,5 +48,6 @@ const Shop = ({ id, name, address }) => {
         </div>
     )
 }
+
 
 export default Shop

@@ -1,7 +1,6 @@
-import LoginBlock from "../components/Login/LoginBlock"
-import LoginForm from "../components/Login/LoginForm"
-import Block from "../components/Block/Block"
-import BlockHeader from "../components/Block/BlockHeader"
+import { LoginBlock, LoginForm } from "../components/Login"
+import { Block, BlockHeader } from "../components/Block"
+
 
 const Login = () => {
 
@@ -14,5 +13,6 @@ const Login = () => {
         </LoginBlock>
     )
 }
+
 
 export default Login

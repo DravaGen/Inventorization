@@ -7,9 +7,9 @@ import ShopsPage from "./assets/pages/ShopsPage"
 import Login from "./assets/pages/Login"
 import ItemsManager from "./assets/pages/ItemsManager"
 import AccessShopManager from "./assets/pages/AccessShopManager"
-import Notifications from "./assets/components/Notifications/Notifications"
-import QrCodeReader from "./assets/components/QrCodeReader/QrCodeReader"
-import Header from "./assets/components/Header/Header"
+import { Notifications } from "./assets/components/Notifications"
+import QrCodeReader from "./assets/components/QrCodeReader"
+import Header from "./assets/components/Header"
 import RestAPI, { UserStatus } from "./RestAPI"
 
 

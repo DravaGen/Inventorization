@@ -1,14 +1,13 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 
-import Manager from "../components/Manager/Manager"
-import ManagerBlock from "../components/Manager/ManagerBlock"
-import ManagerItemUser from "../components/Manager/ManagerItemUser"
-import ManagerContent from "../components/Manager/ManagerContent"
-import ManagerControlButton from "../components/Manager/ManagerControlButton"
-import Block from "../components/Block/Block"
-import BlockHeader from "../components/Block/BlockHeader"
-import AddUser from "../components/AddUser/AddUser"
+import {
+    Manager, ManagerBlock, ManagerItemUser,
+    ManagerContent, ManagerControlButton
+} from "../components/Manager"
+
+import { Block, BlockHeader} from "../components/Block"
+import { AddUser } from "../components/AddUser"
 import AppContext from "../AppContext"
 import RestAPI from "../../RestAPI"
 
@@ -137,5 +136,6 @@ const AccessShopManager = () => {
         </Manager>
     )
 }
+
 
 export default AccessShopManager

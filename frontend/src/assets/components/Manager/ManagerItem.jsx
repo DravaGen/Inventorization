@@ -1,6 +1,5 @@
 import { useState } from "react"
-import Input from "../Input/Input"
-import "./index.css"
+import { Input } from "../Input"
 
 
 const ManagerItem = ({ title, children, ref }) => {

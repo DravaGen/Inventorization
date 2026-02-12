@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import "./index.css"
+
 import Shop from "../Shop/Shop"
-import CreateShop from "../CreateShop/CreateShop"
+import CreateShop from "../CreateShop"
 import RestAPI, { UserStatus, checkUserMinStatus } from "../../../RestAPI"
 
 
@@ -27,5 +27,6 @@ const Shops = () => {
 
     return <div className="shops">{shops_elements}</div>
 }
+
 
 export default Shops

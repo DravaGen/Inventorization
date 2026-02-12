@@ -1,9 +1,8 @@
 import { useContext } from "react"
 import { useNavigate } from "react-router-dom"
 
-import "./index.css"
-import Block from "../Block/Block"
-import Button from "../Button/Button"
+import { Block } from "../Block"
+import { Button } from "../Button"
 import AppContext from "../../AppContext"
 
 
@@ -43,5 +42,6 @@ const Header = () => {
         </header>
     )
 }
+
 
 export default Header

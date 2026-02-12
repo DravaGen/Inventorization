@@ -1,14 +1,12 @@
 import { useState, useContext, useEffect } from "react"
 import { useParams } from "react-router-dom"
 
-import Manager from "../components/Manager/Manager"
-import ManagerBlock from "../components/Manager/ManagerBlock"
-import ManagerItem from "../components/Manager/ManagerItem"
-import ManagerContent from "../components/Manager/ManagerContent"
-import ManagerControlGroup from "../components/Manager/ManagerControlGroup"
-import Block from "../components/Block/Block"
-import BlockHeader from "../components/Block/BlockHeader"
-import Button from "../components/Button/Button"
+import {
+    Manager, ManagerBlock, ManagerItem,
+    ManagerContent, ManagerControlGroup
+} from "../components/Manager"
+import { Block, BlockHeader} from "../components/Block"
+import { Button } from "../components/Button"
 import AppContext from "../AppContext"
 import RestAPI from "../../RestAPI"
 
@@ -85,5 +83,6 @@ const ItemsManager = () => {
         </Manager>
     )
 }
+
 
 export default ItemsManager 

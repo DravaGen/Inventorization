@@ -1,11 +1,11 @@
 import { useRef, useContext } from "react"
-import Input from "../Input/Input"
-import Button from "../Button/Button"
-import SelectUserStatus from "../Select/SelectUserStatus"
-import InlineGroup from "../InlineGroup/InlineGroup"
+import { Input } from "../Input"
+import { Button } from "../Button"
+import { SelectUserStatus } from "../Select"
+import { InlineGroup } from "../InlineGroup"
 import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
-import "./index.css"
+
 
 const AddUser = ({ initBlocksData }) => {
 
@@ -55,5 +55,6 @@ const AddUser = ({ initBlocksData }) => {
         </div>
     )
 }
+
 
 export default AddUser

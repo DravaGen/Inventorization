@@ -1,8 +1,8 @@
 import { useCallback, useContext, useRef, useState } from "react"
 
 import ManagerItem from "./ManagerItem"
-import SelectUserStatus from "../Select/SelectUserStatus"
-import Button from "../Button/Button"
+import { SelectUserStatus } from "../Select"
+import { Button } from "../Button"
 import RestAPI from "../../../RestAPI"
 import AppContext from "../../AppContext"
 
@@ -46,5 +46,6 @@ const ManagerItemUser = ({ user }) => {
         </ManagerItem>
     )
 }
+
 
 export default ManagerItemUser

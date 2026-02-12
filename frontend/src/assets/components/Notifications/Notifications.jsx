@@ -1,7 +1,6 @@
 import { useEffect, useContext } from "react"
 
-import "./index.css"
-import Button from "../Button/Button"
+import { Button } from "../Button"
 import AppContext from "../../AppContext"
 
 
@@ -45,5 +44,6 @@ const Notifications = () => {
         </div>
     )
 }
+
 
 export default Notifications

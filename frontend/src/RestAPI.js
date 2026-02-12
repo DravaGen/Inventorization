@@ -389,5 +389,6 @@ class RestAPI {
 
 }
 
+
 export { UserStatus, checkUserMinStatus };
 export default RestAPI;
