@@ -35,7 +35,7 @@ def upgrade() -> None:
     op.create_table('users',
     sa.Column('id', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('email', sa.String(length=100), nullable=False),
-    sa.Column('status', sa.Enum('worker', 'admin', 'owner', name='userstatus'), nullable=False),
+    sa.Column('status', sa.Enum('banerd', 'worker', 'admin', 'owner', name='userstatus'), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')

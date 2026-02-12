@@ -10,7 +10,7 @@ import AccessShopManager from "./assets/pages/AccessShopManager"
 import Notifications from "./assets/components/Notifications/Notifications"
 import QrCodeReader from "./assets/components/QrCodeReader/QrCodeReader"
 import Header from "./assets/components/Header/Header"
-import RestAPI from "./RestAPI"
+import RestAPI, { UserStatus } from "./RestAPI"
 
 
 const App = () => {
@@ -18,6 +18,7 @@ const App = () => {
     const [login, setLogin] = useState(
         localStorage?.email &&
         localStorage?.status &&
+        localStorage?.status != UserStatus.BANNED &&
         localStorage?.user_id &&
         localStorage?.access_token &&
         localStorage?.exp > new Date().getTime() / 1000
@@ -61,6 +62,7 @@ const App = () => {
 
     useEffect(() => {
         RestAPI.set_add_notif(addNotification)
+        RestAPI.set_logouting(logouting)
     }, [])
 
     return (

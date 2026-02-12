@@ -34,12 +34,22 @@ def get_token_data(
     return token_data
 
 
-def get_user_id(
-        data: AccessTokenData = Depends(get_token_data)
+async def get_user_id(
+        data: AccessTokenData = Depends(get_token_data),
+        db: AsyncSession = Depends(get_db)
 ) -> UUID:
     """Возвращает id авторизованного пользователя"""
 
-    return data.sub
+    user_id = data.sub
+    user_data = await get_user_by_id(user_id, db)
+
+    if user_data.status == UserStatus.BANNED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="user is banned"
+        )
+
+    return user_id
 
 
 async def get_shop_id(

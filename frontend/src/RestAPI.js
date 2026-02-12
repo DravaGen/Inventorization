@@ -1,44 +1,14 @@
 const SERVER_URL = "http://localhost:8000"
-const TRFNSLATION_API_ERROR = {
-    "invalid email or password": "Неправильный адрес почты или пароль",
-    "otp code sended": "Одноразовый код отправлен",
-    "user not found": "Пользователь не найден",
-    "not shop access": "Нет доступа к магазину",
-    "not enough rights": "Недостаточно прав",
-    "item deleted": "Товар удален",
-    "it is not possible to delete an item because it is associated with other data.":
-        "Невозможно удалить товар из магазина, потому что товар значится в других данных",
-    "exceed available quantity": "Превышает возможное количество",
-    "item added to cart": "Товар добавлен в корзину",
-    "you can't delete an item from the cart.": "Вы не можете удалить товар из корзины",
-    "item deleted from cart": "Товар удален из корзины",
-    "cleaned cart": "Корзина очищена",
-    "the shopping cart is empty.": "Корзина пустая",
-    "there is not enough product in the store.": "Недостаточно продуктов на складе",
-    "purchase been confirmed": "Покупка подтверждена",
-    "item not found": "Товар не найден",
-    "item in shop not found": "В магазине товар не найден",
-    "item added to queue": "Товар добавлен в очередь",
-    "item added to shop": "Товар добавлен в магазин",
-    "access rights cannot be granted": "Нельзя выдать права доступа",
-    "access granted": "Доступ выдан",
-    "access revoked": "Доступ отозван",
-    "you can't create a user": "Вы не можете создать пользователя",
-    "user signuped": "Пользователь зарегистрирован",
-    "you cannot update the user's data": "Вы не можете обновить пользовательские данные",
-    "user updated": "Данные пользователя обновлены",
-    "cant connect to server": "Не удается подключиться к серверу",
-    "internal server error": "Внутренняя ошибка сервера"
-}
-const TRFNSLATION_API_ERROR_KEYS = Object.keys(TRFNSLATION_API_ERROR)
 
 const UserStatus = Object.freeze({
+    BANNED: "banned",
     WORKER: "worker",
     ADMIN: "admin",
     OWNER: "owner",
 });
 
 const weightsUserStatus = {
+    [UserStatus.BANNED]: 0,
     [UserStatus.WORKER]: 50,
     [UserStatus.ADMIN]: 80,
     [UserStatus.OWNER]: 100,
@@ -51,8 +21,14 @@ class RestAPI {
     static _old_notif_message = null
     static _send_notif_datetime = null
 
+    static _logouting = () => {}
+
     static set_add_notif(fn) {
         this._add_notif = fn
+    }
+
+    static set_logouting(fn) {
+        this._logouting = fn
     }
 
     static send_notif(message, type) {
@@ -68,13 +44,22 @@ class RestAPI {
 
     static async handleError(error) {
         const body = await error.text();
+        const data = body ? JSON.parse(body) : null
+
+        if (
+            error.status == 403 &&
+            data && data?.detail == "user is banned"
+        ) {
+            localStorage.setItem("status", UserStatus.BANNED)
+            this._logouting()
+        }
 
         if (error.status === 500) {
             // Internal server error
             return {detail: "Internal Server Error"};
-        } else if (body) {
+        } else if (data) {
             // Server returned error description
-            return JSON.parse(body);
+            return data;
         } else {
             // Unknown errors
             return error;
@@ -404,4 +389,5 @@ class RestAPI {
 
 }
 
+export { UserStatus };
 export default RestAPI;

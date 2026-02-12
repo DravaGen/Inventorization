@@ -11,6 +11,7 @@ from .otp import OTPService
 from .schemas import AccessTokenData, AccessTokenResponse
 from smtp import SMTPServer, SMTPDelayError, SMTPDelayErrorResponse
 from users.models import UserORM
+from users.schemas import UserStatus
 from users.services import get_user
 from databases.sqlalchemy import get_db
 from databases.redis import get_redis
@@ -38,7 +39,7 @@ async def login(
         or not OTPService.validate_code(
             user.id, form_data.password, redis
         )
-
+        or user.status == UserStatus.BANNED
     ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -77,7 +78,7 @@ async def send_otp_code(
     """"""
     user = await get_user(email, db)
 
-    if user:
+    if user and user.status != UserStatus.BANNED:
         try:
             await SMTPServer().send_otp_code(user.id, email, redis)
 

@@ -12,12 +12,14 @@ EMAIL = Annotated[str, Field(pattern=email_pattern, examples=["mail@example.com"
 class UserStatus(Enum):
     """Статусы пользователей"""
 
+    BANNED = "banned"
     WORKER = "worker"
     ADMIN = "admin"
     OWNER = "owner"
 
 
 weights_user_status = {
+    UserStatus.BANNED: 0,
     UserStatus.WORKER: 50,
     UserStatus.ADMIN: 80,
     UserStatus.OWNER: 100

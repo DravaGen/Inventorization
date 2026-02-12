@@ -8,6 +8,7 @@ const SelectUserStatus = ({ ...props }) => {
             <SelectOption value="worker">Работник</SelectOption>
             <SelectOption value="admin">Администратор</SelectOption>
             <SelectOption value="owner">Владелец</SelectOption>
+            <SelectOption value="banned">Заблокирован</SelectOption>
         </Select>
     )
 }

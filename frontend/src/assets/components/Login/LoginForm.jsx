@@ -4,7 +4,7 @@ import Input from "../Input/Input"
 import Button from "../Button/Button"
 import InlineGroup from "../InlineGroup/InlineGroup"
 import AppContext from "../../AppContext"
-import RestAPI from "../../../RestAPI"
+import RestAPI, { UserStatus } from "../../../RestAPI"
 
 
 const LoginForm = () => {
@@ -82,6 +82,12 @@ const LoginForm = () => {
                             .replace("/_/g", "/")
                     )
                     const payload = JSON.parse(payloadBase64)
+
+                    if (payload.status == UserStatus.BANNED) {
+                        addNotification("Отказано в доступе", "error")
+                        codeInput.current.value = ""
+                        return
+                    }
 
                     localStorage.setItem("email", email)
                     localStorage.setItem("user_id", payload.sub)
