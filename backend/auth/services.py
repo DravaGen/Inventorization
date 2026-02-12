@@ -30,6 +30,12 @@ async def get_token_data(
         token_data = AccessTokenData(**JWTService.decode(token))
         user_data = await get_user_by_id(token_data.sub)
 
+        if token.status != user_data.status:
+            raise HTTPException(
+                status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+                detail="User state is outdated"
+            )
+
     except (DecodeError, InvalidSignatureError, ExpiredSignatureError):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
