@@ -22,15 +22,16 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="/login")
 
 
 async def get_token_data(
-        token: str = Depends(oauth2_schema)
+        token: str = Depends(oauth2_schema),
+        db: AsyncSession = Depends(get_db)
 ) -> UserORM:
     """Возвращает данные из токена 'Authorization'"""
 
     try:
         token_data = AccessTokenData(**JWTService.decode(token))
-        user_data = await get_user_by_id(token_data.sub)
+        user_data = await get_user_by_id(token_data.sub, db)
 
-        if token.status != user_data.status:
+        if token_data.status != user_data.status:
             raise HTTPException(
                 status_code=status.HTTP_428_PRECONDITION_REQUIRED,
                 detail="User state is outdated"
