@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import "./index.css"
 import Shop from "../Shop/Shop"
 import CreateShop from "../CreateShop/CreateShop"
-import RestAPI from "../../../RestAPI"
+import RestAPI, { UserStatus, checkUserMinStatus } from "../../../RestAPI"
 
 
 const Shops = () => {
@@ -21,7 +21,9 @@ const Shops = () => {
     let shops_elements = shops.map(
         (shop) => <Shop key={shop.id} shop_id={shop.id} {...shop}/>
     )
-    shops_elements.push(<CreateShop key={"add-shop"} />)
+    if (checkUserMinStatus(UserStatus.OWNER)) {
+        shops_elements.push(<CreateShop key={"add-shop"} />)
+    }
 
     return <div className="shops">{shops_elements}</div>
 }

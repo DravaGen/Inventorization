@@ -4,6 +4,7 @@ import "./index.css"
 import Block from "../Block/Block"
 import BlockHeader from "../Block/BlockHeader"
 import Button from "../Button/Button"
+import { UserStatus, checkUserMinStatus } from "../../../RestAPI"
 
 
 const Shop = ({ id, name, address }) => {
@@ -17,16 +18,34 @@ const Shop = ({ id, name, address }) => {
                     <p>{address}</p>
                     <p>{id}</p>
                 </BlockHeader>
-                <Button className={"edit-button"}>Изменить</Button>
-                <Button>Корзина</Button>
-                <Button
-                    onClick={() => navigate(`/items/${id}`)}
-                >Добавить товар</Button>
-                <Button>Принять товар</Button>
-                <Button
-                    onClick={() => navigate(`/access/${id}`)}
-                >Выдать доступ</Button>
-                <Button>Статистика</Button>
+                {
+                    checkUserMinStatus(UserStatus.OWNER)
+                    && <Button className={"edit-button"}>Изменить</Button>
+                }
+                {
+                    checkUserMinStatus(UserStatus.WORKER)
+                    && <Button>Корзина</Button>
+                }
+                {
+                    checkUserMinStatus(UserStatus.ADMIN)
+                    && <Button
+                        onClick={() => navigate(`/items/${id}`)}
+                    >Добавить товар</Button>
+                }
+                {
+                    checkUserMinStatus(UserStatus.ADMIN)
+                    && <Button>Принять товар</Button>
+                }
+                {
+                    checkUserMinStatus(UserStatus.OWNER)
+                    && <Button
+                        onClick={() => navigate(`/access/${id}`)}
+                    >Выдать доступ</Button>
+                }
+                {
+                    checkUserMinStatus(UserStatus.OWNER)
+                    && <Button>Статистика</Button>
+                }
             </Block>
         </div>
     )

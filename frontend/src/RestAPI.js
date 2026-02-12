@@ -14,6 +14,13 @@ const weightsUserStatus = {
     [UserStatus.OWNER]: 100,
 };
 
+function checkUserMinStatus(minStatus) {
+    if (weightsUserStatus[localStorage?.status] < weightsUserStatus[minStatus]) {
+        return false
+    }
+    return true
+}
+
 
 class RestAPI {
 
@@ -64,13 +71,6 @@ class RestAPI {
             // Unknown errors
             return error;
         }
-    }
-
-    static checkUserMinStatus(userStatus, minStatus) {
-        if (weightsUserStatus[userStatus] < weightsUserStatus[minStatus]) {
-            return false
-        }
-        return true
     }
 
     static async _makeRequest(url, args) {
@@ -389,5 +389,5 @@ class RestAPI {
 
 }
 
-export { UserStatus };
+export { UserStatus, checkUserMinStatus };
 export default RestAPI;
