@@ -73,12 +73,14 @@ async def get_shop_id(
     return shop_id
 
 
-def get_user_status(
-        data: AccessTokenData = Depends(get_token_data)
+async def get_user_status(
+        data: AccessTokenData = Depends(get_token_data),
+        db: AsyncSession = Depends(get_db)
 ) -> UserStatus:
     """Возвращает status авторизованного пользователя"""
 
-    return data.status
+    user_data = await get_user_by_id(data.sub, db)
+    return user_data.status
 
 
 def check_user_min_status(
