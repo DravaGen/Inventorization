@@ -11,6 +11,7 @@ from jwt.exceptions import DecodeError, InvalidSignatureError, \
 
 from .jwt import JWTService
 from .schemas import AccessTokenData
+from users.models import UserORM
 from users.services import get_user_by_id
 from users.schemas import UserStatus, weights_user_status
 from shops.services import check_shop_access
@@ -20,36 +21,33 @@ from databases.sqlalchemy import get_db
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/login")
 
 
-def get_token_data(
+async def get_token_data(
         token: str = Depends(oauth2_schema)
-) -> AccessTokenData:
+) -> UserORM:
     """Возвращает данные из токена 'Authorization'"""
 
     try:
         token_data = AccessTokenData(**JWTService.decode(token))
+        user_data = await get_user_by_id(token_data.sub)
 
     except (DecodeError, InvalidSignatureError, ExpiredSignatureError):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-    return token_data
+    return user_data
 
 
 async def get_user_id(
-        data: AccessTokenData = Depends(get_token_data),
-        db: AsyncSession = Depends(get_db)
+        data: UserORM = Depends(get_token_data)
 ) -> UUID:
     """Возвращает id авторизованного пользователя"""
 
-    user_id = data.sub
-    user_data = await get_user_by_id(user_id, db)
-
-    if user_data.status == UserStatus.BANNED:
+    if data.status == UserStatus.BANNED:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="user is banned"
         )
 
-    return user_id
+    return data.id
 
 
 async def get_shop_id(
@@ -74,13 +72,11 @@ async def get_shop_id(
 
 
 async def get_user_status(
-        data: AccessTokenData = Depends(get_token_data),
-        db: AsyncSession = Depends(get_db)
+        data: UserORM = Depends(get_token_data)
 ) -> UserStatus:
     """Возвращает status авторизованного пользователя"""
 
-    user_data = await get_user_by_id(data.sub, db)
-    return user_data.status
+    return data.status
 
 
 def check_user_min_status(
