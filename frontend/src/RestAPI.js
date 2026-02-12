@@ -184,14 +184,11 @@ class RestAPI {
     }
 
     static async update_user(email, status) {
-        let formData = new FormData();
-        formData.append('status', status);
-
         return await this._makeRequest(
             `${SERVER_URL}/users/?email=${email}`,
             {
                 method: 'PATCH',
-                body: formData
+                json: {status}
             }
         )
     }

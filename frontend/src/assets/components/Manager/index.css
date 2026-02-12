@@ -106,3 +106,10 @@
     padding: 10px;
     opacity: 1;
 }
+
+.manager-item-body select,
+.manager-item-body input,
+.manager-item-body button {
+    padding: 0;
+    font-size: 13px;
+}

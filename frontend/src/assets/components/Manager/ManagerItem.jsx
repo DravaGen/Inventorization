@@ -3,11 +3,11 @@ import Input from "../Input/Input"
 import "./index.css"
 
 
-const ManagerItem = ({ title, children }) => {
+const ManagerItem = ({ title, children, ref }) => {
     const [open, setOpen] = useState(false)
 
     return (
-        <div className="manager-item-row">
+        <div className="manager-item-row" ref={ref}>
             <Input type="checkbox" />
             <div className={`manager-item ${open ? "open" : ""}`}>
                 <div

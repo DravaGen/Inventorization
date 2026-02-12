@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 
 import Manager from "../components/Manager/Manager"
 import ManagerBlock from "../components/Manager/ManagerBlock"
-import ManagerItem from "../components/Manager/ManagerItem"
+import ManagerItemUser from "../components/Manager/ManagerItemUser"
 import ManagerContent from "../components/Manager/ManagerContent"
 import ManagerControlButton from "../components/Manager/ManagerControlButton"
 import Block from "../components/Block/Block"
@@ -56,19 +56,6 @@ const AccessShopManager = () => {
 
     useEffect(() => {
         initBlocksData()
-    }, [])
-
-    const get_status_translate = useCallback((status) => {
-        switch(status) {
-            case "owner":
-                return "Владелец"
-            case "admin":
-                return "Администратор"
-            case "worker":
-                return "Работник"
-            default:
-                return status
-        }
     }, [])
 
     const getActivatedCheckbox = useCallback((block) => {
@@ -125,14 +112,7 @@ const AccessShopManager = () => {
                 <Block>
                     <BlockHeader>Работники имеющие доступ</BlockHeader>
                     <ManagerContent>
-                        {accessUsers.map(
-                            (user) => (
-                                <ManagerItem key={user.id} title={user.email}>
-                                    <div>id: {user.id}</div>
-                                    <div>Статус: {get_status_translate(user.status)}</div>
-                                </ManagerItem>
-                            )
-                        )}
+                        {accessUsers.map((user) => <ManagerItemUser key={user.id} user={user} />)}
                     </ManagerContent>
                     <ManagerControlButton
                         onClick={async () => {logicDeleteAceess()}}
@@ -146,14 +126,7 @@ const AccessShopManager = () => {
                     <BlockHeader>Работники</BlockHeader>
                     <ManagerContent>
                         <AddUser initBlocksData={initBlocksData} />
-                        {otherUsers.map(
-                            (user) => (
-                                <ManagerItem key={user.id} title={user.email}>
-                                    <div>id: {user.id}</div>
-                                    <div>Статус: {get_status_translate(user.status)}</div>
-                                </ManagerItem>
-                            )
-                        )}
+                        {otherUsers.map((user) => <ManagerItemUser key={user.id} user={user} />)}
                     </ManagerContent>
                     <ManagerControlButton
                         onClick={async () => {logicGrantAccess()}}
