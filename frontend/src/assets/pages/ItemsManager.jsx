@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 
 import {
@@ -7,7 +7,6 @@ import {
 } from "../components/Manager"
 import { Block, BlockHeader} from "../components/Block"
 import { Button } from "../components/Button"
-import AppContext from "../AppContext"
 import RestAPI from "../../RestAPI"
 
 
@@ -17,9 +16,6 @@ const ItemsManager = () => {
         shop_id
     } = useParams()
 
-    const {
-        addNotification
-    } = useContext(AppContext)
 
     const [allItems, setAllItems] = useState([])
     const [itemsInShop, setItemsInShop] = useState([])
@@ -38,7 +34,7 @@ const ItemsManager = () => {
 
         getAllItems()
         getItemsInShop()
-    }, [])
+    }, [shop_id])
 
     return (
         <Manager>

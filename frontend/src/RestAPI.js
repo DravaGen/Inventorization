@@ -24,7 +24,7 @@ function checkUserMinStatus(minStatus) {
 
 class RestAPI {
 
-    static _add_notif = (message, type) => {}
+    static _add_notif = (message, type) => {}  // eslint-disable-line no-unused-vars
     static _old_notif_message = null
     static _send_notif_datetime = null
 

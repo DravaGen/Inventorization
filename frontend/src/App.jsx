@@ -63,7 +63,7 @@ const App = () => {
     useEffect(() => {
         RestAPI.set_add_notif(addNotification)
         RestAPI.set_logouting(logouting)
-    }, [])
+    }, [addNotification, logouting])
 
     return (
         <AppContext.Provider value={{

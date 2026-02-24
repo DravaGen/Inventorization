@@ -1,7 +1,7 @@
 
 
 const InlineGroup = ({ children, className='', ...props }) => {
-    return <div className={`inline-group ${className}`}>{children}</div>
+    return <div className={`inline-group ${className}`} {...props}>{children}</div>
 }
 
 

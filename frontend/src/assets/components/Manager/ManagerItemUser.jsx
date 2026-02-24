@@ -15,6 +15,7 @@ const ManagerItemUser = ({ user }) => {
 
     const managerRef = useRef(null)
     const [status, setStatus] = useState(user.status)
+    const [localStatus, setLocalStatus] = useState(user.status)
 
     const selectElement = <SelectUserStatus
         value={status}
@@ -27,13 +28,13 @@ const ManagerItemUser = ({ user }) => {
         const [ok, ] = await RestAPI.update_user(email, status)
         if (ok) {
             addNotification(`${email} получил новый статус`)
-            user.status = status
+            setLocalStatus(status)
             setStatus(status)
         }
-    }, [status])
+    }, [status, addNotification])
 
     const updateButton = <Button
-        disabled={user.status == status}
+        disabled={localStatus == status}
         onClick={async () => updateUser()}
     >Изменить</Button>
 

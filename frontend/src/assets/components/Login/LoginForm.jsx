@@ -31,7 +31,7 @@ const LoginForm = () => {
             setDataQrCodeReader(null)
         }
         loginAboutQrCode()
-    }, [dataQrCodeReader])
+    }, [dataQrCodeReader, setDataQrCodeReader, addNotification])
 
     return (
         <>

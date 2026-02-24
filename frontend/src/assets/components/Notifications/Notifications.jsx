@@ -13,7 +13,7 @@ const Notification = ({data}) => {
     useEffect(() => {
         const timeout = setTimeout(() => deleteNotification(data.id), 12000)
         return () => clearTimeout(timeout)
-    }, [data.id])
+    }, [data.id, deleteNotification])
 
     return (
         <div className={`notification ${data.type}`}>

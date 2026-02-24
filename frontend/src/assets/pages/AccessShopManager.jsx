@@ -46,16 +46,19 @@ const AccessShopManager = () => {
         const [ok, response] = await RestAPI.get_all_users()
         const all_users = ok ? response : []
         return filterOtherUsers(all_users, access_users)
-    }, [])
+    }, [getAccessUsers, filterOtherUsers])
 
     const initBlocksData = useCallback(async () => {
         setAccessUsers(await getAccessUsers(shop_id))
         setOtherUsers(await getOtherUsers(shop_id))
-    }, [])
+    }, [shop_id, getAccessUsers, getOtherUsers])
 
     useEffect(() => {
-        initBlocksData()
-    }, [])
+        async function fetchData() {
+            await initBlocksData()
+        }
+        fetchData()
+    }, [initBlocksData])
 
     const getActivatedCheckbox = useCallback((block) => {
         return Array.from(
@@ -85,7 +88,10 @@ const AccessShopManager = () => {
         }
 
         initBlocksData()
-    }, [])
+    }, [
+        shop_id, addNotification, accessBlock,
+        getActivatedCheckbox, getElementUUID, initBlocksData
+    ])
 
     const logicGrantAccess = useCallback(async () => {
         const checkboxes = getActivatedCheckbox(otherBlock)
@@ -101,7 +107,10 @@ const AccessShopManager = () => {
         }
 
         initBlocksData()
-    }, [])
+    }, [
+        shop_id, addNotification, otherBlock,
+        getActivatedCheckbox, getElementUUID, initBlocksData
+    ])
 
 
     return (
