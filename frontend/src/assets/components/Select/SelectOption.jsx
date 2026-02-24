@@ -1,7 +1,7 @@
 
 
 const SelectOption = ({ children, ...props }) => {
-    return <option {...props}>{children}</option>
+    return <div {...props}>{children}</div>
 }
 
 
