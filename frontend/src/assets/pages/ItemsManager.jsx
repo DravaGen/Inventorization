@@ -2,11 +2,13 @@ import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 
 import {
-    Manager, ManagerBlock, ManagerItem,
+    Manager, ManagerBlock, ManagerItemItem,
     ManagerContent, ManagerControlGroup
 } from "../components/Manager"
 import { Block, BlockHeader} from "../components/Block"
 import { Button } from "../components/Button"
+import { AddItem } from "../components/AddItem"
+import { AddShopItem } from "../components/AddShopItem"
 import RestAPI from "../../RestAPI"
 
 
@@ -43,12 +45,8 @@ const ItemsManager = () => {
                 <Block>
                     <BlockHeader>Товар в магазине</BlockHeader>
                     <ManagerContent>
-                        {itemsInShop.map(
-                            (item) => (<ManagerItem title={item.name}>
-                                <div>id: {item.id}</div>
-                                <div>Количество во всех магазинах: {item.quantity}</div>
-                            </ManagerItem>)
-                        )}
+                        <AddShopItem items={allItems}/>
+                        {itemsInShop.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
                     </ManagerContent>
                     <ManagerControlGroup>
                         <Button>Добавить</Button>
@@ -61,12 +59,8 @@ const ItemsManager = () => {
                 <Block>
                     <BlockHeader>Доступный товар</BlockHeader>
                     <ManagerContent>
-                        {allItems.map(
-                            (item) => (<ManagerItem title={item.name}>
-                                <div>id: {item.id}</div>
-                                <div>Количество во всех магазинах: {item.quantity}</div>
-                            </ManagerItem>)
-                        )}
+                        <AddItem/>
+                        {allItems.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
                     </ManagerContent>
                     <ManagerControlGroup>
                         <Button>Добавить</Button>

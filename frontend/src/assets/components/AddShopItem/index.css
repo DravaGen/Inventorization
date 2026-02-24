@@ -1,0 +1,14 @@
+#add-shop-item {
+    margin: 8px 0px 5px 0px;
+    padding: 3px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+
+    gap: 3px;
+    display: flex;
+    flex-direction: column;
+}
+
+#add-shop-item > label {
+    margin-left: 5px;
+}
