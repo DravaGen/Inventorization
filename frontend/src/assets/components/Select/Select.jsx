@@ -44,7 +44,7 @@ const Select = forwardRef((
 
     useEffect(() => {
         scrollToHovered(hovered)
-    }, [])
+    }, [hovered])
 
     const handleWheel = (e) => {
         if (items.length === 0) return
