@@ -114,6 +114,10 @@
     font-size: 13px;
 }
 
+.manager-item-body > .line {
+    display: flex;
+}
+
 .manager-item-body .select {
     width: 98%;
     height: calc(3 * 24px + 2 * 3px + 3px);

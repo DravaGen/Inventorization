@@ -42,7 +42,7 @@ const ManagerItemUser = ({ user }) => {
     return (
         <ManagerItem title={user.email} ref={managerRef}>
             <div>id: {user.id}</div>
-            <div style={{display: "flex"}}>Статус: {selectElement}</div>
+            <div className="line">Статус: {selectElement}</div>
             {updateButton}
         </ManagerItem>
     )
