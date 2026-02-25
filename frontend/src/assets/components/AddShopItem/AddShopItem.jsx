@@ -1,5 +1,3 @@
-import {useState} from "react"
-
 import { Input } from "../Input"
 import { Select, SelectOption } from "../Select"
 import { Button } from "../Button"
@@ -12,11 +10,14 @@ const AddShopItem = ({ items }) => {
         <div id="add-shop-item">
             <div className="block-name">Добавить товар</div>
 
-            <Select id="name">{
-                items.map(
-                    (item) => <SelectOption key={item.id}>{item.name}</SelectOption>
-                )
-            }</Select>
+            <InlineGroup>
+                <Select>{items.map((item) => (
+                    <SelectOption
+                        key={item.id}
+                        value={item.id}
+                    >{item.name}</SelectOption>
+                ))}</Select>
+            </InlineGroup>
 
             <Input
                 id="price"
