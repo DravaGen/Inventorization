@@ -114,19 +114,11 @@
     font-size: 13px;
 }
 
-.manager-item-body > .line {
+.manager-item-body .line {
     display: flex;
+    min-width: 0;
 }
 
 .manager-item-body .select {
-    width: 98%;
-    height: calc(3 * 24px + 2 * 3px + 3px);
     margin: 3px;
-}
-
-.manager-item-body .option {
-    height: 24px;
-    line-height: 24px;
-    padding: 0 6px;
-    font-size: 11px;
 }

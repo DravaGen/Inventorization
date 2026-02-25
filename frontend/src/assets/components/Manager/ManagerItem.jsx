@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Input } from "../Input"
 
 
-const ManagerItem = ({ title, children, ref }) => {
+const ManagerItem = ({ title, children}, ref ) => {
     const [open, setOpen] = useState(false)
 
     return (

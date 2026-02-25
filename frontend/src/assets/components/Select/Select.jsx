@@ -7,7 +7,16 @@ import {
 } from "react"
 
 
-const Select = forwardRef(({ children, value, onChange = () => {} }, ref) => {
+const Select = forwardRef((
+    {
+        children,
+        value,
+        onChange = () => {},
+        visibleCount = 3,
+        small=false
+    },
+    ref
+) => {
     const containerRef = useRef(null)
     const itemRefs = useRef({})
     const items = Array.from(children)
@@ -29,9 +38,7 @@ const Select = forwardRef(({ children, value, onChange = () => {} }, ref) => {
 
     const scrollToHovered = (val) => {
         const el = itemRefs.current[val]
-        const container = containerRef.current
-        if (!el || !container) return
-
+        if (!el) return
         el.scrollIntoView({ block: "nearest" })
     }
 
@@ -52,11 +59,18 @@ const Select = forwardRef(({ children, value, onChange = () => {} }, ref) => {
         scrollToHovered(nextHover)
     }
 
+    const select_height = `calc(
+        ${visibleCount} * var(--option-height)
+        + ${(visibleCount - 1)} * var(--option-margin-bottom)
+        + 2 * var(--select-padding-block)
+    )`
+
     return (
         <div
             ref={containerRef}
-            className="select"
+            className={`select ${small ? "small" : ""}`}
             onWheel={handleWheel}
+            style={{height: select_height}}
         >
             {items.map((child) => {
                 const val = child.props.value
@@ -72,9 +86,7 @@ const Select = forwardRef(({ children, value, onChange = () => {} }, ref) => {
                             setSelected(val)
                             setHovered(val)
                             scrollToHovered(val)
-                            if (onChange) {
-                                onChange({ target: { value: val } })
-                            }
+                            onChange({ target: { value: val } })
                         }}
                         onMouseEnter={() => setHovered(val)}
                     >

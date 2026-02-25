@@ -1,26 +1,40 @@
 .select {
+    --select-padding-block: 3px;
+    --option-height: 30px;
+    --option-margin-bottom: 3px;
+
     width: 98%;
-    height: calc(3 * 30px + 2 * 3px + 6px);
-    margin: 3px;
-    padding: 3px 2px;
+    padding-block: 3px;
+    padding-inline: 2px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     border: 1px solid #ccc;
     border-radius: 4px;
     transition: transform 0.2s ease;
+    font-size: 14px;
+}
+
+.select.small {
+    --option-height: 20px;
+    font-size: 11px;
 }
 
 .option {
-    height: 30px;
-    line-height: 30px;
+    min-height: var(--option-height);
     padding: 0 8px;
-    font-size: 14px;
     border-radius: 4px;
     border: 1px solid #ccc;
     background-color: #fff;
     cursor: pointer;
-    margin-bottom: 3px;
+    margin-bottom: var(--option-margin-bottom);
+
+    display: flex;
+    align-items: center;
+}
+
+.select .option:last-child {
+    margin-bottom: 0;
 }
 
 .option.hover {
@@ -32,8 +46,4 @@
     outline: none;
     border: 1px solid rgb(100, 150, 255);
     background-color: rgb(210, 230, 255);
-}
-
-.select .option:last-child {
-    margin-bottom: 0;
 }

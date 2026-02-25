@@ -20,6 +20,7 @@ const ManagerItemUser = ({ user }) => {
     const selectElement = <SelectUserStatus
         value={status}
         onChange={(e) => setStatus(e.target.value)}
+        small={true}
     />
 
     const updateUser = useCallback(async () => {

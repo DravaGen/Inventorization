@@ -27,7 +27,7 @@ const AddUser = ({ initBlocksData }) => {
                     placeholder="email нового работника"
                     ref={emailRef}
                 />
-                <SelectUserStatus ref={statusRef} />
+                <SelectUserStatus ref={statusRef} visibleCount={2} />
                 <Button
                     onClick={async () => {
                         const email = emailRef.current.value.trim()
