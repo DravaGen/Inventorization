@@ -18,7 +18,7 @@ const AddUser = ({ initBlocksData }) => {
 
     return (
         <div id="add-user">
-            <label htmlFor="email">Добавить работника</label>
+            <div className="block-name">Добавить работника</div>
 
             <InlineGroup>
                 <Input

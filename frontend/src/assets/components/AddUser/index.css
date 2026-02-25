@@ -5,6 +5,16 @@
     border-radius: 4px;
 }
 
-#add-user > label {
-    margin-left: 5px;
+#add-user > .block-name {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+#add-user > .inline-group {
+    align-items: start;
+}
+
+#add-user > .inline-group > .select {
+    width: auto;
 }
