@@ -20,7 +20,9 @@
     font-size: 11px;
 }
 
-.option {
+.option, .select > input {
+    flex: 0 0 auto;
+
     min-height: var(--option-height);
     padding: 0 8px;
     border-radius: 4px;

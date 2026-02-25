@@ -11,7 +11,7 @@ const AddShopItem = ({ items }) => {
             <div className="block-name">Добавить товар</div>
 
             <InlineGroup>
-                <Select>{items.map((item) => (
+                <Select search_input={true}>{items.map((item) => (
                     <SelectOption
                         key={item.id}
                         value={item.id}

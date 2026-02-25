@@ -3,8 +3,10 @@ import {
     useRef,
     forwardRef,
     useImperativeHandle,
-    useEffect
+    useEffect,
+    useMemo
 } from "react"
+import { Input } from "../Input"
 
 
 const Select = forwardRef((
@@ -13,7 +15,8 @@ const Select = forwardRef((
         value,
         onChange = () => {},
         visibleCount = 3,
-        small = false
+        small = false,
+        search_input = false
     },
     ref
 ) => {
@@ -23,11 +26,22 @@ const Select = forwardRef((
     const hoveredRef = useRef(null)
 
     const items = Array.from(children)
+    const [search, setSearch] = useState("")
 
     const getInitial = () => value ?? items[0]?.props.value
 
     const [selected, setSelected] = useState(getInitial)
     const [hovered, setHovered] = useState(getInitial)
+
+    const showItems = useMemo(() => {
+        if (!search.trim()) return items
+
+        return items.filter(item =>
+            item?.props.children
+                .toLowerCase()
+                .startsWith(search.toLowerCase())
+        )
+    }, [search, items])
 
     useEffect(() => {
         hoveredRef.current = hovered
@@ -49,7 +63,7 @@ const Select = forwardRef((
         const container = containerRef.current
         if (!el || !container) return
 
-        const index = items.findIndex(
+        const index = showItems.findIndex(
             item => item.props.value === val
         )
 
@@ -62,7 +76,7 @@ const Select = forwardRef((
             return
         }
 
-        if (index === items.length - 1) {
+        if (index === showItems.length - 1) {
             container.scrollTop =
                 container.scrollHeight - containerHeight
             return
@@ -87,10 +101,10 @@ const Select = forwardRef((
         const wheelHandler = (e) => {
             e.preventDefault()
 
-            if (!items.length) return
+            if (!showItems.length) return
 
             const current = hoveredRef.current
-            const index = items.findIndex(
+            const index = showItems.findIndex(
                 item => item.props.value === current
             )
 
@@ -98,12 +112,12 @@ const Select = forwardRef((
 
             let nextHover = current
 
-            if (e.deltaY > 0 && index < items.length - 1) {
-                nextHover = items[index + 1].props.value
+            if (e.deltaY > 0 && index < showItems.length - 1) {
+                nextHover = showItems[index + 1].props.value
             }
 
             if (e.deltaY < 0 && index > 0) {
-                nextHover = items[index - 1].props.value
+                nextHover = showItems[index - 1].props.value
             }
 
             if (nextHover !== current) {
@@ -118,7 +132,7 @@ const Select = forwardRef((
             container.removeEventListener("wheel", wheelHandler)
         }
 
-    }, [items])
+    }, [showItems])
 
     const select_height = `calc(
         ${visibleCount} * var(--option-height)
@@ -132,7 +146,13 @@ const Select = forwardRef((
             className={`select ${small ? "small" : ""}`}
             style={{ height: select_height }}
         >
-            {items.map((child) => {
+            {
+                search_input && <Input
+                    placeholder={"Поиск"}
+                    onChange={(e) => {setSearch(e.target.value)}}
+                ></Input>
+            }
+            {showItems.map((child) => {
                 const val = child.props.value
                 const isHover = hovered === val
                 const isFocus = selected === val
