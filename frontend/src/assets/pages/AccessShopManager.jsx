@@ -1,9 +1,13 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react"
+import {
+    useCallback, useContext, useEffect,
+    useRef, useState
+} from "react"
 import { useParams } from "react-router-dom"
 
 import {
     Manager, ManagerBlock, ManagerItemUser,
-    ManagerContent, ManagerControlButton
+    ManagerContent, ManagerControlButton,
+    getActivatedCheckbox, getElementUUID
 } from "../components/Manager"
 
 import { Block, BlockHeader} from "../components/Block"
@@ -59,20 +63,6 @@ const AccessShopManager = () => {
         }
         fetchData()
     }, [initBlocksData])
-
-    const getActivatedCheckbox = useCallback((block) => {
-        return Array.from(
-            block.current
-                ? block.current.querySelectorAll('input[type="checkbox"]')
-                : []
-        ).filter(cb => cb.checked)
-    }, [])
-
-    const getElementUUID = useCallback((element) => {
-        const row = element.closest('.manager-item-row')
-        const id_div = row.querySelector('.manager-item-body > div:first-child')
-        return id_div.textContent.replace('id: ', '').trim()
-    }, [])
 
     const logicDeleteAceess = useCallback(async () => {
         const checkboxes = getActivatedCheckbox(accessBlock)

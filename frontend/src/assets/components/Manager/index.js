@@ -7,3 +7,19 @@ export { default as ManagerControlGroup } from "./ManagerControlGroup"
 export { default as ManagerItem } from "./ManagerItem"
 export { default as ManagerItemUser } from "./ManagerItemUser"
 export { default as ManagerItemItem } from "./ManagerItemItem"
+
+const getActivatedCheckbox = (block) => {
+    return Array.from(
+        block.current
+            ? block.current.querySelectorAll('input[type="checkbox"]')
+            : []
+    ).filter(cb => cb.checked)
+}
+
+const getElementUUID = (element) => {
+    const row = element.closest('.manager-item-row')
+    const id_div = row.querySelector('.manager-item-body > div:first-child')
+    return id_div.textContent.replace('id: ', '').trim()
+}
+
+export { getActivatedCheckbox, getElementUUID }
