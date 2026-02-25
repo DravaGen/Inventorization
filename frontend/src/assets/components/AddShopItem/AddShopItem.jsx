@@ -10,7 +10,7 @@ const AddShopItem = ({ items }) => {
 
     return (
         <div id="add-shop-item">
-            <label htmlFor="name">Добавить товар</label>
+            <div className="block-name">Добавить товар</div>
 
             <Select id="name">{
                 items.map(

@@ -12,3 +12,9 @@
 #add-shop-item > label {
     margin-left: 5px;
 }
+
+#add-shop-item > .block-name {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}

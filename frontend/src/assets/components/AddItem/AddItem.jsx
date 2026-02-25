@@ -6,7 +6,7 @@ import { InlineGroup } from "../InlineGroup"
 const AddItem = () => {
     return (
         <div id="add-item">
-            <label htmlFor="name">Создать товар</label>
+            <div className="block-name">Создать товар</div>
 
             <InlineGroup>
                 <Input

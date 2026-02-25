@@ -8,3 +8,9 @@
 #add-item > label {
     margin-left: 5px;
 }
+
+#add-item > .block-name {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
