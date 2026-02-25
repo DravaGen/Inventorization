@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef, useContext } from "react"
 import { useParams } from "react-router-dom"
 
 import {
     Manager, ManagerBlock, ManagerItemItem,
-    ManagerContent, ManagerControlGroup
+    ManagerContent, ManagerControlButton
 } from "../components/Manager"
 import { Block, BlockHeader} from "../components/Block"
-import { Button } from "../components/Button"
 import { AddItem } from "../components/AddItem"
 import { AddShopItem } from "../components/AddShopItem"
 import RestAPI from "../../RestAPI"
+import AppContext from "../AppContext"
 
 
 const ItemsManager = () => {
@@ -18,25 +18,65 @@ const ItemsManager = () => {
         shop_id
     } = useParams()
 
+    const {
+        addNotification
+    } = useContext(AppContext)
 
     const [allItems, setAllItems] = useState([])
     const [itemsInShop, setItemsInShop] = useState([])
 
-    useEffect(() => {
+    const allItemsBlockRef = useRef(null)
 
-        async function getAllItems() {
-            const [ok, response] = await RestAPI.get_items()
-            ok && setAllItems(response)
+    const getAllItems = useCallback(async () => {
+        const [ok, response] = await RestAPI.get_items()
+        ok && setAllItems(response)
+    }, [setAllItems])
+
+    const getItemsInShop = useCallback(async () => {
+        const [ok, response] = await RestAPI.get_shop_items(shop_id)
+        ok && setItemsInShop(response)
+    }, [shop_id, setItemsInShop])
+
+    useEffect(() => {
+        async function fetchData() {
+            await getAllItems()
+            await getItemsInShop()
+        }
+        fetchData()
+    }, [shop_id, getAllItems, getItemsInShop])
+
+    const getActivatedCheckbox = useCallback((block) => {
+        return Array.from(
+            block.current
+                ? block.current.querySelectorAll('input[type="checkbox"]')
+                : []
+        ).filter(cb => cb.checked)
+    }, [])
+
+    const getElementUUID = useCallback((element) => {
+        const row = element.closest('.manager-item-row')
+        const id_div = row.querySelector('.manager-item-body > div:first-child')
+        return id_div.textContent.replace('id: ', '').trim()
+    }, [])
+
+    const logicDeleteItem = useCallback(async () => {
+        const checkboxes = getActivatedCheckbox(allItemsBlockRef)
+
+        if (checkboxes.length == 0) {
+            addNotification("Не выбран ни один элемент", "warning")
+            return;
         }
 
-        async function getItemsInShop() {
-            const [ok, response] = await RestAPI.get_shop_items(shop_id)
-            ok && setItemsInShop(response)
+        for (const checkbox of checkboxes) {
+            const item_id = getElementUUID(checkbox)
+            await RestAPI.delete_item(item_id)
         }
 
         getAllItems()
-        getItemsInShop()
-    }, [shop_id])
+    }, [
+        allItemsBlockRef, addNotification,
+        getActivatedCheckbox, getElementUUID, getAllItems
+    ])
 
     return (
         <Manager>
@@ -48,25 +88,20 @@ const ItemsManager = () => {
                         <AddShopItem items={allItems}/>
                         {itemsInShop.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
                     </ManagerContent>
-                    <ManagerControlGroup>
-                        <Button>Добавить</Button>
-                        <Button>Удалить</Button>
-                    </ManagerControlGroup>
+                    <ManagerControlButton>Удалить</ManagerControlButton>
                 </Block>
             </ManagerBlock>
 
             <ManagerBlock>
-                <Block>
+                <Block ref={allItemsBlockRef}>
                     <BlockHeader>Доступный товар</BlockHeader>
                     <ManagerContent>
-                        <AddItem/>
+                        <AddItem getAllItems={getAllItems}/>
                         {allItems.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
                     </ManagerContent>
-                    <ManagerControlGroup>
-                        <Button>Добавить</Button>
-                        <Button>Переместить</Button>
-                        <Button>Удалить</Button>
-                    </ManagerControlGroup>
+                    <ManagerControlButton
+                        onClick={async () => {logicDeleteItem()}}
+                    >Удалить</ManagerControlButton>
                 </Block>
             </ManagerBlock>
 
@@ -75,4 +110,4 @@ const ItemsManager = () => {
 }
 
 
-export default ItemsManager 
+export default ItemsManager

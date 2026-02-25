@@ -240,27 +240,21 @@ class RestAPI {
     }
 
     static async create_item(name) {
-        let formData = new FormData();
-        formData.append('name', name);
-
         return await this._makeRequest(
             `${SERVER_URL}/items/`,
             {
                 method: 'POST',
-                body: formData
+                json: {name}
             }
         )
     }
 
     static async delete_item(itemId) {
-        let formData = new FormData();
-        formData.append('item_id', itemId);
-
         return await this._makeRequest(
             `${SERVER_URL}/items/`,
             {
                 method: 'DELETE',
-                body: formData
+                json: {item_id: itemId}
             }
         )
     }
