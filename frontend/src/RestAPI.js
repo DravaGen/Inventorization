@@ -179,15 +179,11 @@ class RestAPI {
     }
 
     static async create_shop(name, address) {
-        let formData = new FormData();
-        formData.append('name', name);
-        formData.append('address', address);
-
         return await this._makeRequest(
             `${SERVER_URL}/shops/`,
             {
                 method: 'POST',
-                body: formData
+                json: {name, address}
             }
         )
     }
