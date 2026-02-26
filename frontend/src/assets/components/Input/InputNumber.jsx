@@ -1,12 +1,12 @@
 import InputInvalid from "./InputInvalid"
 
 
-const InputNumber = ({ ...props }) => {
+const InputNumber = ({ condition = () => true, ...props }) => {
 
     return (
         <InputInvalid
             {...props}
-            condition={(e) => {return !/^\d*$/.test(e) && e != ''}}
+            condition={(e) => {return /^\d*$/.test(e) && condition(e)}}
             output={(e) => {return e.replace(/[^0-9]/g, '')}}
         />
     )

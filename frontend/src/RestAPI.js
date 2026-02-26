@@ -266,18 +266,12 @@ class RestAPI {
         )
     }
 
-    static async add_shop_item(shopId, itemId, price, quantity, purchasePrice) {
-        let formData = new FormData();
-        formData.append('item_id', itemId);
-        formData.append('price', price);
-        formData.append('quantity', quantity);
-        formData.append('purchase_price', purchasePrice);
-
+    static async add_shop_item(shop_id, item_id, price, quantity, purchase_price) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
+            `${SERVER_URL}/items/shop/?shop_id=${shop_id}`,
             {
                 method: 'POST',
-                body: formData
+                json: {shop_id, item_id, price, quantity, purchase_price}
             }
         )
     }

@@ -28,6 +28,7 @@ const ItemsManager = () => {
 
     const [allItems, setAllItems] = useState([])
     const [itemsInShop, setItemsInShop] = useState([])
+    const [itemsInShopQueues, setItemsInShopQueues] = useState([])
 
     const allItemsBlockRef = useRef(null)
 
@@ -75,8 +76,13 @@ const ItemsManager = () => {
                 <Block>
                     <BlockHeader>Товар в магазине</BlockHeader>
                     <ManagerContent>
-                        <AddShopItem items={allItems}/>
+                        <AddShopItem
+                            shop_id={shop_id}
+                            items={allItems}
+                            getItemsInShop={getItemsInShop}
+                        />
                         {itemsInShop.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
+                        {itemsInShopQueues.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
                     </ManagerContent>
                     <ManagerControlButton>Удалить</ManagerControlButton>
                 </Block>
