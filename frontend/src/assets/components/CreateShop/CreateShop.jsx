@@ -40,7 +40,7 @@ const CreateShop = ({ initShops }) => {
                             return
                         }
 
-                        const [ok, ] = await RestAPI.create_shop(name, address)
+                        const [ok, ] = await RestAPI.createShop(name, address)
                         if (ok) {
                             initShops()
                             addNotification(`Магазин создан`)

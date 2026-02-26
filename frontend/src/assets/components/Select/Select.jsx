@@ -16,7 +16,7 @@ const Select = forwardRef((
         onChange = () => {},
         visibleCount = 3,
         small = false,
-        search_input = false
+        searchInput = false
     },
     ref
 ) => {
@@ -134,7 +134,7 @@ const Select = forwardRef((
 
     }, [showItems])
 
-    const select_height = `calc(
+    const selectHeight = `calc(
         ${visibleCount} * var(--option-height)
         + ${(visibleCount - 1)} * var(--option-margin-bottom)
         + 2 * var(--select-padding-block)
@@ -144,10 +144,10 @@ const Select = forwardRef((
         <div
             ref={containerRef}
             className={`select ${small ? "small" : ""}`}
-            style={{ height: select_height }}
+            style={{ height: selectHeight }}
         >
             {
-                search_input && <Input
+                searchInput && <Input
                     placeholder={"Поиск"}
                     onChange={(e) => {setSearch(e.target.value)}}
                 ></Input>

@@ -26,19 +26,18 @@ const ManagerItemUser = ({ user }) => {
     const updateUser = useCallback(async () => {
         const row = managerRef.current
         const email = row.querySelector('.manager-item-header').textContent
-        const [ok, ] = await RestAPI.update_user(email, status)
+        const [ok, ] = await RestAPI.updateUser(email, status)
         if (ok) {
             addNotification(`${email} получил новый статус`)
             setLocalStatus(status)
             setStatus(status)
         }
-    }, [status, addNotification])
+    }, [managerRef, status, addNotification])
 
     const updateButton = <Button
         disabled={localStatus == status}
         onClick={async () => updateUser()}
     >Изменить</Button>
-
 
     return (
         <ManagerItem title={user.email} ref={managerRef}>

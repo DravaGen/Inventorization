@@ -26,7 +26,7 @@ const AddItem = ({ getAllItems }) => {
                 />
                 <Button
                     onClick={async () => {
-                        const [ok, ] = await RestAPI.create_item(
+                        const [ok, ] = await RestAPI.createItem(
                             inputRef.current.value.trim()
                         )
                         if (ok) {

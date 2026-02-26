@@ -24,29 +24,29 @@ function checkUserMinStatus(minStatus) {
 
 class RestAPI {
 
-    static _add_notif = (message, type) => {}  // eslint-disable-line no-unused-vars
-    static _old_notif_message = null
-    static _send_notif_datetime = null
+    static _addNotif = (message, type) => {}  // eslint-disable-line no-unused-vars
+    static _oldNotifMessage = null
+    static _sendNotifDatetime = null
 
     static _logouting = () => {}
 
-    static set_add_notif(fn) {
-        this._add_notif = fn
+    static setAddNotif(fn) {
+        this._addNotif = fn
     }
 
-    static set_logouting(fn) {
+    static setLogouting(fn) {
         this._logouting = fn
     }
 
-    static send_notif(message, type) {
+    static sendNotif(message, type) {
         if (
-            this._old_notif_message == message
-            && this._send_notif_datetime + 8000 > new Date().getTime()
+            this._oldNotifMessage == message
+            && this._sendNotifDatetime + 8000 > new Date().getTime()
         ) return
 
-        this._add_notif(message, type)
-        this._old_notif_message = message
-        this._send_notif_datetime = new Date().getTime()
+        this._addNotif(message, type)
+        this._oldNotifMessage = message
+        this._sendNotifDatetime = new Date().getTime()
     }
 
     static async handleError(error) {
@@ -116,7 +116,7 @@ class RestAPI {
                 message = detail
             }
 
-            this.send_notif(message, "error")
+            this.sendNotif(message, "error")
         }
 
         return [ok, data]
@@ -151,14 +151,14 @@ class RestAPI {
         )
     }
 
-    static async get_shops() {
+    static async getShops() {
         return await this._makeRequest(
             `${SERVER_URL}/shops/list`,
             {method: "GET"}
         )
     }
 
-    static async signup_user(email, status) {
+    static async signupUser(email, status) {
         return await this._makeRequest(
             `${SERVER_URL}/users/`,
             {
@@ -168,7 +168,7 @@ class RestAPI {
         )
     }
 
-    static async update_user(email, status) {
+    static async updateUser(email, status) {
         return await this._makeRequest(
             `${SERVER_URL}/users/?email=${email}`,
             {
@@ -178,7 +178,7 @@ class RestAPI {
         )
     }
 
-    static async create_shop(name, address) {
+    static async createShop(name, address) {
         return await this._makeRequest(
             `${SERVER_URL}/shops/`,
             {
@@ -188,14 +188,14 @@ class RestAPI {
         )
     }
 
-    static async get_access(shopId) {
+    static async getAccess(shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/?shop_id=${shopId}`,
             {method: 'GET'}
         )
     }
 
-    static async grant_access(userId, shopId) {
+    static async grantAccess(userId, shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/`,
             {
@@ -208,7 +208,7 @@ class RestAPI {
         )
     }
 
-    static async delete_access(userId, shopId) {
+    static async deleteAccess(userId, shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/`,
             {
@@ -221,21 +221,21 @@ class RestAPI {
         )
     }
 
-    static async get_self_access() {
+    static async getSelfAccess() {
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/self`,
             {method: 'GET'}
         )
     }
 
-    static async get_items() {
+    static async getItems() {
         return await this._makeRequest(
             `${SERVER_URL}/items/`,
             {method: 'GET'}
         )
     }
 
-    static async create_item(name) {
+    static async createItem(name) {
         return await this._makeRequest(
             `${SERVER_URL}/items/`,
             {
@@ -245,7 +245,7 @@ class RestAPI {
         )
     }
 
-    static async delete_item(itemId) {
+    static async deleteItem(itemId) {
         return await this._makeRequest(
             `${SERVER_URL}/items/`,
             {
@@ -255,109 +255,101 @@ class RestAPI {
         )
     }
 
-    static async get_solds(offset, limit) {
+    static async getSolds(offset, limit) {
         return await this._makeRequest(
             `${SERVER_URL}/items/sold?offset=${offset}&limit=${limit}`,
             {method: 'GET'}
         )
     }
 
-    static async add_shop_item(shop_id, item_id, price, quantity, purchase_price) {
+    static async addShopItem(shopId, itemId, price, quantity, purchasePrice) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/shop/?shop_id=${shop_id}`,
+            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
             {
                 method: 'POST',
-                json: {shop_id, item_id, price, quantity, purchase_price}
+                json: {
+                    shop_id: shopId,
+                    item_id: itemId,
+                    price, quantity,
+                    purchase_price: purchasePrice
+                }
             }
         )
     }
 
-    static async get_shop_items(shopId) {
+    static async getShopItems(shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
             {method: 'GET'}
         )
     }
 
-    static async delete_shop_item(shopId, itemId) {
-        let formData = new FormData();
-        formData.append('item_id', itemId);
-
+    static async deleteShopItem(shopId, itemId) {
         return await this._makeRequest(
             `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
             {
                 method: 'DELETE',
-                body: formData
+                json: {item_id: itemId}
             }
         )
     }
 
-    static async add_shop_queue(shopId, itemId, price, quantity, purchasePrice) {
-        let formData = new FormData();
-        formData.append('item_id', itemId);
-        formData.append('price', price);
-        formData.append('quantity', quantity);
-        formData.append('purchase_price', purchasePrice);
-
+    static async addShopQueue(shopId, itemId, price, quantity, purchasePrice) {
         return await this._makeRequest(
             `${SERVER_URL}/items/shop/queue?shop_id=${shopId}`,
             {
                 method: 'POST',
-                body: formData
+                json: {
+                    item_id: itemId,
+                    price, quantity,
+                    purchase_price: purchasePrice
+                }
             }
         )
     }
 
-    static async add_cart_item(shopId, itemId, quantity) {
-        let formData = new FormData();
-        formData.append('item_id', itemId);
-        formData.append('quantity', quantity);
-
+    static async addCartItem(shopId, itemId, quantity) {
         return await this._makeRequest(
             `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
             {
                 method: 'POST',
-                body: formData
+                json: {item_id: itemId, quantity}
             }
         )
     }
 
-    static async get_cart_items(shopId) {
+    static async getCartItems(shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
             {method: 'GET'}
         )
     }
 
-    static async del_cart_item(shopId, itemId, quantity) {
-        let formData = new FormData();
-        formData.append('item_id', itemId);
-        formData.append('quantity', quantity);
-
+    static async delCartItem(shopId, itemId, quantity) {
         return await this._makeRequest(
             `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
             {
                 method: 'DELETE',
-                body: formData
+                json: {item_id: itemId, quantity}
             }
         )
     }
 
-    static async clear_cart(shopId) {
+    static async clearCart(shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/items/cart/all?shop_id=${shopId}`,
             {method: 'DELETE'}
         )
     }
 
-    static async confirm_cart(shopId) {
+    static async confirmCart(shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/items/cart/confirm?shop_id=${shopId}`,
             {method: 'POST'}
         )
     }
 
-    static async get_users(userIds) {
+    static async getUsers(userIds) {
         return await this._makeRequest(
             `${SERVER_URL}/users/get`,
             {
@@ -367,8 +359,8 @@ class RestAPI {
         )
     }
 
-    static async get_all_users() {
-        return this.get_users([])
+    static async getAllUsers() {
+        return this.getUsers([])
     }
 
 }

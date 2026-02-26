@@ -43,7 +43,7 @@ const AddUser = ({ initBlocksData }) => {
                             return
                         }
 
-                        const [ok, ] = await RestAPI.signup_user(email, status)
+                        const [ok, ] = await RestAPI.signupUser(email, status)
                         if (ok) {
                             initBlocksData()
                             addNotification(`Пользователь ${email} создан`)

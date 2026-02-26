@@ -33,12 +33,12 @@ const ItemsManager = () => {
     const allItemsBlockRef = useRef(null)
 
     const getAllItems = useCallback(async () => {
-        const [ok, response] = await RestAPI.get_items()
+        const [ok, response] = await RestAPI.getItems()
         ok && setAllItems(response)
     }, [setAllItems])
 
     const getItemsInShop = useCallback(async () => {
-        const [ok, response] = await RestAPI.get_shop_items(shop_id)
+        const [ok, response] = await RestAPI.getShopItems(shop_id)
         ok && setItemsInShop(response)
     }, [shop_id, setItemsInShop])
 
@@ -59,8 +59,8 @@ const ItemsManager = () => {
         }
 
         for (const checkbox of checkboxes) {
-            const item_id = getElementUUID(checkbox)
-            await RestAPI.delete_item(item_id)
+            const itemId = getElementUUID(checkbox)
+            await RestAPI.deleteItem(itemId)
         }
 
         getAllItems()

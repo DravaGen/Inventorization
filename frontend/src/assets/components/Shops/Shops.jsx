@@ -10,7 +10,7 @@ const Shops = () => {
     const [shops, setShops] = useState([])
 
     const initShops = useCallback(async () => {
-        const [ok, response] = await RestAPI.get_shops()
+        const [ok, response] = await RestAPI.getShops()
         ok && setShops(response)
     }, [setShops])
 
@@ -22,14 +22,14 @@ const Shops = () => {
     }, [initShops])
 
 
-    let shops_elements = shops.map(
-        (shop) => <Shop key={shop.id} shop_id={shop.id} {...shop}/>
+    let shopsElements = shops.map(
+        (shop) => <Shop key={shop.id} shopId={shop.id} {...shop}/>
     )
     if (checkUserMinStatus(UserStatus.OWNER)) {
-        shops_elements.push(<CreateShop initShops={initShops} key={"add-shop"} />)
+        shopsElements.push(<CreateShop initShops={initShops} key={"add-shop"} />)
     }
 
-    return <div className="shops">{shops_elements}</div>
+    return <div className="shops">{shopsElements}</div>
 }
 
 

@@ -32,24 +32,24 @@ const AccessShopManager = () => {
     const otherBlock = useRef(null)
 
     const getAccessUsers = useCallback(async (shop_id) => {
-        let [ok_access, access] = await RestAPI.get_access(shop_id)
-        const user_ids = ok_access ? access.user_ids : []
-        if (user_ids.length == 0) return []
+        let [okAccess, access] = await RestAPI.getAccess(shop_id)
+        const userIds = okAccess ? access.user_ids : []
+        if (userIds.length == 0) return []
 
-        let [ok_users_data, users_data] = await RestAPI.get_users(user_ids)
-        return ok_users_data ? users_data : []
+        let [okUsersData, usersData] = await RestAPI.getUsers(userIds)
+        return okUsersData ? usersData : []
     }, [])
 
-    const filterOtherUsers = useCallback((all_users, access_users) => {
-        const access_user_ids = access_users.map(user => user.id)
-        return all_users.filter((user) => !access_user_ids.includes(user.id))
+    const filterOtherUsers = useCallback((allUsers, accessUsers) => {
+        const accessUserIds = accessUsers.map(user => user.id)
+        return allUsers.filter((user) => !accessUserIds.includes(user.id))
     }, [])
 
     const getOtherUsers = useCallback(async (shop_id) => {
-        const access_users = await getAccessUsers(shop_id)
-        const [ok, response] = await RestAPI.get_all_users()
-        const all_users = ok ? response : []
-        return filterOtherUsers(all_users, access_users)
+        const accessUsers = await getAccessUsers(shop_id)
+        const [ok, response] = await RestAPI.getAllUsers()
+        const allUsers = ok ? response : []
+        return filterOtherUsers(allUsers, accessUsers)
     }, [getAccessUsers, filterOtherUsers])
 
     const initBlocksData = useCallback(async () => {
@@ -73,8 +73,8 @@ const AccessShopManager = () => {
         }
 
         for (const checkbox of checkboxes) {
-            const user_id = getElementUUID(checkbox)
-            await RestAPI.delete_access(user_id, shop_id)
+            const userId = getElementUUID(checkbox)
+            await RestAPI.deleteAccess(userId, shop_id)
         }
 
         initBlocksData()
@@ -92,8 +92,8 @@ const AccessShopManager = () => {
         }
 
         for (const checkbox of checkboxes) {
-            const user_id = getElementUUID(checkbox)
-            await RestAPI.grant_access(user_id, shop_id)
+            const userId = getElementUUID(checkbox)
+            await RestAPI.grantAccess(userId, shop_id)
         }
 
         initBlocksData()
@@ -114,7 +114,7 @@ const AccessShopManager = () => {
                     </ManagerContent>
                     <ManagerControlButton
                         onClick={async () => {logicDeleteAceess()}}
-                    >Удалить</ManagerControlButton>
+                    >Отозвать доступ</ManagerControlButton>
                 </Block>
             </ManagerBlock>
 
@@ -128,7 +128,7 @@ const AccessShopManager = () => {
                     </ManagerContent>
                     <ManagerControlButton
                         onClick={async () => {logicGrantAccess()}}
-                    >Переместить</ManagerControlButton>
+                    >Выдать доступ</ManagerControlButton>
                 </Block>
             </ManagerBlock>
 

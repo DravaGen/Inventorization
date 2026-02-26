@@ -18,8 +18,8 @@ const getActivatedCheckbox = (block) => {
 
 const getElementUUID = (element) => {
     const row = element.closest('.manager-item-row')
-    const id_div = row.querySelector('.manager-item-body > div:first-child')
-    return id_div.textContent.replace('id: ', '').trim()
+    const idDiv = row.querySelector('.manager-item-body > div:first-child')
+    return idDiv.textContent.replace('id: ', '').trim()
 }
 
 export { getActivatedCheckbox, getElementUUID }

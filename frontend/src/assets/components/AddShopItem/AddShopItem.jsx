@@ -30,7 +30,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
             return
         }
 
-        const [ok, ] = await RestAPI.add_shop_item(
+        const [ok, ] = await RestAPI.addShopItem(
             shop_id, item, price, quantity, purchase
         )
         if (ok) {
@@ -48,7 +48,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
             <InlineGroup>
                 <Select
                     ref={itemRef}
-                    search_input={true}
+                    searchInput={true}
                     visibleCount={4}
                 >{items.map((item) => (
                     <SelectOption
