@@ -49,7 +49,7 @@ const Select = forwardRef((
 
     useImperativeHandle(ref, () => ({
         get value() {
-            return selected
+            return selected ?? null
         },
         set value(val) {
             setSelected(val)
