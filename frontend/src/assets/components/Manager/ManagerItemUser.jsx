@@ -7,7 +7,7 @@ import RestAPI from "../../../RestAPI"
 import AppContext from "../../AppContext"
 
 
-const ManagerItemUser = ({ user }) => {
+const ManagerItemUser = ({ user, headerIndicator }) => {
 
     const {
         addNotification
@@ -40,7 +40,11 @@ const ManagerItemUser = ({ user }) => {
     >Изменить</Button>
 
     return (
-        <ManagerItem title={user.email} ref={managerRef}>
+        <ManagerItem
+            title={user.email}
+            ref={managerRef}
+            headerIndicator={headerIndicator}
+        >
             <div>id: {user.id}</div>
             <div className="line">Статус: {selectElement}</div>
             {updateButton}

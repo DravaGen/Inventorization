@@ -13,7 +13,7 @@ import {
 import { Block, BlockHeader} from "../components/Block"
 import { AddUser } from "../components/AddUser"
 import AppContext from "../AppContext"
-import RestAPI from "../../RestAPI"
+import RestAPI, { UserStatus } from "../../RestAPI"
 
 
 const AccessShopManager = () => {
@@ -31,13 +31,26 @@ const AccessShopManager = () => {
     const accessBlock = useRef(null)
     const otherBlock = useRef(null)
 
+    const issueHeaderIndicator = useCallback((users) => {
+        users.forEach(user => {
+            if (user.status === UserStatus.WORKER) {
+                user.headerIndicator = "green";
+            } else if (user.status === UserStatus.BANNED) {
+                user.headerIndicator = "red";
+            } else {
+                user.headerIndicator = "yellow";
+            }
+        });
+        return users;
+    }, [])
+
     const getAccessUsers = useCallback(async (shop_id) => {
         let [okAccess, access] = await RestAPI.getAccess(shop_id)
         const userIds = okAccess ? access.user_ids : []
         if (userIds.length == 0) return []
 
         let [okUsersData, usersData] = await RestAPI.getUsers(userIds)
-        return okUsersData ? usersData : []
+        return okUsersData ? issueHeaderIndicator(usersData) : []
     }, [])
 
     const filterOtherUsers = useCallback((allUsers, accessUsers) => {
@@ -49,7 +62,7 @@ const AccessShopManager = () => {
         const accessUsers = await getAccessUsers(shop_id)
         const [ok, response] = await RestAPI.getAllUsers()
         const allUsers = ok ? response : []
-        return filterOtherUsers(allUsers, accessUsers)
+        return filterOtherUsers(issueHeaderIndicator(allUsers), accessUsers)
     }, [getAccessUsers, filterOtherUsers])
 
     const initBlocksData = useCallback(async () => {
@@ -110,7 +123,12 @@ const AccessShopManager = () => {
                 <Block>
                     <BlockHeader>Работники имеющие доступ</BlockHeader>
                     <ManagerContent>
-                        {accessUsers.map((user) => <ManagerItemUser key={user.id} user={user} />)}
+                        {accessUsers.map(
+                            (user) => <ManagerItemUser
+                                key={user.id}
+                                user={user}
+                                headerIndicator={user.headerIndicator}
+                        />)}
                     </ManagerContent>
                     <ManagerControlButton
                         onClick={async () => {logicDeleteAceess()}}
@@ -124,7 +142,12 @@ const AccessShopManager = () => {
                     <BlockHeader>Работники</BlockHeader>
                     <ManagerContent>
                         <AddUser initBlocksData={initBlocksData} />
-                        {otherUsers.map((user) => <ManagerItemUser key={user.id} user={user} />)}
+                        {otherUsers.map(
+                            (user) => <ManagerItemUser
+                                key={user.id}
+                                user={user}
+                                headerIndicator={user.headerIndicator}
+                        />)}
                     </ManagerContent>
                     <ManagerControlButton
                         onClick={async () => {logicGrantAccess()}}
