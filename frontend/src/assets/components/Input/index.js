@@ -1,6 +1,6 @@
 import "./index.css"
 export { default as Input } from "./Input"
-export { default as InputInvalid } from "./InputInvalid"
+export { default as InputValidator } from "./InputValidator"
 export { default as InputEmail } from "./InputEmail"
 export { default as InputCode } from "./InputCode"
 export { default as InputNumber } from "./InputNumber"

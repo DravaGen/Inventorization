@@ -1,4 +1,4 @@
-import InputInvalid from "./InputInvalid"
+import InputValidator from "./InputValidator"
 
 
 
@@ -8,7 +8,7 @@ const checkEmailInput = (e) => {
 
 
 const InputEmail = ({...props}) => {
-    return <InputInvalid
+    return <InputValidator
         {...props}
         condition={checkEmailInput}
     />

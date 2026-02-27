@@ -1,10 +1,10 @@
-import InputInvalid from "./InputInvalid"
+import InputValidator from "./InputValidator"
 
 
 const InputNumber = ({ condition = () => true, ...props }) => {
 
     return (
-        <InputInvalid
+        <InputValidator
             {...props}
             condition={(e) => {return /^\d*$/.test(e) && condition(e)}}
             output={(e) => {return e.replace(/[^0-9]/g, '')}}

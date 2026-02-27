@@ -2,7 +2,7 @@ import { useState } from "react"
 import Input from "./Input"
 
 
-const InputInvalid = (
+const InputValidator = (
     {
         condition,
         output = (e) => {return e},
@@ -30,4 +30,4 @@ const InputInvalid = (
 }
 
 
-export default InputInvalid
+export default InputValidator
