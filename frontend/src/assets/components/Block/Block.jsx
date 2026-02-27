@@ -1,7 +1,18 @@
 
 
-const Block = ({ children, ...props }) => {
-    return <div className="block" {...props}>{children}</div>
+const Block = ({
+    children,
+    className="",
+    ...props
+}) => {
+    return (
+        <div
+            className={`block ${className}`}
+            {...props}
+        >
+            {children}
+        </div>
+    )
 }
 
 

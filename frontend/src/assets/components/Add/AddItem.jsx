@@ -1,4 +1,6 @@
 import { useContext, useRef } from "react"
+
+import AddConstructor from "./AddConstructor"
 import { Input } from "../Input"
 import { Button } from "../Button"
 import { InlineGroup } from "../InlineGroup"
@@ -14,9 +16,10 @@ const AddItem = ({ getAllItems }) => {
     } = useContext(AppContext)
 
     return (
-        <div id="add-item">
-            <div className="block-name">Создать товар</div>
-
+        <AddConstructor
+            idName={"add-item"}
+            blockName={"Создать товар"}
+        >
             <InlineGroup>
                 <Input
                     id="name"
@@ -37,7 +40,7 @@ const AddItem = ({ getAllItems }) => {
                     }}
                 >Добавить</Button>
             </InlineGroup>
-        </div>
+        </AddConstructor>
     )
 }
 

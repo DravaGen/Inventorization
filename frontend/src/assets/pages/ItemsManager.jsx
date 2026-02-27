@@ -77,12 +77,12 @@ const ItemsManager = () => {
             <ManagerBlock>
                 <Block>
                     <BlockHeader>Товар в магазине</BlockHeader>
+                    <AddShopItem
+                        shop_id={shop_id}
+                        items={allItems}
+                        getItemsInShop={getItemsInShop}
+                    />
                     <ManagerContent>
-                        <AddShopItem
-                            shop_id={shop_id}
-                            items={allItems}
-                            getItemsInShop={getItemsInShop}
-                        />
                         {itemsInShop.map(
                             (item) => <ManagerItemShopItem
                                 key={item.id}
@@ -104,8 +104,8 @@ const ItemsManager = () => {
             <ManagerBlock>
                 <Block ref={allItemsBlockRef}>
                     <BlockHeader>Доступный товар</BlockHeader>
+                    <AddItem getAllItems={getAllItems}/>
                     <ManagerContent>
-                        <AddItem getAllItems={getAllItems}/>
                         {allItems.map(
                             (item) => <ManagerItemAllItem
                                 key={item.id}

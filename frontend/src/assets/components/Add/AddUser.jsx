@@ -1,10 +1,11 @@
 import { useRef, useContext } from "react"
+
+import AddConstructor from "./AddConstructor"
 import { Input } from "../Input"
 import { Button } from "../Button"
-import { SelectUserStatus } from "../Select"
 import { InlineGroup } from "../InlineGroup"
 import AppContext from "../../AppContext"
-import RestAPI from "../../../RestAPI"
+import RestAPI, { UserStatus } from "../../../RestAPI"
 
 
 const AddUser = ({ initBlocksData }) => {
@@ -14,12 +15,12 @@ const AddUser = ({ initBlocksData }) => {
     } = useContext(AppContext)
 
     const emailRef = useRef(null)
-    const statusRef = useRef(null)
 
     return (
-        <div id="add-user">
-            <div className="block-name">Добавить работника</div>
-
+        <AddConstructor
+            idName={"add-user"}
+            blockName={"Добавить работника"}
+        >
             <InlineGroup>
                 <Input
                     id="email"
@@ -27,11 +28,10 @@ const AddUser = ({ initBlocksData }) => {
                     placeholder="email нового работника"
                     ref={emailRef}
                 />
-                <SelectUserStatus ref={statusRef} visibleCount={2} />
                 <Button
                     onClick={async () => {
                         const email = emailRef.current.value.trim()
-                        const status = statusRef.current.value
+                        const status = UserStatus.BANNED
 
                         if (!email) {
                             addNotification("Адрес электронной почты не может быть пустым", "warning")
@@ -52,7 +52,7 @@ const AddUser = ({ initBlocksData }) => {
                     }}
                 >Добавить</Button>
             </InlineGroup>
-        </div>
+        </AddConstructor>
     )
 }
 

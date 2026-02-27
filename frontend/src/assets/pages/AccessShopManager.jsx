@@ -140,8 +140,8 @@ const AccessShopManager = () => {
             <ManagerBlock ref={otherBlock}>
                 <Block>
                     <BlockHeader>Работники</BlockHeader>
+                    <AddUser initBlocksData={initBlocksData} />
                     <ManagerContent>
-                        <AddUser initBlocksData={initBlocksData} />
                         {otherUsers.map(
                             (user) => <ManagerItemUser
                                 key={user.id}

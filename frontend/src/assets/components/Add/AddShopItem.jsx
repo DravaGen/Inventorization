@@ -1,5 +1,6 @@
 import { useRef, useCallback, useContext} from "react"
 
+import AddConstructor from "./AddConstructor"
 import { InputNumber, isUnsignedInteger } from "../Input"
 import { Select, SelectOption } from "../Select"
 import { Button } from "../Button"
@@ -42,9 +43,10 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
     }, [itemRef, quantityRef, priceRef, purchaseRef])
 
     return (
-        <div id="add-shop-item">
-            <div className="block-name">Добавить товар</div>
-
+        <AddConstructor
+            idName={"add-shop-item"}
+            blockName={"Добавить товар"}
+        >
             <InlineGroup>
                 <Select
                     ref={itemRef}
@@ -81,7 +83,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
             <Button
                 onClick={logicAddItemShop}
             >Добавить</Button>
-        </div>
+        </AddConstructor>
     )
 }
 
