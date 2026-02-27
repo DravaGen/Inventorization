@@ -90,8 +90,8 @@ const ItemsManager = () => {
                             />
                         )}
                         {itemsInShopQueues.map(
-                            (item) => <ManagerItemShopItem
-                                key={item.id}
+                            (item, index) => <ManagerItemShopItem
+                                key={`${item.id}-${index}`}
                                 item={item}
                                 isQueue={true}
                             />
