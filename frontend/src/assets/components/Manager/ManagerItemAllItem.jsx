@@ -1,7 +1,7 @@
 import ManagerItem from "./ManagerItem"
 
 
-const ManagerItemItem = ({ item }) => {
+const ManagerItemAllItem = ({ item }) => {
     return (
         <ManagerItem title={item.name}>
             <div>id: {item.id}</div>
@@ -11,4 +11,4 @@ const ManagerItemItem = ({ item }) => {
 }
 
 
-export default ManagerItemItem
+export default ManagerItemAllItem

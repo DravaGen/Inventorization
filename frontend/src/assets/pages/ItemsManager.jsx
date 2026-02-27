@@ -5,7 +5,7 @@ import {
 import { useParams } from "react-router-dom"
 
 import {
-    Manager, ManagerBlock, ManagerItemItem,
+    Manager, ManagerBlock, ManagerItemAllItem,
     ManagerContent, ManagerControlButton,
     getActivatedCheckbox, getElementUUID
 } from "../components/Manager"
@@ -82,8 +82,8 @@ const ItemsManager = () => {
                             items={allItems}
                             getItemsInShop={getItemsInShop}
                         />
-                        {itemsInShop.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
-                        {itemsInShopQueues.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
+                        {itemsInShop.map((item) => <ManagerItemAllItem key={item.id} item={item}/>)}
+                        {itemsInShopQueues.map((item) => <ManagerItemAllItem key={item.id} item={item}/>)}
                     </ManagerContent>
                     <ManagerControlButton>Удалить</ManagerControlButton>
                 </Block>
@@ -94,7 +94,7 @@ const ItemsManager = () => {
                     <BlockHeader>Доступный товар</BlockHeader>
                     <ManagerContent>
                         <AddItem getAllItems={getAllItems}/>
-                        {allItems.map((item) => <ManagerItemItem key={item.id} item={item}/>)}
+                        {allItems.map((item) => <ManagerItemAllItem key={item.id} item={item}/>)}
                     </ManagerContent>
                     <ManagerControlButton
                         onClick={async () => {logicDeleteItem()}}
