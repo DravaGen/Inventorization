@@ -7,10 +7,9 @@
     position: relative;
 }
 
-.inline-group {
-    gap: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+.inline-group input,
+.inline-group select,
+.inline-group .readonly {
+    flex: 1;
+    min-width: 120px;
 }
