@@ -5,3 +5,14 @@
     justify-content: center;
     justify-items: stretch;
 }
+
+.shop > .block {
+    padding: 40px 20px 20px 20px;
+}
+
+.edit-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 5px;
+}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 
-import Shop from "../Shop/Shop"
+import Shop from "./Shop"
 import { AddShop } from "../Add"
 import RestAPI, { UserStatus, checkUserMinStatus } from "../../../RestAPI"
 
