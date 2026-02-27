@@ -15,6 +15,11 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
         addNotification
     } = useContext(AppContext)
 
+    const itemRef = useRef()
+    const priceRef = useRef()
+    const quantityRef = useRef()
+    const purchaseRef = useRef()
+
     const [form, setForm] = useState({
         itemId: false,
         price: false,
@@ -29,6 +34,10 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
         )
         if (ok) {
             getItemsInShop()
+            itemRef.current.clear()
+            priceRef.current.clear()
+            quantityRef.current.clear()
+            purchaseRef.current.clear()
             addNotification("Товар добавлен в магазин")
         }
     }, [form, getItemsInShop, addNotification])
@@ -41,6 +50,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
         >
             <InlineGroup>
                 <Select
+                    ref={itemRef}
                     searchInput={true}
                     visibleCount={4}
                     updateForm={() => [setForm, "itemId"]}
@@ -53,6 +63,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
             </InlineGroup>
 
             <InputNumber
+                ref={quantityRef}
                 type="number"
                 placeholder="Количество"
                 condition={isUnsignedInteger}
@@ -60,12 +71,14 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
             />
             <InlineGroup>
                 <InputNumber
+                    ref={priceRef}
                     type="number"
                     placeholder="Цена продажи"
                     condition={isUnsignedInteger}
                     updateForm={() => [setForm, "price"]}
                 />
                 <InputNumber
+                    ref={purchaseRef}
                     type="number"
                     placeholder="Цена закупки"
                     condition={isUnsignedInteger}

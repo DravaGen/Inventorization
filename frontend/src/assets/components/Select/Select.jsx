@@ -150,6 +150,9 @@ const Select = forwardRef((
         },
         set value(val) {
             logicSelect(val)
+        },
+        clear() {
+            logicSelect(null)
         }
     }))
 
