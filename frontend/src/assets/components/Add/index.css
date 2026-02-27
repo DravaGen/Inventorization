@@ -4,7 +4,6 @@
     background-color: #f0f0f0;
 }
 
-
 #add-shop-item {
     gap: 3px;
     display: flex;
@@ -18,5 +17,3 @@
 #add-user > .inline-group > .select {
     width: auto;
 }
-
-

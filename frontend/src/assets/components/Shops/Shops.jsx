@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
 import Shop from "../Shop/Shop"
-import CreateShop from "../CreateShop"
+import { AddShop } from "../Add"
 import RestAPI, { UserStatus, checkUserMinStatus } from "../../../RestAPI"
 
 
@@ -26,7 +26,7 @@ const Shops = () => {
         (shop) => <Shop key={shop.id} shopId={shop.id} {...shop}/>
     )
     if (checkUserMinStatus(UserStatus.OWNER)) {
-        shopsElements.push(<CreateShop initShops={initShops} key={"add-shop"} />)
+        shopsElements.push(<AddShop initShops={initShops} key={"add-shop"} />)
     }
 
     return <div className="shops">{shopsElements}</div>

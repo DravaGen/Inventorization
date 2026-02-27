@@ -1,13 +1,13 @@
 import { useContext, useRef } from "react"
 
-import { Block, BlockHeader} from "../Block"
+import AddConstructor from "./AddConstructor"
 import { Input } from "../Input"
 import { Button } from "../Button"
 import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
 
 
-const CreateShop = ({ initShops }) => {
+const AddShop = ({ initShops }) => {
     const {
         addNotification
     } = useContext(AppContext)
@@ -16,10 +16,12 @@ const CreateShop = ({ initShops }) => {
     const addressRef = useRef(null)
 
     return (
-        <div id="create-shop">
-        <div className="create-shop">
-            <Block>
-                <BlockHeader>Добавить магазин</BlockHeader>
+        <div>
+            <AddConstructor
+                idName={"add-shop"}
+                blockName={"Добавить магазин"}
+                addStyle={false}
+            >
                 <Input
                     ref={nameRef}
                     maxLength={32}
@@ -49,11 +51,10 @@ const CreateShop = ({ initShops }) => {
                         }
                     }}
                 >Добавить</Button>
-            </Block>
-        </div>
+            </AddConstructor>
         </div>
     )
 }
 
 
-export default CreateShop
+export default AddShop
