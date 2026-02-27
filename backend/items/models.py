@@ -19,6 +19,7 @@ class ItemORM(Base):
 
     items_sold = relationship("ItemSoldORM", back_populates="item")
     shop_items = relationship("ShopItemsORM", back_populates="item")
+    shop_queues = relationship("ShopQueueORM", back_populates="item")
 
 
 class ItemSoldORM(Base):

@@ -7,9 +7,10 @@ from sqlalchemy.exc import IntegrityError
 
 from .models import ItemORM, ItemSoldORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
-    ItemResponse, ItemSoldResoinse, ItemShopForm, ItemQueueForm
+    ItemResponse, ItemInShopResponse, ItemSoldResoinse, ItemShopForm, \
+    ItemQueueForm
 from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
-    get_items_quantity
+    get_items_quantity, format_items_in_shop
 
 from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
 from shops.schemas import ShopCartItemResponse, ShopCartItemForm
@@ -157,7 +158,7 @@ async def add_shop_item(
 async def get_shop_items(
         shop_id: CurrentShopID,
         db: SessionDep
-) -> list[Optional[ItemResponse]]:
+) -> ItemInShopResponse:
     """Возвращает все товары которые есть в магазине"""
 
     items = await db.execute(
@@ -166,7 +167,16 @@ async def get_shop_items(
         .where(ShopItemsORM.shop_id == shop_id)
     )
 
-    return get_items_quantity(items.unique().scalars().all())
+    queue = await db.execute(
+        select(ShopQueueORM)
+        .options(joinedload(ShopQueueORM.item))
+        .where(ShopQueueORM.shop_id == shop_id)
+    )
+
+    return ItemInShopResponse(
+        items=format_items_in_shop(items.unique().scalars().all()),
+        queues=format_items_in_shop(queue.unique().scalars().all())
+    )
 
 
 @item_shop_route.delete(

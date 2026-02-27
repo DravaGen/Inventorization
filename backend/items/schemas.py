@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Optional
 from datetime import date
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -32,11 +33,25 @@ class ItemSchema(BaseModel):
     name: str
 
 
+class ItemInShopSchema(ItemSchema):
+    """"""
+
+    price: int
+    quantity: int
+    purchase_price: int
+
+
+
 class ItemResponse(ItemSchema):
     """Схема ответа информации о товаре и количестве"""
 
     quantity: int
 
+
+class ItemInShopResponse(BaseModel):
+
+    items: list[Optional[ItemInShopSchema]]
+    queues: list[Optional[ItemInShopSchema]]
 
 
 class ItemShopForm(BaseModel):

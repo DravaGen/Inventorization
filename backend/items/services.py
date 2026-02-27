@@ -1,11 +1,13 @@
 from uuid import UUID
+from typing import Optional
 from fastapi import HTTPException, status
 
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import ItemORM
-from .schemas import ItemSchema, ItemResponse, ItemShopForm, ItemQueueForm
+from .schemas import ItemSchema, ItemResponse, ItemInShopSchema, \
+    ItemShopForm, ItemQueueForm
 
 from responses import ResponseOK
 from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
@@ -13,7 +15,7 @@ from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
 
 def get_items_quantity(
         items: list[ItemORM | ShopItemsORM]
-) -> list[ItemResponse]:
+) -> list[Optional[ItemResponse]]:
     """
         Возвращает список информации о товаре и его общем количестве.
         Внутри происходит подсчет количества
@@ -48,6 +50,26 @@ def get_items_quantity(
         )
 
     return response
+
+
+def format_items_in_shop(
+        items: list[Optional[ShopItemsORM]]
+) -> list[Optional[ItemInShopSchema]]:
+    """"""
+
+    response = []
+
+    for item in items:
+        response.append(ItemInShopSchema(
+            id=item.item_id,
+            name=item.item.name,
+            price=item.price,
+            quantity=item.quantity,
+            purchase_price=item.purchase_price
+        ))
+
+    return response
+
 
 
 async def check_item_exists(

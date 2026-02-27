@@ -99,8 +99,8 @@ class ShopItemsORM(Base):
 class ShopQueueORM(Base):
     __tablename__ = "shop_queues"
 
-    item_id: Mapped[uuid.UUID] = mapped_column()
-    shop_id: Mapped[uuid.UUID] = mapped_column()
+    item_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("items.id"))
+    shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
     price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]
@@ -108,6 +108,7 @@ class ShopQueueORM(Base):
         server_default=func.now()
     )
 
+    item = relationship("ItemORM", back_populates="shop_queues")
     shop_items = relationship("ShopItemsORM", back_populates="queues")
 
     __table_args__ = (

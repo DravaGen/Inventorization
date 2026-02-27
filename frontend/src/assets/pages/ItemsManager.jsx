@@ -39,7 +39,8 @@ const ItemsManager = () => {
 
     const getItemsInShop = useCallback(async () => {
         const [ok, response] = await RestAPI.getShopItems(shop_id)
-        ok && setItemsInShop(response)
+        ok && setItemsInShop(response.items)
+        ok && setItemsInShopQueues(response.queues)
     }, [shop_id, setItemsInShop])
 
     useEffect(() => {
