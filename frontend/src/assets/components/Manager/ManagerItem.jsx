@@ -2,7 +2,12 @@ import { useState } from "react"
 import { Input } from "../Input"
 
 
-const ManagerItem = ({ title, children, ref }) => {
+const ManagerItem = ({
+    title,
+    children,
+    headerIndicator="none",
+    ref
+}) => {
     const [open, setOpen] = useState(false)
 
     return (
@@ -10,9 +15,12 @@ const ManagerItem = ({ title, children, ref }) => {
             <Input type="checkbox" />
             <div className={`manager-item ${open ? "open" : ""}`}>
                 <div
-                    className="manager-item-header"
+                    className={`manager-item-header`}
                     onClick={() => setOpen(!open)}
-                >{title}</div>
+                >
+                    <div className={`indicator ${headerIndicator}`}></div>
+                    {title}
+                </div>
                 <div className="manager-item-body">{children}</div>
             </div>
         </div>

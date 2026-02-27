@@ -66,9 +66,32 @@
 
     display: flex;
     align-items: center;
-    justify-content: space-between;
 
     position: relative;
+}
+
+.manager-item-header .indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.manager-item-header .indicator.none {
+    display: none;
+}
+
+.manager-item-header .indicator.red {
+    background-color: #ff6b6b;
+}
+
+.manager-item-header .indicator.yellow {
+    background-color: #ffd166;
+}
+
+.manager-item-header .indicator.green {
+    background-color: #50e3a4;
 }
 
 .manager-item-header:hover {
@@ -121,4 +144,9 @@
 
 .manager-item-body .select {
     margin: 3px;
+}
+
+.manager-item-body .item-in-queue {
+    margin-top: 3px;
+    font-weight: bold;
 }

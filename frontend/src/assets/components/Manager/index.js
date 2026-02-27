@@ -7,6 +7,7 @@ export { default as ManagerControlGroup } from "./ManagerControlGroup"
 export { default as ManagerItem } from "./ManagerItem"
 export { default as ManagerItemUser } from "./ManagerItemUser"
 export { default as ManagerItemAllItem } from "./ManagerItemAllItem"
+export { default as ManagerItemShopItem } from "./ManagerItemShopItem"
 
 const getActivatedCheckbox = (block) => {
     return Array.from(
