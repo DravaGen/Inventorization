@@ -11,8 +11,8 @@ import {
     getActivatedCheckbox, getElementUUID
 } from "../components/Manager"
 import { Block, BlockHeader} from "../components/Block"
-import { AddItem } from "../components/AddItem"
-import { AddShopItem } from "../components/AddShopItem"
+import { AddItem } from "../components/Add"
+import { AddShopItem } from "../components/Add"
 import RestAPI from "../../RestAPI"
 import AppContext from "../AppContext"
 

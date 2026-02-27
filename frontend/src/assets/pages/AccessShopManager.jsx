@@ -11,7 +11,7 @@ import {
 } from "../components/Manager"
 
 import { Block, BlockHeader} from "../components/Block"
-import { AddUser } from "../components/AddUser"
+import { AddUser } from "../components/Add"
 import AppContext from "../AppContext"
 import RestAPI, { UserStatus } from "../../RestAPI"
 
