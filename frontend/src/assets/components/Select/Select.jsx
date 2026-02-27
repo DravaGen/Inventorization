@@ -4,7 +4,8 @@ import {
     forwardRef,
     useImperativeHandle,
     useEffect,
-    useMemo
+    useMemo,
+    useCallback
 } from "react"
 import { Input } from "../Input"
 
@@ -14,6 +15,7 @@ const Select = forwardRef((
         children,
         value,
         onChange = () => {},
+        updateForm = () => {return [() => {}, ""]},
         visibleCount = 3,
         small = false,
         searchInput = false
@@ -46,17 +48,6 @@ const Select = forwardRef((
     useEffect(() => {
         hoveredRef.current = hovered
     }, [hovered])
-
-    useImperativeHandle(ref, () => ({
-        get value() {
-            return selected ?? null
-        },
-        set value(val) {
-            setSelected(val)
-            setHovered(val)
-            scrollToHovered(val)
-        }
-    }))
 
     const scrollToHovered = (val) => {
         const el = itemRefs.current[val]
@@ -140,6 +131,28 @@ const Select = forwardRef((
         + 2 * var(--select-padding-block)
     )`
 
+    const logicSelect = useCallback((value, isChange=false) => {
+        setSelected(value)
+        setHovered(value)
+        scrollToHovered(value)
+        isChange && onChange({target: {value}})
+
+        const [setForm, key] = updateForm()
+        setForm(prev => ({...prev, [key]: value}))
+    }, [
+        setSelected, setHovered, scrollToHovered,
+        onChange, updateForm
+    ])
+
+    useImperativeHandle(ref, () => ({
+        get value() {
+            return selected ?? null
+        },
+        set value(val) {
+            logicSelect(val)
+        }
+    }))
+
     return (
         <div
             ref={containerRef}
@@ -162,12 +175,7 @@ const Select = forwardRef((
                         key={val}
                         ref={el => (itemRefs.current[val] = el)}
                         className={`option ${isHover ? "hover" : ""} ${isFocus ? "focus" : ""}`}
-                        onClick={() => {
-                            setSelected(val)
-                            setHovered(val)
-                            scrollToHovered(val)
-                            onChange({ target: { value: val } })
-                        }}
+                        onClick={() => logicSelect(val, true)}
                         onMouseEnter={() => setHovered(val)}
                     >
                         {child.props.children}

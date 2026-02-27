@@ -1,4 +1,4 @@
-import { useRef, useCallback, useContext} from "react"
+import { useCallback, useContext, useRef, useState} from "react"
 
 import AddConstructor from "./AddConstructor"
 import { InputNumber, isUnsignedInteger } from "../Input"
@@ -15,32 +15,24 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
         addNotification
     } = useContext(AppContext)
 
-    const itemRef = useRef(null)
-    const quantityRef = useRef(null)
-    const priceRef = useRef(null)
-    const purchaseRef = useRef(null)
+    const [form, setForm] = useState({
+        itemId: false,
+        price: false,
+        quantity: false,
+        purchasePrice: false,
+    })
 
     const logicAddItemShop = useCallback(async () => {
-        const item = itemRef.current.value
-        const quantity = quantityRef.current.value
-        const price = priceRef.current.value
-        const purchase = purchaseRef.current.value
-
-        if (!item || !quantity || !price || !purchase) {
-            addNotification("Данные не заполнены", "warning")
-            return
-        }
-
+        const {itemId, price, quantity, purchasePrice} = form
         const [ok, ] = await RestAPI.addShopItem(
-            shop_id, item, price, quantity, purchase
+            shop_id, itemId, price, quantity, purchasePrice
         )
         if (ok) {
             getItemsInShop()
             addNotification("Товар добавлен в магазин")
         }
+    }, [form, getItemsInShop, addNotification])
 
-
-    }, [itemRef, quantityRef, priceRef, purchaseRef])
 
     return (
         <AddConstructor
@@ -49,9 +41,9 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
         >
             <InlineGroup>
                 <Select
-                    ref={itemRef}
                     searchInput={true}
                     visibleCount={4}
+                    updateForm={() => [setForm, "itemId"]}
                 >{items.map((item) => (
                     <SelectOption
                         key={item.id}
@@ -61,26 +53,27 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
             </InlineGroup>
 
             <InputNumber
-               ref={quantityRef}
                 type="number"
                 placeholder="Количество"
                 condition={isUnsignedInteger}
+                updateForm={() => [setForm, "quantity"]}
             />
             <InlineGroup>
                 <InputNumber
-                    ref={priceRef}
                     type="number"
                     placeholder="Цена продажи"
                     condition={isUnsignedInteger}
+                    updateForm={() => [setForm, "price"]}
                 />
                 <InputNumber
-                    ref={purchaseRef}
                     type="number"
                     placeholder="Цена закупки"
                     condition={isUnsignedInteger}
+                    updateForm={() => [setForm, "purchasePrice"]}
                 />
             </InlineGroup>
             <Button
+                disabled={!Object.values(form).every(Boolean)}
                 onClick={logicAddItemShop}
             >Добавить</Button>
         </AddConstructor>

@@ -6,6 +6,7 @@ const InputValidator = (
     {
         condition,
         output = (e) => {return e},
+        updateForm = () => {return [() => {}, ""]},
         className = "",
         ...props
     }
@@ -18,6 +19,9 @@ const InputValidator = (
         const result = condition(value)
         setInputValue(value)
         setError(!result && value)
+
+        const [setForm, key] = updateForm()
+        setForm(prev => ({...prev, [key]: result && value ? value : false}))
     }
 
     return (
