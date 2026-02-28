@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useCallback, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { Block } from "../Block"
@@ -14,30 +14,28 @@ const Header = () => {
         logouting
     } = useContext(AppContext)
 
+    const logicLogout = useCallback(() => {
+        logouting()
+        localStorage.clear()
+    }, [logouting])
+
+    const navigateRootPage = useCallback(() => {
+        navigate("/")
+    }, [navigate])
+
+    const inRootPage = window.location.pathname == "/"
+
     return (
         <header>
             <Block>
                 <div className="email">
                     {localStorage.email}
                 </div>
-
-                {
-                    window.location.pathname == "/"
-                        ? <Button
-                            onClick={() => {
-                                logouting()
-                                localStorage.clear()
-                            }}
-                        >Выйти</Button>
-                        : <Button
-                            onClick={() => {
-                                navigate("/")
-                            }}
-                        >
-                            Главная
-                        </Button>
-                }
-
+                <Button
+                    onClick={inRootPage ? logicLogout : navigateRootPage}
+                >
+                    {inRootPage ? "Выйти" : "Главная"}
+                </Button>
             </Block>
         </header>
     )
