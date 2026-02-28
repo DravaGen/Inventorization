@@ -10,7 +10,11 @@ body, html {
     padding: 20px;
 }
 
-div:not(input):not(textarea):not([contenteditable]) {
+div
+:not(input)
+:not(textarea)
+:not([contenteditable])
+:not(.manager-item-header) {
     user-select: none;
     cursor: default;
 }

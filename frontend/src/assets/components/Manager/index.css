@@ -57,9 +57,8 @@
 }
 
 .manager-item-header {
-    padding: 8px 10px;
     cursor: pointer;
-    user-select: none;
+    padding: 8px 10px;
 
     font-size: 14px;
     font-weight: 500;
