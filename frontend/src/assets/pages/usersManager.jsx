@@ -13,7 +13,7 @@ import {
 import { Block, BlockHeader} from "../components/Block"
 import { AddUser } from "../components/Add"
 import AppContext from "../AppContext"
-import RestAPI, { UserStatus } from "../../RestAPI"
+import RestAPI from "../../RestAPI"
 
 
 const UsersManager = () => {
@@ -31,26 +31,13 @@ const UsersManager = () => {
     const accessBlock = useRef(null)
     const otherBlock = useRef(null)
 
-    const issueHeaderIndicator = useCallback((users) => {
-        users.forEach(user => {
-            if (user.status === UserStatus.WORKER) {
-                user.headerIndicator = "green";
-            } else if (user.status === UserStatus.BANNED) {
-                user.headerIndicator = "red";
-            } else {
-                user.headerIndicator = "yellow";
-            }
-        });
-        return users;
-    }, [])
-
     const getAccessUsers = useCallback(async (shop_id) => {
         let [okAccess, access] = await RestAPI.getAccess(shop_id)
         const userIds = okAccess ? access.user_ids : []
         if (userIds.length == 0) return []
 
         let [okUsersData, usersData] = await RestAPI.getUsers(userIds)
-        return okUsersData ? issueHeaderIndicator(usersData) : []
+        return okUsersData ? usersData : []
     }, [])
 
     const filterOtherUsers = useCallback((allUsers, accessUsers) => {
@@ -62,7 +49,7 @@ const UsersManager = () => {
         const accessUsers = await getAccessUsers(shop_id)
         const [ok, response] = await RestAPI.getAllUsers()
         const allUsers = ok ? response : []
-        return filterOtherUsers(issueHeaderIndicator(allUsers), accessUsers)
+        return filterOtherUsers(allUsers, accessUsers)
     }, [getAccessUsers, filterOtherUsers])
 
     const initBlocksData = useCallback(async () => {
@@ -127,7 +114,6 @@ const UsersManager = () => {
                             (user) => <ManagerItemUser
                                 key={user.id}
                                 user={user}
-                                headerIndicator={user.headerIndicator}
                         />)}
                     </ManagerContent>
                     <ManagerControlButton
@@ -146,7 +132,6 @@ const UsersManager = () => {
                             (user) => <ManagerItemUser
                                 key={user.id}
                                 user={user}
-                                headerIndicator={user.headerIndicator}
                         />)}
                     </ManagerContent>
                     <ManagerControlButton

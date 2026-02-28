@@ -3,11 +3,11 @@ import { useCallback, useContext, useRef, useState } from "react"
 import ManagerItem from "./ManagerItem"
 import { SelectUserStatus } from "../Select"
 import { Button } from "../Button"
-import RestAPI from "../../../RestAPI"
+import RestAPI, { UserStatus } from "../../../RestAPI"
 import AppContext from "../../AppContext"
 
 
-const ManagerItemUser = ({ user, headerIndicator }) => {
+const ManagerItemUser = ({ user }) => {
 
     const {
         addNotification
@@ -16,6 +16,19 @@ const ManagerItemUser = ({ user, headerIndicator }) => {
     const managerRef = useRef(null)
     const [status, setStatus] = useState(user.status)
     const [localStatus, setLocalStatus] = useState(user.status)
+
+
+    const getHeaderIndicator = useCallback((user) => {
+        switch (user.status) {
+            case UserStatus.WORKER:
+                return "green"
+            case UserStatus.BANNED:
+                return "red"
+            default:
+                return "yellow"
+        }
+    }, [])
+    const [headerIndicator, setHeaderIndicator] = useState(getHeaderIndicator(user))
 
     const selectElement = <SelectUserStatus
         value={status}
@@ -28,9 +41,10 @@ const ManagerItemUser = ({ user, headerIndicator }) => {
         const email = row.querySelector('.manager-item-header').textContent
         const [ok, ] = await RestAPI.updateUser(email, status)
         if (ok) {
-            addNotification(`${email} получил новый статус`)
-            setLocalStatus(status)
             setStatus(status)
+            setLocalStatus(status)
+            setHeaderIndicator(getHeaderIndicator({status}))
+            addNotification(`${email} получил новый статус`)
         }
     }, [managerRef, status, addNotification])
 
