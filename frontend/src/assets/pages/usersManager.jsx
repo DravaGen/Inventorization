@@ -131,7 +131,7 @@ const UsersManager = () => {
                         />)}
                     </ManagerContent>
                     <ManagerControlButton
-                        onClick={async () => {logicDeleteAceess()}}
+                        onClick={logicDeleteAceess}
                     >Отозвать доступ</ManagerControlButton>
                 </Block>
             </ManagerBlock>
@@ -150,7 +150,7 @@ const UsersManager = () => {
                         />)}
                     </ManagerContent>
                     <ManagerControlButton
-                        onClick={async () => {logicGrantAccess()}}
+                        onClick={logicGrantAccess}
                     >Выдать доступ</ManagerControlButton>
                 </Block>
             </ManagerBlock>
