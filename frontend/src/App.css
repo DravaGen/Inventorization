@@ -4,19 +4,12 @@ body, html {
     height: 100%;
     color: #333;
     background: #f0f0f0;
+    cursor: default;
+    user-select: none;
 }
 
 #root {
     padding: 20px;
-}
-
-div
-:not(input)
-:not(textarea)
-:not([contenteditable])
-:not(.manager-item-header) {
-    user-select: none;
-    cursor: default;
 }
 
 body, input, select, button, textarea {

@@ -27,12 +27,15 @@
     padding: 0 8px;
     border-radius: 4px;
     border: 1px solid #ccc;
-    background-color: #fff;
-    cursor: pointer;
     margin-bottom: var(--option-margin-bottom);
 
     display: flex;
     align-items: center;
+}
+
+.option {
+    cursor: pointer;
+    background-color: #fff;
 }
 
 .select .option:last-child {
