@@ -1,7 +1,7 @@
-import { useContext, useRef } from "react"
+import { useCallback, useContext, useRef, useState } from "react"
 
 import AddConstructor from "./AddConstructor"
-import { Input } from "../Input"
+import { InputValidator } from "../Input"
 import { Button } from "../Button"
 import AppContext from "../../AppContext"
 import RestAPI from "../../../RestAPI"
@@ -12,8 +12,26 @@ const AddShop = ({ initShops }) => {
         addNotification
     } = useContext(AppContext)
 
-    const nameRef = useRef(null)
-    const addressRef = useRef(null)
+    const nameRef = useRef()
+    const addressRef = useRef()
+
+    const [form, setForm] = useState({
+        name: false,
+        address: false
+    })
+
+    const logicAddShop = useCallback(async () => {
+        const [ok, ] = await RestAPI.createShop(form.name, form.address)
+        if (ok) {
+            initShops()
+            addNotification(`Магазин создан`)
+            nameRef.current.clear()
+            addressRef.current.clear()
+        }
+    }, [
+        form, nameRef, addressRef,
+        initShops, addNotification
+    ])
 
     return (
         <div>
@@ -22,34 +40,21 @@ const AddShop = ({ initShops }) => {
                 blockName={"Добавить магазин"}
                 addStyle={false}
             >
-                <Input
+                <InputValidator
                     ref={nameRef}
                     maxLength={32}
+                    updateForm={() => [setForm, "name"]}
                     placeholder={"Название магазина"}
-                ></Input>
-                <Input
+                />
+                <InputValidator
                     ref={addressRef}
                     maxLength={64}
+                    updateForm={() => [setForm, "address"]}
                     placeholder={"Адрес"}
-                ></Input>
+                />
                 <Button
-                    onClick={async ()=>{
-                        const name = nameRef.current.value.trim()
-                        const address = addressRef.current.value.trim()
-
-                        if (!name || !address) {
-                            addNotification("Данные не заполнены", "warning")
-                            return
-                        }
-
-                        const [ok, ] = await RestAPI.createShop(name, address)
-                        if (ok) {
-                            initShops()
-                            addNotification(`Магазин создан`)
-                            nameRef.current.value = ""
-                            addressRef.current.value = ""
-                        }
-                    }}
+                    disabled={!Object.values(form).every(Boolean)}
+                    onClick={logicAddShop}
                 >Добавить</Button>
             </AddConstructor>
         </div>
