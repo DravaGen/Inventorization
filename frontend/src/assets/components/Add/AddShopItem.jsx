@@ -40,7 +40,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
             purchaseRef.current.clear()
             addNotification("Товар добавлен в магазин")
         }
-    }, [form, getItemsInShop, addNotification])
+    }, [shop_id, form, getItemsInShop, addNotification])
 
 
     return (
