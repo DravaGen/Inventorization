@@ -16,8 +16,8 @@ const InputValidator = forwardRef((
     const [error, setError] = useState(false)
     const [setForm, key] = updateForm()
 
-    const checkInvalidInput = (e) => {
-        const value = output(e.target.value.trim())
+    const checkInvalidInput = (v) => {
+        const value = output(v.trim())
         const result = condition(value)
         setInputValue(value)
         setError(!result && value)
@@ -25,6 +25,12 @@ const InputValidator = forwardRef((
     }
 
     useImperativeHandle(ref, () => ({
+        get value() {
+            return inputValue
+        },
+        set value(v) {
+            checkInvalidInput(v)
+        },
         clear() {
             setInputValue("")
             setForm(prev => ({...prev, [key]: false}))
@@ -35,7 +41,7 @@ const InputValidator = forwardRef((
         <Input {...props}
             value={inputValue}
             className={`${className} ${error ? "error" : ""}`}
-            onChange={checkInvalidInput}
+            onChange={(e) => {checkInvalidInput(e.target.value)}}
         />
     )
 })
