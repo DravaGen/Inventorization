@@ -79,8 +79,7 @@ const UsersManager = () => {
 
         initBlocksData()
     }, [
-        shop_id, addNotification, accessBlock,
-        getActivatedCheckbox, getElementUUID, initBlocksData
+        shop_id, addNotification, accessBlock, initBlocksData
     ])
 
     const logicGrantAccess = useCallback(async () => {
@@ -98,8 +97,7 @@ const UsersManager = () => {
 
         initBlocksData()
     }, [
-        shop_id, addNotification, otherBlock,
-        getActivatedCheckbox, getElementUUID, initBlocksData
+        shop_id, addNotification, otherBlock, initBlocksData
     ])
 
 
