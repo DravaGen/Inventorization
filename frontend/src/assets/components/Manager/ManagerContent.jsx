@@ -1,7 +1,15 @@
 
 
-const ManagerContent = ({ children }) => {
-    return <div className="manager-content">{children}</div>
+const ManagerContent = ({ children, ...props }) => {
+
+    return (
+        <div
+            className="manager-content"
+            {...props}
+        >
+            {children}
+        </div>
+    )
 }
 
 
