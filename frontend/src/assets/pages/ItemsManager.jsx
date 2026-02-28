@@ -114,7 +114,7 @@ const ItemsManager = () => {
                     />
                     <ManagerControlButton
                         disabled={!allItemsSlected.length}
-                        onClick={async () => {logicDeleteItem()}}
+                        onClick={logicDeleteItem}
                     >Удалить</ManagerControlButton>
                 </Block>
             </ManagerBlock>

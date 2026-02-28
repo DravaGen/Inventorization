@@ -50,7 +50,7 @@ const ManagerItemUser = ({ user, updateSelected }) => {
 
     const updateButton = <Button
         disabled={localStatus == status}
-        onClick={async () => updateUser()}
+        onClick={updateUser}
     >Изменить</Button>
 
     return (
