@@ -46,7 +46,7 @@ const ManagerItemUser = ({ user }) => {
             setHeaderIndicator(getHeaderIndicator({status}))
             addNotification(`${email} получил новый статус`)
         }
-    }, [managerRef, status, addNotification])
+    }, [managerRef, status, addNotification, getHeaderIndicator])
 
     const updateButton = <Button
         disabled={localStatus == status}
