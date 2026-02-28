@@ -28,15 +28,13 @@ const LoginForm = () => {
     useEffect(() => {
         async function loginAboutQrCode() {
             if (!dataQrCodeReader) return
-            emailInput.current.value = dataQrCodeReader
-            const [ok, ] = await RestAPI.sendOtp(
-                emailInput.current.value.trim()
-            )
+            emailInput.current.value = dataQrCodeReader.text
+            const [ok, ] = await RestAPI.sendOtp(form.email)
             ok && addNotification("Код отправлен")
             setDataQrCodeReader(null)
         }
         loginAboutQrCode()
-    }, [dataQrCodeReader, setDataQrCodeReader, addNotification])
+    }, [form, dataQrCodeReader, setDataQrCodeReader, addNotification])
 
     const logicSendCode = useCallback(async () => {
         const [ok, ] = await RestAPI.sendOtp(form.email)
