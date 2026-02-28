@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom"
 import {
     Manager, ManagerBlock,
     ManagerItemAllItem, ManagerItemShopItem,
-    ManagerContent, ManagerControlButton,
+    ManagerContent, ManagerContentItems, ManagerControlButton,
     getActivatedCheckbox, getElementUUID
 } from "../components/Manager"
 import { Block, BlockHeader} from "../components/Block"
@@ -32,6 +32,9 @@ const ItemsManager = () => {
     const [itemsInShopQueues, setItemsInShopQueues] = useState([])
 
     const allItemsBlockRef = useRef(null)
+
+    const [shopItemsSlected, setShopItemsSlected] = useState([])
+    const [allItemsSlected, setAllItemsSlected] = useState([])
 
     const getAllItems = useCallback(async () => {
         const [ok, response] = await RestAPI.getItems()
@@ -70,6 +73,11 @@ const ItemsManager = () => {
         allItemsBlockRef, addNotification, getAllItems
     ])
 
+    const shopItems = [
+        ...itemsInShop.map(item => ({ ...item, isQueue: false })),
+        ...itemsInShopQueues.map(item => ({ ...item, isQueue: true }))
+    ]
+
     return (
         <Manager>
 
@@ -81,22 +89,16 @@ const ItemsManager = () => {
                         items={allItems}
                         getItemsInShop={getItemsInShop}
                     />
-                    <ManagerContent>
-                        {itemsInShop.map(
-                            (item) => <ManagerItemShopItem
-                                key={item.id}
-                                item={item}
-                            />
-                        )}
-                        {itemsInShopQueues.map(
-                            (item, index) => <ManagerItemShopItem
-                                key={`${item.id}-${index}`}
-                                item={item}
-                                isQueue={true}
-                            />
-                        )}
-                    </ManagerContent>
-                    <ManagerControlButton>Удалить</ManagerControlButton>
+                    <ManagerContentItems
+                        elements={shopItems}
+                        elementName={"item"}
+                        Component={ManagerItemShopItem}
+                        useIndexInKey={true}
+                        setSelectedList={setShopItemsSlected}
+                    />
+                    <ManagerControlButton
+                        disabled={!shopItemsSlected.length}
+                    >Удалить</ManagerControlButton>
                 </Block>
             </ManagerBlock>
 
@@ -104,15 +106,14 @@ const ItemsManager = () => {
                 <Block ref={allItemsBlockRef}>
                     <BlockHeader>Доступный товар</BlockHeader>
                     <AddItem getAllItems={getAllItems}/>
-                    <ManagerContent>
-                        {allItems.map(
-                            (item) => <ManagerItemAllItem
-                                key={item.id}
-                                item={item}
-                            />
-                        )}
-                    </ManagerContent>
+                    <ManagerContentItems
+                        elements={allItems}
+                        elementName={"item"}
+                        Component={ManagerItemAllItem}
+                        setSelectedList={setAllItemsSlected}
+                    />
                     <ManagerControlButton
+                        disabled={!allItemsSlected.length}
                         onClick={async () => {logicDeleteItem()}}
                     >Удалить</ManagerControlButton>
                 </Block>

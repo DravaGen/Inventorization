@@ -1,17 +1,18 @@
 import ManagerItem from "./ManagerItem"
 
 
-const ManagerItemShopItem = ({ item, isQueue = false }) => {
+const ManagerItemShopItem = ({ item, setSelectedList }) => {
     return (
         <ManagerItem
             title={item.name}
-            headerIndicator={isQueue ? "yellow" : "green"}
+            headerIndicator={item.isQueue ? "yellow" : "green"}
+            setSelectedList={setSelectedList}
         >
             <div>id: {item.id}</div>
             <div>Количество: {item.quantity}</div>
             <div>Цена продажи: {item.price}</div>
             <div>Цена закупки: {item.purchase_price}</div>
-            {isQueue && <div className="item-in-queue">Находится в очереди</div>}
+            {item.isQueue && <div className="item-in-queue">Находится в очереди</div>}
         </ManagerItem>
     )
 }
