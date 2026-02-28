@@ -1,7 +1,7 @@
-import { useRef, useContext } from "react"
+import { useRef, useContext, useState, useCallback } from "react"
 
 import AddConstructor from "./AddConstructor"
-import { Input } from "../Input"
+import { InputEmail } from "../Input"
 import { Button } from "../Button"
 import { InlineGroup } from "../InlineGroup"
 import AppContext from "../../AppContext"
@@ -14,7 +14,19 @@ const AddUser = ({ initBlocksData }) => {
         addNotification
     } = useContext(AppContext)
 
-    const emailRef = useRef(null)
+    const emailRef = useRef()
+    const [form, setForm] = useState({
+        email: false
+    })
+
+    const logicAddUser = useCallback(async () => {
+        const [ok, ] = await RestAPI.signupUser(form.email, UserStatus.BANNED)
+        if (ok) {
+            initBlocksData()
+            emailRef.current.clear()
+            addNotification(`Пользователь ${form.email} создан`)
+        }
+    }, [form, emailRef, initBlocksData, addNotification])
 
     return (
         <AddConstructor
@@ -22,34 +34,14 @@ const AddUser = ({ initBlocksData }) => {
             blockName={"Добавить работника"}
         >
             <InlineGroup>
-                <Input
-                    id="email"
-                    maxLength={100}
-                    placeholder="email нового работника"
+                <InputEmail
                     ref={emailRef}
+                    updateForm={() => [setForm, "email"]}
+                    placeholder="email нового работника"
                 />
                 <Button
-                    onClick={async () => {
-                        const email = emailRef.current.value.trim()
-                        const status = UserStatus.BANNED
-
-                        if (!email) {
-                            addNotification("Адрес электронной почты не может быть пустым", "warning")
-                            return
-                        }
-
-                        if (!(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email))) {
-                            addNotification("Неверный формат электронной почты", "warning")
-                            return
-                        }
-
-                        const [ok, ] = await RestAPI.signupUser(email, status)
-                        if (ok) {
-                            initBlocksData()
-                            addNotification(`Пользователь ${email} создан`)
-                            emailRef.current.value = ""
-                        }
-                    }}
+                    disabled={!Object.values(form).every(Boolean)}
+                    onClick={logicAddUser}
                 >Добавить</Button>
             </InlineGroup>
         </AddConstructor>
