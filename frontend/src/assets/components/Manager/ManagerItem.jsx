@@ -12,6 +12,10 @@ const ManagerItem = ({
     const [open, setOpen] = useState(false)
     const [isChecked, setIsChecked] = useState(false)
 
+    const loggleOpen = useCallback(() => {
+        setOpen(prev => !prev)
+    }, [])
+
     const toggleSelectedList = useCallback(() => {
         const [setSelected, receivedValue] = updateSelected()
         const value = receivedValue ?? title
@@ -40,7 +44,7 @@ const ManagerItem = ({
             <div className={`manager-item ${open ? "open" : ""}`}>
                 <div
                     className={`manager-item-header`}
-                    onClick={() => setOpen(!open)}
+                    onClick={loggleOpen}
                 >
                     <div className={`indicator ${headerIndicator}`}></div>
                     {title}

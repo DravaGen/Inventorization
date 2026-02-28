@@ -109,24 +109,24 @@
 }
 
 .manager-item-body {
-    max-height: 0;
-    overflow: hidden;
-
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
     padding: 0 10px;
     font-size: 13px;
     color: #555;
-    opacity: 0;
 
     transition:
-    max-height 0.25s ease,
-    padding 0.25s ease,
-    opacity 0.2s ease;
+        opacity 0.25s ease,
+        visibility 0.25s ease,
+        height 0.25s ease,
 }
 
 .manager-item.open .manager-item-body {
-    max-height: 1000px;
-    padding: 10px;
+    visibility: visible;
     opacity: 1;
+    height: auto;
+    padding: 10px;
 }
 
 .manager-item-body select,
