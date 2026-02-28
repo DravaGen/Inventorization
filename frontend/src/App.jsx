@@ -6,7 +6,7 @@ import AppContext from "./assets/AppContext"
 import ShopsPage from "./assets/pages/ShopsPage"
 import Login from "./assets/pages/Login"
 import ItemsManager from "./assets/pages/ItemsManager"
-import AccessShopManager from "./assets/pages/AccessShopManager"
+import UsersManager from "./assets/pages/UsersManager"
 import { Notifications } from "./assets/components/Notifications"
 import QrCodeReader from "./assets/components/QrCodeReader"
 import Header from "./assets/components/Header"
@@ -95,7 +95,7 @@ const App = () => {
                         />
                         <Route
                             path="/access/:shop_id"
-                            element={<AccessShopManager />}
+                            element={<UsersManager />}
                         />
                     </Routes>
                 </>

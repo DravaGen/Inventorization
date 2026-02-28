@@ -16,7 +16,7 @@ import AppContext from "../AppContext"
 import RestAPI, { UserStatus } from "../../RestAPI"
 
 
-const AccessShopManager = () => {
+const UsersManager = () => {
     const {
         shop_id
     } = useParams()
@@ -160,4 +160,4 @@ const AccessShopManager = () => {
 }
 
 
-export default AccessShopManager
+export default UsersManager
