@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom"
 
 import {
     Manager, ManagerBlock, ManagerItemUser,
-    ManagerContent, ManagerControlButton,
+    ManagerContentItems, ManagerControlButton,
     getActivatedCheckbox, getElementUUID
 } from "../components/Manager"
 
@@ -28,8 +28,10 @@ const UsersManager = () => {
     const [accessUsers, setAccessUsers] = useState([])
     const [otherUsers, setOtherUsers] = useState([])
 
-    const accessBlock = useRef(null)
-    const otherBlock = useRef(null)
+    const accessBlock = useRef()
+    const otherBlock = useRef()
+    const [accessSelected, setAccessSelected] = useState([])
+    const [otherSelected, setOtherSelected] = useState([])
 
     const getAccessUsers = useCallback(async (shop_id) => {
         let [okAccess, access] = await RestAPI.getAccess(shop_id)
@@ -67,11 +69,6 @@ const UsersManager = () => {
     const logicDeleteAceess = useCallback(async () => {
         const checkboxes = getActivatedCheckbox(accessBlock)
 
-        if (checkboxes.length == 0) {
-            addNotification("Не выбран ни один элемент", "warning")
-            return;
-        }
-
         for (const checkbox of checkboxes) {
             const userId = getElementUUID(checkbox)
             await RestAPI.deleteAccess(userId, shop_id)
@@ -84,11 +81,6 @@ const UsersManager = () => {
 
     const logicGrantAccess = useCallback(async () => {
         const checkboxes = getActivatedCheckbox(otherBlock)
-
-        if (checkboxes.length == 0) {
-            addNotification("Не выбран ни один элемент", "warning")
-            return;
-        }
 
         for (const checkbox of checkboxes) {
             const userId = getElementUUID(checkbox)
@@ -107,14 +99,14 @@ const UsersManager = () => {
             <ManagerBlock ref={accessBlock}>
                 <Block>
                     <BlockHeader>Работники имеющие доступ</BlockHeader>
-                    <ManagerContent>
-                        {accessUsers.map(
-                            (user) => <ManagerItemUser
-                                key={user.id}
-                                user={user}
-                        />)}
-                    </ManagerContent>
+                    <ManagerContentItems
+                        elements={accessUsers}
+                        elementName={"user"}
+                        Component={ManagerItemUser}
+                        setSelectedList={setAccessSelected}
+                    />
                     <ManagerControlButton
+                        disabled={!accessSelected.length}
                         onClick={logicDeleteAceess}
                     >Отозвать доступ</ManagerControlButton>
                 </Block>
@@ -125,14 +117,14 @@ const UsersManager = () => {
                 <Block>
                     <BlockHeader>Работники</BlockHeader>
                     <AddUser initBlocksData={initBlocksData} />
-                    <ManagerContent>
-                        {otherUsers.map(
-                            (user) => <ManagerItemUser
-                                key={user.id}
-                                user={user}
-                        />)}
-                    </ManagerContent>
+                    <ManagerContentItems
+                        elements={otherUsers}
+                        elementName={"user"}
+                        Component={ManagerItemUser}
+                        setSelectedList={setOtherSelected}
+                    />
                     <ManagerControlButton
+                        disabled={!otherSelected.length}
                         onClick={logicGrantAccess}
                     >Выдать доступ</ManagerControlButton>
                 </Block>

@@ -7,7 +7,7 @@ import RestAPI, { UserStatus } from "../../../RestAPI"
 import AppContext from "../../AppContext"
 
 
-const ManagerItemUser = ({ user }) => {
+const ManagerItemUser = ({ user, setSelectedList }) => {
 
     const {
         addNotification
@@ -58,6 +58,7 @@ const ManagerItemUser = ({ user }) => {
             title={user.email}
             ref={managerRef}
             headerIndicator={headerIndicator}
+            setSelectedList={setSelectedList}
         >
             <div>id: {user.id}</div>
             <div className="line">Статус: {selectElement}</div>
