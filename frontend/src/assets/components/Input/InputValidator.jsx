@@ -4,7 +4,7 @@ import Input from "./Input"
 
 const InputValidator = forwardRef((
     {
-        condition,
+        condition = () => {return true},
         output = (e) => {return e},
         updateForm = () => {return [() => {}, ""]},
         className = "",
