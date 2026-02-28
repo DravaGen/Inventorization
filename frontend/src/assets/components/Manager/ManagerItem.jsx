@@ -25,7 +25,7 @@ const ManagerItem = ({
     }, [title, updateSelected])
 
     const onChangeCheckBox = useCallback((e) => {
-        const value = e.target.value
+        const value = e.target.checked
         setIsChecked(value)
         toggleSelectedList()
     }, [toggleSelectedList])
