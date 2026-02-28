@@ -72,7 +72,7 @@ const LoginForm = () => {
         codeInput.current.clear()
         emailInput.current.clear()
         addNotification("Вход выполнен")
-    }, [form, codeInput, emailInput, addNotification])
+    }, [form, codeInput, emailInput, logining, addNotification])
 
     return (
         <>
