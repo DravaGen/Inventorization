@@ -1,7 +1,4 @@
-import {
-    useCallback, useContext, useEffect,
-    useRef, useState
-} from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 
 import {
@@ -12,7 +9,6 @@ import {
 
 import { Block, BlockHeader} from "../components/Block"
 import { AddUser } from "../components/Add"
-import AppContext from "../AppContext"
 import RestAPI from "../../RestAPI"
 
 
@@ -20,10 +16,6 @@ const UsersManager = () => {
     const {
         shop_id
     } = useParams()
-
-    const {
-        addNotification
-    } = useContext(AppContext)
 
     const [accessUsers, setAccessUsers] = useState([])
     const [otherUsers, setOtherUsers] = useState([])
@@ -76,7 +68,7 @@ const UsersManager = () => {
 
         initBlocksData()
     }, [
-        shop_id, addNotification, accessBlock, initBlocksData
+        shop_id, accessBlock, initBlocksData
     ])
 
     const logicGrantAccess = useCallback(async () => {
@@ -89,7 +81,7 @@ const UsersManager = () => {
 
         initBlocksData()
     }, [
-        shop_id, addNotification, otherBlock, initBlocksData
+        shop_id, otherBlock, initBlocksData
     ])
 
 
