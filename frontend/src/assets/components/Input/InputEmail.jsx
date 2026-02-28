@@ -10,6 +10,7 @@ const checkEmailInput = (e) => {
 const InputEmail = ({...props}) => {
     return <InputValidator
         {...props}
+        maxLength={100}
         condition={checkEmailInput}
     />
 }
