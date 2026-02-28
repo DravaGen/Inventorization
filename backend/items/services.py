@@ -53,16 +53,22 @@ def get_items_quantity(
 
 
 def format_items_in_shop(
-        items: list[Optional[ShopItemsORM]]
-) -> list[Optional[ItemInShopSchema]]:
+        items: list[ShopItemsORM | ShopQueueORM]
+) -> list[ItemInShopSchema]:
     """"""
 
     response = []
 
     for item in items:
+
+        if isinstance(item, ShopItemsORM):
+            name = item.item.name
+        else:
+            name = item.shop_items.item.name
+
         response.append(ItemInShopSchema(
             id=item.item_id,
-            name=item.item.name,
+            name=name,
             price=item.price,
             quantity=item.quantity,
             purchase_price=item.purchase_price

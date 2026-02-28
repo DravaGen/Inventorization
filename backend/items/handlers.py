@@ -169,7 +169,10 @@ async def get_shop_items(
 
     queue = await db.execute(
         select(ShopQueueORM)
-        .options(joinedload(ShopQueueORM.item))
+        .options(
+            joinedload(ShopQueueORM.shop_items)
+            .joinedload(ShopItemsORM.item)
+        )
         .where(ShopQueueORM.shop_id == shop_id)
     )
 
