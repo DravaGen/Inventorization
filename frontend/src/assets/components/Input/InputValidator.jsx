@@ -1,4 +1,4 @@
-import { useImperativeHandle, useState, forwardRef} from "react"
+import { useImperativeHandle, useState, forwardRef, useCallback} from "react"
 import Input from "./Input"
 
 
@@ -16,26 +16,22 @@ const InputValidator = forwardRef((
     const [error, setError] = useState(false)
     const [setForm, key] = updateForm()
 
-    const checkInvalidInput = (v) => {
+    const checkInvalidInput = useCallback((v) => {
         const value = output(v.trim())
         const result = condition(value)
         setInputValue(value)
         setError(!result && value)
         setForm(prev => ({...prev, [key]: result && value ? value : false}))
-    }
+    }, [output, condition, setInputValue, setError, setForm, key])
 
     useImperativeHandle(ref, () => ({
-        get value() {
-            return inputValue
-        },
         set value(v) {
             checkInvalidInput(v)
         },
         clear() {
-            setInputValue("")
-            setForm(prev => ({...prev, [key]: false}))
+            checkInvalidInput("")
         }
-    }), [setInputValue, setForm])
+    }), [checkInvalidInput])
 
     return (
         <Input {...props}
