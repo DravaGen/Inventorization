@@ -49,7 +49,7 @@ const Select = forwardRef((
         hoveredRef.current = hovered
     }, [hovered])
 
-    const scrollToHovered = (val) => {
+    const scrollToHovered = useCallback((val) => {
         const el = itemRefs.current[val]
         const container = containerRef.current
         if (!el || !container) return
@@ -82,7 +82,7 @@ const Select = forwardRef((
         } else if (elBottom > containerBottom) {
             container.scrollTop = elBottom - containerHeight
         }
-    }
+    }, [showItems])
 
     useEffect(() => {
 
@@ -123,7 +123,7 @@ const Select = forwardRef((
             container.removeEventListener("wheel", wheelHandler)
         }
 
-    }, [showItems])
+    }, [scrollToHovered, showItems])
 
     const selectHeight = `calc(
         ${visibleCount} * var(--option-height)
