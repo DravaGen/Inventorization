@@ -1,6 +1,6 @@
-import { useContext, useEffect, useRef } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 
-import { Input } from "../Input"
+import { InputEmail, InputCode } from "../Input"
 import { Button } from "../Button"
 import { InlineGroup } from "../InlineGroup"
 import AppContext from "../../AppContext"
@@ -20,6 +20,11 @@ const LoginForm = () => {
     const emailInput = useRef(null)
     const codeInput = useRef(null)
 
+    const [form, setForm] = useState({
+        email: false,
+        code: false
+    })
+
     useEffect(() => {
         async function loginAboutQrCode() {
             if (!dataQrCodeReader) return
@@ -33,14 +38,51 @@ const LoginForm = () => {
         loginAboutQrCode()
     }, [dataQrCodeReader, setDataQrCodeReader, addNotification])
 
+    const logicSendCode = useCallback(async () => {
+        const [ok, ] = await RestAPI.sendOtp(form.email)
+        ok && addNotification("Код отправлен")
+    }, [form, addNotification])
+
+
+    const logicLogin = useCallback(async () => {
+        const [ok, response] = await RestAPI.login(
+            form.email, form.code
+        )
+        if (!ok) return
+
+        const access_token = response.access_token
+        const payloadBase64 = atob(
+            access_token.split(".")[1]
+                .replace("/-/g", "+")
+                .replace("/_/g", "/")
+        )
+        const payload = JSON.parse(payloadBase64)
+
+        if (payload.status == UserStatus.BANNED) {
+            codeInput.current.clear()
+            addNotification("Отказано в доступе", "error")
+            return
+        }
+
+        localStorage.setItem("email", form.email)
+        localStorage.setItem("user_id", payload.sub)
+        localStorage.setItem("status", payload.status)
+        localStorage.setItem("exp", payload.exp)
+        localStorage.setItem("access_token", access_token)
+
+        logining()
+        codeInput.current.clear()
+        emailInput.current.clear()
+        addNotification("Вход выполнен")
+    }, [form, codeInput, emailInput, addNotification])
+
     return (
         <>
             <InlineGroup>
-                <Input
-                    id={"email"}
-                    type={"email"}
-                    placeholder={"Введите email"}
+                <InputEmail
                     ref={emailInput}
+                    updateForm={() => [setForm, "email"]}
+                    placeholder={"Введите email"}
                 />
                 <Button
                     onClick={() => setOpenQrCodeReader(true)}
@@ -48,57 +90,22 @@ const LoginForm = () => {
             </InlineGroup>
 
             <InlineGroup>
-                <Input
-                    id={"code"}
-                    type={"text"}
-                    placeholder={"Код"}
+                <InputCode
                     ref={codeInput}
+                    updateForm={() => [setForm, "code"]}
+                    placeholder={"Код"}
                 />
                 <Button
+                    disabled={!form.email}
                     children={"Отправить код"}
-                    onClick={async () => {
-                        const [ok, ] = await RestAPI.sendOtp(
-                            emailInput.current.value.trim()
-                        )
-                        ok && addNotification("Код отправлен")
-                    }}
+                    onClick={logicSendCode}
                 />
             </InlineGroup>
 
             <Button
-                children={"Войти"}
-                onClick={async () => {
-                    const email = emailInput.current.value.trim()
-                    const [ok, response] = await RestAPI.login(
-                        email,
-                        codeInput.current.value.trim()
-                    )
-
-                    if (!ok) return
-                    const access_token = response.access_token
-                    const payloadBase64 = atob(
-                        access_token.split(".")[1]
-                            .replace("/-/g", "+")
-                            .replace("/_/g", "/")
-                    )
-                    const payload = JSON.parse(payloadBase64)
-
-                    if (payload.status == UserStatus.BANNED) {
-                        addNotification("Отказано в доступе", "error")
-                        codeInput.current.value = ""
-                        return
-                    }
-
-                    localStorage.setItem("email", email)
-                    localStorage.setItem("user_id", payload.sub)
-                    localStorage.setItem("status", payload.status)
-                    localStorage.setItem("exp", payload.exp)
-                    localStorage.setItem("access_token", access_token)
-
-                    logining()
-                    addNotification("Вход выполнен")
-                }}
-            />
+                disabled={!Object.values(form).every(Boolean)}
+                onClick={logicLogin}
+            >Войти</Button>
         </>
     )
 }
