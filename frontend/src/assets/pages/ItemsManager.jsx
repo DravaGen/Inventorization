@@ -67,8 +67,7 @@ const ItemsManager = () => {
 
         getAllItems()
     }, [
-        allItemsBlockRef, addNotification,
-        getActivatedCheckbox, getElementUUID, getAllItems
+        allItemsBlockRef, addNotification, getAllItems
     ])
 
     return (
