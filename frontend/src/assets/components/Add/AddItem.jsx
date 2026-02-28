@@ -1,7 +1,7 @@
-import { useContext, useRef } from "react"
+import { useCallback, useContext, useRef, useState } from "react"
 
 import AddConstructor from "./AddConstructor"
-import { Input } from "../Input"
+import { InputValidator } from "../Input"
 import { Button } from "../Button"
 import { InlineGroup } from "../InlineGroup"
 import RestAPI from "../../../RestAPI"
@@ -10,10 +10,24 @@ import AppContext from "../../AppContext"
 
 const AddItem = ({ getAllItems }) => {
 
-    const inputRef = useRef(null)
     const {
         addNotification
     } = useContext(AppContext)
+
+    const inputRef = useRef(null)
+    const [form, setForm] = useState({
+        name: false
+    })
+
+
+    const logicAddItem = useCallback(async () => {
+        const [ok, ] = await RestAPI.createItem(form.name)
+        if (ok) {
+            await getAllItems()
+            inputRef.current.clear()
+            addNotification("Товар создан")
+        }
+    }, [form, inputRef, getAllItems, addNotification])
 
     return (
         <AddConstructor
@@ -21,23 +35,15 @@ const AddItem = ({ getAllItems }) => {
             blockName={"Создать товар"}
         >
             <InlineGroup>
-                <Input
-                    id="name"
+                <InputValidator
                     ref={inputRef}
                     maxLength={50}
+                    updateForm={() => [setForm, "name"]}
                     placeholder="Название товара"
                 />
                 <Button
-                    onClick={async () => {
-                        const [ok, ] = await RestAPI.createItem(
-                            inputRef.current.value.trim()
-                        )
-                        if (ok) {
-                            await getAllItems()
-                            inputRef.current.value = ""
-                            addNotification("Товар создан")
-                        }
-                    }}
+                    disabled={!Object.values(form).every(Boolean)}
+                    onClick={logicAddItem}
                 >Добавить</Button>
             </InlineGroup>
         </AddConstructor>
