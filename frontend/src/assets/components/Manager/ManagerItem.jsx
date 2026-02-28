@@ -6,27 +6,29 @@ const ManagerItem = ({
     ref,
     title,
     children,
-    headerIndicator="none",
-    setSelectedList=()=>{}
+    headerIndicator = "none",
+    updateSelected = () => [() => {}, undefined]
 }) => {
     const [open, setOpen] = useState(false)
     const [isChecked, setIsChecked] = useState(false)
 
-    const toggleSelectedList = useCallback((set, value) => {
-        set(prev => {
+    const toggleSelectedList = useCallback(() => {
+        const [setSelected, receivedValue] = updateSelected()
+        const value = receivedValue ?? title
+        setSelected(prev => {
             if (prev.includes(value)) {
                 return prev.filter(i => i != value)
             } else {
                 return [...prev, value]
             }
         })
-    }, [])
+    }, [title, updateSelected])
 
     const onChangeCheckBox = useCallback((e) => {
         const value = e.target.value
         setIsChecked(value)
-        toggleSelectedList(setSelectedList, title)
-    }, [title, toggleSelectedList, setSelectedList])
+        toggleSelectedList()
+    }, [toggleSelectedList])
 
     return (
         <div className="manager-item-row" ref={ref}>

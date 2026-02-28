@@ -1,11 +1,11 @@
 import ManagerItem from "./ManagerItem"
 
 
-const ManagerItemAllItem = ({ item, setSelectedList }) => {
+const ManagerItemAllItem = ({ item, updateSelected }) => {
     return (
         <ManagerItem
             title={item.name}
-            setSelectedList={setSelectedList}
+            updateSelected={updateSelected}
         >
             <div>id: {item.id}</div>
             <div>Количество во всех магазинах: {item.quantity}</div>

@@ -11,13 +11,14 @@ const ManagerContentItems = ({
     return (
         <ManagerContent {...props}>
             {elements.map(
-                (element, index) => (
-                    <Component
-                        key={useIndexInKey ? `${element.id}-${index}` : element.id }
+                (element, index) => {
+                    const key = useIndexInKey ? `${element.id}-${index}` : element.id
+                    return <Component
+                        key={key}
                         {...{ [elementName]: element }}
-                        setSelectedList={setSelectedList}
+                        updateSelected={() => [setSelectedList, key]}
                     />
-            ))}
+            })}
         </ManagerContent>
     )
 }

@@ -1,12 +1,12 @@
 import ManagerItem from "./ManagerItem"
 
 
-const ManagerItemShopItem = ({ item, setSelectedList }) => {
+const ManagerItemShopItem = ({ item, updateSelected }) => {
     return (
         <ManagerItem
             title={item.name}
             headerIndicator={item.isQueue ? "yellow" : "green"}
-            setSelectedList={setSelectedList}
+            updateSelected={updateSelected}
         >
             <div>id: {item.id}</div>
             <div>Количество: {item.quantity}</div>
