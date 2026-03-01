@@ -27,7 +27,7 @@ const Select = forwardRef((
     const itemRefs = useRef({})
     const hoveredRef = useRef(null)
 
-    const items = Array.from(children)
+    const items = useMemo(() => Array.from(children), [children]);
     const [search, setSearch] = useState("")
 
     const getInitial = () => value ?? items[0]?.props.value
@@ -125,6 +125,25 @@ const Select = forwardRef((
 
     }, [scrollToHovered, showItems])
 
+    useEffect(() => {
+        if (showItems.length > 0) {
+            const stillExists = showItems.some(item => item.props.value === hovered);
+            if (!stillExists) {
+                setHovered(showItems[0].props.value);
+            }
+        } else {
+            setHovered(null);
+        }
+    }, [showItems, hovered]);
+
+    useEffect(() => {
+    if (value !== undefined && value !== selected) {
+        setSelected(value);
+        setHovered(value);
+        scrollToHovered(value);
+    }
+    }, [value, selected, scrollToHovered]);
+
     const selectHeight = `calc(
         ${visibleCount} * var(--option-height)
         + ${(visibleCount - 1)} * var(--option-margin-bottom)
@@ -155,6 +174,13 @@ const Select = forwardRef((
             logicSelect(null)
         }
     }))
+
+    useEffect(() => {
+        if (selected) {
+            scrollToHovered(selected);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div
