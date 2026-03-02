@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams } from "react-router-dom"
 
 import {
     Manager, ManagerBlock,
     ManagerItemAllItem, ManagerItemShopItem,
     ManagerContentItems, ManagerControlButton,
-    getActivatedCheckbox, getElementUUID
+    getElementUUID
 } from "../components/Manager"
 import { Block, BlockHeader} from "../components/Block"
 import { AddItem } from "../components/Add"
@@ -22,8 +22,6 @@ const ItemsManager = () => {
     const [allItems, setAllItems] = useState([])
     const [itemsInShop, setItemsInShop] = useState([])
     const [itemsInShopQueues, setItemsInShopQueues] = useState([])
-
-    const allItemsBlockRef = useRef(null)
 
     const [shopItemsSlected, setShopItemsSlected] = useState([])
     const [allItemsSlected, setAllItemsSlected] = useState([])
@@ -68,15 +66,16 @@ const ItemsManager = () => {
     }, [shop_id, shopItemsSlected, getItemsInShop])
 
     const logicDeleteItem = useCallback(async () => {
-        const checkboxes = getActivatedCheckbox(allItemsBlockRef)
 
-        for (const checkbox of checkboxes) {
-            const itemId = getElementUUID(checkbox)
-            await RestAPI.deleteItem(itemId)
+        for (const element of allItemsSlected) {
+            const itemsManagerHTML = element.ref.current
+            const itemId = getElementUUID(itemsManagerHTML)
+            const [ok, ] = await RestAPI.deleteItem(itemId)
+            ok & itemsManagerHTML.removeChecked()
         }
 
         getAllItems()
-    }, [allItemsBlockRef, getAllItems])
+    }, [allItemsSlected, getAllItems])
 
     const shopItems = [
         ...itemsInShop.map(item => ({ ...item, isQueue: false })),
@@ -109,7 +108,7 @@ const ItemsManager = () => {
             </ManagerBlock>
 
             <ManagerBlock>
-                <Block ref={allItemsBlockRef}>
+                <Block>
                     <BlockHeader>Доступный товар</BlockHeader>
                     <AddItem getAllItems={getAllItems}/>
                     <ManagerContentItems
