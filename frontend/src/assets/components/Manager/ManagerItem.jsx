@@ -1,14 +1,15 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import { Input } from "../Input"
 
 
 const ManagerItem = ({
-    ref,
     title,
     children,
     headerIndicator = "none",
-    updateSelected = () => [() => {}, undefined]
+    updateSelected = () => [() => {}, undefined],
+    managerItemData = {}
 }) => {
+    const ref = useRef()
     const [open, setOpen] = useState(false)
     const [isChecked, setIsChecked] = useState(false)
 
@@ -16,32 +17,52 @@ const ManagerItem = ({
         setOpen(prev => !prev)
     }, [])
 
-    const toggleSelectedList = useCallback(() => {
+    const toggleSelectedList = useCallback((checked) => {
         const [setSelected, receivedValue] = updateSelected()
-        const value = receivedValue ?? title
+        const key = receivedValue ?? title
         setSelected(prev => {
-            if (prev.includes(value)) {
-                return prev.filter(i => i != value)
-            } else {
-                return [...prev, value]
-            }
+            return checked ?
+                [...prev, {key, ref}]
+                : prev.filter(i => i.key != key)
         })
     }, [title, updateSelected])
 
     const onChangeCheckBox = useCallback((e) => {
-        const value = e.target.checked
-        setIsChecked(value)
-        toggleSelectedList()
+        const checked = e.target.checked
+        setIsChecked(checked)
+        toggleSelectedList(checked)
+    }, [toggleSelectedList])
+
+    const dataAttributes = {};
+    Object.entries(managerItemData).forEach(([key, value]) => {
+        const dataKey = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+        dataAttributes[dataKey] = value;
+    })
+
+    const setRemoveCheckedMethod = useCallback((element) => {
+        if (element) {
+            element.removeChecked = () => {
+                setIsChecked(false)
+                toggleSelectedList(false)
+            }
+        }
     }, [toggleSelectedList])
 
     return (
-        <div className="manager-item-row" ref={ref}>
+        <div className="manager-item-row">
             <Input
                 type="checkbox"
-                value={isChecked}
+                checked={isChecked}
                 onChange={onChangeCheckBox}
             />
-            <div className={`manager-item ${open ? "open" : ""}`}>
+            <div
+                ref={(element) => {
+                    ref.current = element
+                    setRemoveCheckedMethod(element)
+                }}
+                className={`manager-item ${open ? "open" : ""}`}
+                {...dataAttributes}
+            >
                 <div
                     className={`manager-item-header`}
                     onClick={loggleOpen}

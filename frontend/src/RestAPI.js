@@ -294,6 +294,19 @@ class RestAPI {
         )
     }
 
+    static async deleteShopItemQueue(shopId, itemId, createdAt) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/shop/queue/?shop_id=${shopId}`,
+            {
+                method: 'DELETE',
+                json: {
+                    item_id: itemId,
+                    created_at: createdAt
+                }
+            }
+        )
+    }
+
     static async addShopQueue(shopId, itemId, price, quantity, purchasePrice) {
         return await this._makeRequest(
             `${SERVER_URL}/items/shop/queue?shop_id=${shopId}`,

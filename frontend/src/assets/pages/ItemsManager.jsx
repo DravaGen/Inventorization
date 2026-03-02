@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom"
 import {
     Manager, ManagerBlock,
     ManagerItemAllItem, ManagerItemShopItem,
-    ManagerContent, ManagerContentItems, ManagerControlButton,
+    ManagerContentItems, ManagerControlButton,
     getActivatedCheckbox, getElementUUID
 } from "../components/Manager"
 import { Block, BlockHeader} from "../components/Block"
@@ -55,6 +55,26 @@ const ItemsManager = () => {
         fetchData()
     }, [shop_id, getAllItems, getItemsInShop])
 
+    const logicDeleteItemInShop = useCallback(async () => {
+
+        for (const element of shopItemsSlected) {
+            let ok = false
+            const itemsManagerHTML = element.ref.current
+            const itemId = getElementUUID(itemsManagerHTML)
+            if (itemsManagerHTML.dataset.isQueue == "true") {
+                [ok, ] = await RestAPI.deleteShopItemQueue(
+                    shop_id, itemId,
+                    itemsManagerHTML.dataset.createdAd
+                )
+            } else {
+                [ok, ] = await RestAPI.deleteShopItem(shop_id, itemId)
+            }
+            ok & itemsManagerHTML.removeChecked()
+        }
+
+        await getItemsInShop()
+    }, [shop_id, shopItemsSlected, getItemsInShop])
+
     const logicDeleteItem = useCallback(async () => {
         const checkboxes = getActivatedCheckbox(allItemsBlockRef)
 
@@ -92,6 +112,7 @@ const ItemsManager = () => {
                         setSelectedList={setShopItemsSlected}
                     />
                     <ManagerControlButton
+                        onClick={logicDeleteItemInShop}
                         disabled={!shopItemsSlected.length}
                     >Удалить</ManagerControlButton>
                 </Block>
