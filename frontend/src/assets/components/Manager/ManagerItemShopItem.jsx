@@ -1,7 +1,11 @@
 import ManagerItem from "./ManagerItem"
 
 
-const ManagerItemShopItem = ({ item, updateSelected }) => {
+const ManagerItemShopItem = ({
+    item,
+    updateSelected,
+    ...props
+}) => {
 
     const managerItemData = {
         createdAd: item.created_at,
@@ -14,6 +18,7 @@ const ManagerItemShopItem = ({ item, updateSelected }) => {
             headerIndicator={item.isQueue ? "yellow" : "green"}
             updateSelected={updateSelected}
             managerItemData={managerItemData}
+            {...props}
         >
             <div>id: {item.id}</div>
             <div>Количество: {item.quantity}</div>

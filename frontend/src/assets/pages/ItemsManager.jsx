@@ -99,6 +99,7 @@ const ItemsManager = () => {
                         Component={ManagerItemShopItem}
                         useIndexInKey={true}
                         setSelectedList={setShopItemsSlected}
+                        canSelected={true}
                     />
                     <ManagerControlButton
                         onClick={logicDeleteItemInShop}
@@ -116,6 +117,7 @@ const ItemsManager = () => {
                         elementName={"item"}
                         Component={ManagerItemAllItem}
                         setSelectedList={setAllItemsSlected}
+                        canSelected={true}
                     />
                     <ManagerControlButton
                         disabled={!allItemsSlected.length}

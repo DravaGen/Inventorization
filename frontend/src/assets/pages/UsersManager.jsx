@@ -92,6 +92,7 @@ const UsersManager = () => {
                         elementName={"user"}
                         Component={ManagerItemUser}
                         setSelectedList={setAccessSelected}
+                        canSelected={true}
                     />
                     <ManagerControlButton
                         disabled={!accessSelected.length}
@@ -110,6 +111,7 @@ const UsersManager = () => {
                         elementName={"user"}
                         Component={ManagerItemUser}
                         setSelectedList={setOtherSelected}
+                        canSelected={true}
                     />
                     <ManagerControlButton
                         disabled={!otherSelected.length}

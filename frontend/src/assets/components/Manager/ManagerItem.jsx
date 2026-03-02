@@ -7,7 +7,8 @@ const ManagerItem = ({
     children,
     headerIndicator = "none",
     updateSelected = () => [() => {}, undefined],
-    managerItemData = {}
+    managerItemData = {},
+    canSelected=false,
 }) => {
     const ref = useRef()
     const [open, setOpen] = useState(false)
@@ -50,11 +51,11 @@ const ManagerItem = ({
 
     return (
         <div className="manager-item-row">
-            <Input
+            {canSelected && <Input
                 type="checkbox"
                 checked={isChecked}
                 onChange={onChangeCheckBox}
-            />
+            />}
             <div
                 ref={(element) => {
                     ref.current = element
