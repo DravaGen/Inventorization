@@ -8,9 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from .models import ItemORM, ItemSoldORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemResponse, ItemInShopResponse, ItemSoldResoinse, ItemShopForm, \
-    ItemQueueForm
+    ItemQueueForm, ItemQueueDeleteForm
 from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
-    get_items_quantity, format_items_in_shop
+    get_items_quantity, format_items_in_shop, get_queues_in_shop
 
 from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
 from shops.schemas import ShopCartItemResponse, ShopCartItemForm
@@ -169,10 +169,7 @@ async def get_shop_items(
 
     queue = await db.execute(
         select(ShopQueueORM)
-        .options(
-            joinedload(ShopQueueORM.shop_items)
-            .joinedload(ShopItemsORM.item)
-        )
+        .options(joinedload(ShopQueueORM.item))
         .where(ShopQueueORM.shop_id == shop_id)
     )
 
@@ -208,9 +205,24 @@ async def delete_shop_item(
                 & (ShopItemsORM.shop_id == shop_id)
             )
         )
+        queues = await get_queues_in_shop(form_data.item_id, shop_id, db)
+        if (queues):
+            next_queue = queues[0]
+            await db.execute(
+                insert(ShopItemsORM)
+                .values(
+                    item_id=next_queue.item_id,
+                    shop_id=next_queue.shop_id,
+                    price=next_queue.price,
+                    quantity=next_queue.quantity,
+                    purchase_price=next_queue.purchase_price
+                )
+            )
+            await db.delete(next_queue)
+
         return ResponseOK(detail="item deleted")
 
-    except IntegrityError:
+    except IntegrityError as er:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="It is not possible to delete an item " \
@@ -246,6 +258,29 @@ async def add_shop_queue(
     """
 
     return await add_item_shop(shop_id, form_data, db)
+
+
+@item_shop_route.delete(
+    "/queue",
+    dependencies=[UserStatusISAdmin]
+)
+async def delete_shop_queue(
+        shop_id: CurrentShopID,
+        form_data: ItemQueueDeleteForm,
+        db: SessionDep
+) -> ResponseOK:
+    """удаляет товар из очереди в магазине"""
+
+    await db.execute(
+        delete(ShopQueueORM)
+        .where(
+            (ShopQueueORM.item_id == form_data.item_id)
+            & (ShopQueueORM.created_at == form_data.created_at)
+            & (ShopQueueORM.shop_id == shop_id)
+        )
+    )
+
+    return ResponseOK(detail="item deleted")
 
 
 @item_cart_route.post(

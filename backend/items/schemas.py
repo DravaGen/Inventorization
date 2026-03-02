@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from databases.sqlalchemy import PositiveIntField
@@ -39,7 +39,7 @@ class ItemInShopSchema(ItemSchema):
     price: int
     quantity: int
     purchase_price: int
-
+    created_at: datetime | None
 
 
 class ItemResponse(ItemSchema):
@@ -68,6 +68,13 @@ class ItemQueueForm(ItemShopForm):
     """Форма создания продукта"""
 
     pass
+
+
+class ItemQueueDeleteForm(BaseModel):
+    """Форма удаления items queue"""
+
+    item_id: UUID
+    created_at: datetime
 
 
 class ItemSoldResoinse(BaseModel):

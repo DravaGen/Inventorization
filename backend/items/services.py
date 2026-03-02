@@ -62,16 +62,17 @@ def format_items_in_shop(
     for item in items:
 
         if isinstance(item, ShopItemsORM):
-            name = item.item.name
+            created_at = None
         else:
-            name = item.shop_items.item.name
+            created_at = item.created_at
 
         response.append(ItemInShopSchema(
             id=item.item_id,
-            name=name,
+            name=item.item.name,
             price=item.price,
             quantity=item.quantity,
-            purchase_price=item.purchase_price
+            purchase_price=item.purchase_price,
+            created_at=created_at
         ))
 
     return response
@@ -122,6 +123,26 @@ async def raise_if_item_in_shop_not_found(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="item in shop not found"
         )
+
+
+async def get_queues_in_shop(
+        item_id: UUID,
+        shop_id: UUID,
+        db: AsyncSession
+) -> list[ShopQueueORM]:
+    """"""
+
+    queues = await db.execute(
+        select(ShopQueueORM)
+        .where(
+            (ShopQueueORM.shop_id == shop_id)
+            & (ShopQueueORM.item_id == item_id)
+        )
+        .order_by(ShopQueueORM.created_at)
+    )
+    queues = queues.scalars().all()
+
+    return queues
 
 
 async def add_item_shop(
