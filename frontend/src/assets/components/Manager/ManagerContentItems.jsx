@@ -9,12 +9,13 @@ const ManagerContentItems = ({
     ...props
 }) => {
     return (
-        <ManagerContent {...props}>
+        <ManagerContent>
             {elements.map(
                 (element, index) => {
                     const key = useIndexInKey ? `${element.id}-${index}` : element.id
                     return <Component
                         key={key}
+                        {...props}
                         {...{ [elementName]: element }}
                         updateSelected={() => [setSelectedList, key]}
                     />
