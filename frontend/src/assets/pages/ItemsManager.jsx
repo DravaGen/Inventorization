@@ -58,11 +58,6 @@ const ItemsManager = () => {
     const logicDeleteItem = useCallback(async () => {
         const checkboxes = getActivatedCheckbox(allItemsBlockRef)
 
-        if (checkboxes.length == 0) {
-            addNotification("Не выбран ни один элемент", "warning")
-            return;
-        }
-
         for (const checkbox of checkboxes) {
             const itemId = getElementUUID(checkbox)
             await RestAPI.deleteItem(itemId)
