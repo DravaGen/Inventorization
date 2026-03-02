@@ -10,18 +10,10 @@ export { default as ManagerItemUser } from "./ManagerItemUser"
 export { default as ManagerItemAllItem } from "./ManagerItemAllItem"
 export { default as ManagerItemShopItem } from "./ManagerItemShopItem"
 
-const getActivatedCheckbox = (block) => {
-    return Array.from(
-        block.current
-            ? block.current.querySelectorAll('input[type="checkbox"]')
-            : []
-    ).filter(cb => cb.checked)
-}
-
 const getElementUUID = (element) => {
     const row = element.closest('.manager-item-row')
     const idDiv = row.querySelector('.manager-item-body > div:first-child')
     return idDiv.textContent.replace('id: ', '').trim()
 }
 
-export { getActivatedCheckbox, getElementUUID }
+export { getElementUUID }
