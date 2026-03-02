@@ -1,7 +1,4 @@
-import {
-    useState, useEffect, useCallback,
-    useRef, useContext
-} from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams } from "react-router-dom"
 
 import {
@@ -14,7 +11,6 @@ import { Block, BlockHeader} from "../components/Block"
 import { AddItem } from "../components/Add"
 import { AddShopItem } from "../components/Add"
 import RestAPI from "../../RestAPI"
-import AppContext from "../AppContext"
 
 
 const ItemsManager = () => {
@@ -22,10 +18,6 @@ const ItemsManager = () => {
     const {
         shop_id
     } = useParams()
-
-    const {
-        addNotification
-    } = useContext(AppContext)
 
     const [allItems, setAllItems] = useState([])
     const [itemsInShop, setItemsInShop] = useState([])
@@ -84,9 +76,7 @@ const ItemsManager = () => {
         }
 
         getAllItems()
-    }, [
-        allItemsBlockRef, addNotification, getAllItems
-    ])
+    }, [allItemsBlockRef, getAllItems])
 
     const shopItems = [
         ...itemsInShop.map(item => ({ ...item, isQueue: false })),

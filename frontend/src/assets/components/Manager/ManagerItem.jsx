@@ -31,7 +31,7 @@ const ManagerItem = ({
         const checked = e.target.checked
         setIsChecked(checked)
         toggleSelectedList(checked)
-    }, [toggleSelectedList])
+    }, [setIsChecked, toggleSelectedList])
 
     const dataAttributes = {};
     Object.entries(managerItemData).forEach(([key, value]) => {
@@ -46,7 +46,7 @@ const ManagerItem = ({
                 toggleSelectedList(false)
             }
         }
-    }, [toggleSelectedList])
+    }, [setIsChecked, toggleSelectedList])
 
     return (
         <div className="manager-item-row">
