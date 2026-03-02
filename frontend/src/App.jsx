@@ -3,10 +3,10 @@ import { Routes, Route } from "react-router-dom"
 
 import "./App.css"
 import AppContext from "./assets/AppContext"
-import ShopsManager from "./assets/pages/ShopsManager"
-import Login from "./assets/pages/Login"
-import ItemsManager from "./assets/pages/ItemsManager"
-import UsersManager from "./assets/pages/UsersManager"
+import {
+    Login, ShopsManager, UsersManager,
+    ItemsManager
+} from "./assets/pages"
 import { Notifications } from "./assets/components/Notifications"
 import QrCodeReader from "./assets/components/QrCodeReader"
 import Header from "./assets/components/Header"
@@ -90,12 +90,12 @@ const App = () => {
                             element={<ShopsManager />}
                         />
                         <Route
-                            path="/items/:shop_id"
-                            element={<ItemsManager />}
-                        />
-                        <Route
                             path="/access/:shop_id"
                             element={<UsersManager />}
+                        />
+                        <Route
+                            path="/items/:shop_id"
+                            element={<ItemsManager />}
                         />
                     </Routes>
                 </>
