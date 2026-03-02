@@ -22,7 +22,9 @@ const Shop = ({ id, name, address }) => {
                 }
                 {
                     checkUserMinStatus(UserStatus.WORKER)
-                    && <Button>Корзина</Button>
+                    && <Button
+                        onClick={() => navigate(`/cart/${id}`)}
+                    >Корзина</Button>
                 }
                 {
                     checkUserMinStatus(UserStatus.ADMIN)
