@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom"
 
 import "./App.css"
 import AppContext from "./assets/AppContext"
-import ShopsPage from "./assets/pages/ShopsPage"
+import ShopsManager from "./assets/pages/ShopsManager"
 import Login from "./assets/pages/Login"
 import ItemsManager from "./assets/pages/ItemsManager"
 import UsersManager from "./assets/pages/UsersManager"
@@ -87,7 +87,7 @@ const App = () => {
                     <Routes>
                         <Route
                             path="/"
-                            element={<ShopsPage />}
+                            element={<ShopsManager />}
                         />
                         <Route
                             path="/items/:shop_id"

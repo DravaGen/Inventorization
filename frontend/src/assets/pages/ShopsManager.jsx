@@ -1,9 +1,9 @@
 import Shops from "../components/Shops"
 
 
-const ShopsPage = () => {
+const ShopsManager = () => {
     return <Shops></Shops>
 }
 
 
-export default ShopsPage
+export default ShopsManager
