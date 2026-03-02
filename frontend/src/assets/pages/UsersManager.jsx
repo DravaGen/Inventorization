@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 
 import {
     Manager, ManagerBlock, ManagerItemUser,
     ManagerContentItems, ManagerControlButton,
-    getActivatedCheckbox, getElementUUID
+    getElementUUID
 } from "../components/Manager"
 
 import { Block, BlockHeader} from "../components/Block"
@@ -20,8 +20,6 @@ const UsersManager = () => {
     const [accessUsers, setAccessUsers] = useState([])
     const [otherUsers, setOtherUsers] = useState([])
 
-    const accessBlock = useRef()
-    const otherBlock = useRef()
     const [accessSelected, setAccessSelected] = useState([])
     const [otherSelected, setOtherSelected] = useState([])
 
@@ -59,36 +57,34 @@ const UsersManager = () => {
     }, [initBlocksData])
 
     const logicDeleteAceess = useCallback(async () => {
-        const checkboxes = getActivatedCheckbox(accessBlock)
 
-        for (const checkbox of checkboxes) {
-            const userId = getElementUUID(checkbox)
-            await RestAPI.deleteAccess(userId, shop_id)
+        for (const element of accessSelected) {
+            const itemsManagerHTML = element.ref.current
+            const userId = getElementUUID(itemsManagerHTML)
+            const [ok, ] = await RestAPI.deleteAccess(userId, shop_id)
+            ok && itemsManagerHTML.removeChecked()
         }
 
         initBlocksData()
-    }, [
-        shop_id, accessBlock, initBlocksData
-    ])
+    }, [shop_id, accessSelected, initBlocksData])
 
     const logicGrantAccess = useCallback(async () => {
-        const checkboxes = getActivatedCheckbox(otherBlock)
 
-        for (const checkbox of checkboxes) {
-            const userId = getElementUUID(checkbox)
-            await RestAPI.grantAccess(userId, shop_id)
+        for (const element of otherSelected) {
+            const itemsManagerHTML = element.ref.current
+            const userId = getElementUUID(itemsManagerHTML)
+            const [ok, ] = await RestAPI.grantAccess(userId, shop_id)
+            ok && itemsManagerHTML.removeChecked()
         }
 
         initBlocksData()
-    }, [
-        shop_id, otherBlock, initBlocksData
-    ])
+    }, [shop_id, otherSelected, initBlocksData])
 
 
     return (
         <Manager>
 
-            <ManagerBlock ref={accessBlock}>
+            <ManagerBlock>
                 <Block>
                     <BlockHeader>Работники имеющие доступ</BlockHeader>
                     <ManagerContentItems
@@ -105,7 +101,7 @@ const UsersManager = () => {
             </ManagerBlock>
 
 
-            <ManagerBlock ref={otherBlock}>
+            <ManagerBlock>
                 <Block>
                     <BlockHeader>Работники</BlockHeader>
                     <AddUser initBlocksData={initBlocksData} />
