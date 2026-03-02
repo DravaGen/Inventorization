@@ -19,3 +19,7 @@ input:focus {
 input.error {
     border-color: red;
 }
+
+.search-input {
+    flex: 0 0 auto;
+}

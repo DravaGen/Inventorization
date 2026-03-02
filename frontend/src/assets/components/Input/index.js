@@ -4,6 +4,7 @@ export { default as InputValidator } from "./InputValidator"
 export { default as InputEmail } from "./InputEmail"
 export { default as InputCode } from "./InputCode"
 export { default as InputNumber } from "./InputNumber"
+export { default as SearchInput } from "./SearchInput"
 
 
 function isNnumberPositive(number) {
