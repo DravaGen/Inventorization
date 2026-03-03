@@ -21,6 +21,25 @@ function checkUserMinStatus(minStatus) {
     return true
 }
 
+function parseJWT(jwt) {
+    if (!jwt) return null
+
+    const payloadBase64 = atob(
+        jwt.split(".")[1]
+            .replace("/-/g", "+")
+            .replace("/_/g", "/")
+    )
+    return JSON.parse(payloadBase64)
+}
+
+
+function savaJWTPayload(jwtPayload) {
+    if (!jwtPayload) return
+    Object.entries(jwtPayload).map(
+        ([key, value]) => {localStorage.setItem(key, value)}
+    )
+}
+
 
 class RestAPI {
 
@@ -379,5 +398,5 @@ class RestAPI {
 }
 
 
-export { UserStatus, checkUserMinStatus };
-export default RestAPI;
+export {UserStatus, checkUserMinStatus, parseJWT, savaJWTPayload}
+export default RestAPI

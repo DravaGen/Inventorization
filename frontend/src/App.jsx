@@ -10,18 +10,18 @@ import {
 import { Notifications } from "./assets/components/Notifications"
 import QrCodeReader from "./assets/components/QrCodeReader"
 import Header from "./assets/components/Header"
-import RestAPI, { UserStatus } from "./RestAPI"
+import RestAPI, {UserStatus, parseJWT, savaJWTPayload} from "./RestAPI"
 
 
 const App = () => {
 
+    const jwtPayload = parseJWT(localStorage?.access_token)
+    savaJWTPayload(jwtPayload)
+
     const [login, setLogin] = useState(
-        localStorage?.email &&
-        localStorage?.status &&
-        localStorage?.status != UserStatus.BANNED &&
-        localStorage?.user_id &&
-        localStorage?.access_token &&
-        localStorage?.exp > new Date().getTime() / 1000
+        jwtPayload &&
+        jwtPayload.status != UserStatus.BANNED &&
+        jwtPayload.exp > new Date().getTime() / 1000
     )
     const [notifications, setNotifications] = useState([])
     const [openQrCodeReader, setOpenQrCodeReader] = useState(false)

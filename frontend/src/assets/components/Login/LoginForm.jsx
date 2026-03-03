@@ -4,7 +4,7 @@ import { InputEmail, InputCode } from "../Input"
 import { Button } from "../Button"
 import { InlineGroup } from "../InlineGroup"
 import AppContext from "../../AppContext"
-import RestAPI, { UserStatus } from "../../../RestAPI"
+import RestAPI, { UserStatus, parseJWT } from "../../../RestAPI"
 
 
 const LoginForm = () => {
@@ -49,12 +49,7 @@ const LoginForm = () => {
         if (!ok) return
 
         const access_token = response.access_token
-        const payloadBase64 = atob(
-            access_token.split(".")[1]
-                .replace("/-/g", "+")
-                .replace("/_/g", "/")
-        )
-        const payload = JSON.parse(payloadBase64)
+        const payload = parseJWT(access_token)
 
         if (payload.status == UserStatus.BANNED) {
             codeInput.current.clear()
@@ -63,9 +58,6 @@ const LoginForm = () => {
         }
 
         localStorage.setItem("email", form.email)
-        localStorage.setItem("user_id", payload.sub)
-        localStorage.setItem("status", payload.status)
-        localStorage.setItem("exp", payload.exp)
         localStorage.setItem("access_token", access_token)
 
         logining()
