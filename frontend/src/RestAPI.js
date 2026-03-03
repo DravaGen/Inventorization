@@ -207,6 +207,16 @@ class RestAPI {
         )
     }
 
+    static async updateShop(shopId, name, address) {
+        return await this._makeRequest(
+            `${SERVER_URL}/shops/?shop_id=${shopId}`,
+            {
+                method: 'PATCH',
+                json: {name, address}
+            }
+        )
+    }
+
     static async getAccess(shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/shops/access/?shop_id=${shopId}`,

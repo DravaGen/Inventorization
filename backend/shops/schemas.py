@@ -1,7 +1,7 @@
 from uuid import UUID
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ShopResponse(BaseModel):
@@ -20,6 +20,22 @@ class ShopCrateForm(BaseModel):
 
     name: str = Field(..., max_length=32)
     address: str = Field(..., max_length=64)
+
+
+class ShopUpdateForm(BaseModel):
+    """Форма создания магазина"""
+
+    name: str | None = Field(None, max_length=32)
+    address: str | None = Field(None, max_length=64)
+
+    @model_validator(mode="after")
+    def validate_empty(self):
+        """Проверяет что данные не пустые"""
+
+        if not any(self.model_dump().values()):
+            raise ValueError("Empty data")
+
+        return self
 
 
 class ShopCrateResponse(ShopResponse):

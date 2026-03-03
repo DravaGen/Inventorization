@@ -1,16 +1,16 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.orm import joinedload
 
 from .models import ShopORM, ShopAccessORM
 from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
-    UserAccessResponse, ShopAccessResponse, ShopAccessForm
+    ShopUpdateForm, UserAccessResponse, ShopAccessResponse, ShopAccessForm
 from .services import grant_shop_access, check_shop_access, \
     delete_shop_access, get_shop_access
 
-from responses import ResponseDescriptions, ResponseDescription
+from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentUserID, CurrentShopID, \
     UserStatusISOwner, UserStatusISWorker, UserStatusISAdmin
 from users.schemas import UserStatus
@@ -45,6 +45,38 @@ async def create_shop(
 
     await grant_shop_access(user_id, shop.id, db)
     return ShopCrateResponse.model_validate(shop)
+
+
+@shops_router.patch(
+    "/",
+    dependencies=[UserStatusISOwner],
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=status.HTTP_404_NOT_FOUND,
+            description="You cannot update the shop data"
+        ),
+    ))
+)
+async def update_shop(
+        shop_id: CurrentShopID,
+        form_data: ShopUpdateForm,
+        db: SessionDep
+) -> ResponseOK:
+    """Обновляет магазин"""
+
+    if not await db.get(ShopORM, shop_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="You cannot update the shop data"
+        )
+
+    await db.execute(
+        update(ShopORM)
+        .values(**form_data.model_dump(exclude_unset=True))
+        .where(ShopORM.id == shop_id)
+    )
+
+    return ResponseOK(detail="shop updated")
 
 
 @shops_router.get(

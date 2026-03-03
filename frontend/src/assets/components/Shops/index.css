@@ -10,9 +10,18 @@
     padding: 40px 20px 20px 20px;
 }
 
-.edit-button {
+
+.shop .confirm-button,
+.shop .edit-button {
     position: absolute;
     top: 0;
-    right: 0;
     margin: 5px;
+}
+
+.shop .confirm-button {
+    left: 0;
+}
+
+.shop .edit-button {
+    right: 0;
 }

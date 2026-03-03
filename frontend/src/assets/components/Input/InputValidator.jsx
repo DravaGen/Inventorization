@@ -8,16 +8,17 @@ const InputValidator = forwardRef((
         output = (e) => {return e},
         updateForm = () => {return [() => {}, ""]},
         className = "",
+        defaultValue = "",
         ...props
     },
     ref
 ) => {
-    const [inputValue, setInputValue] = useState('')
+    const [inputValue, setInputValue] = useState(defaultValue)
     const [error, setError] = useState(false)
     const [setForm, key] = updateForm()
 
     const checkInvalidInput = useCallback((v) => {
-        const value = output(v.trim())
+        const value = output(v)
         const result = condition(value)
         setInputValue(value)
         setError(!result && value)

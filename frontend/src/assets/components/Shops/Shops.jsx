@@ -23,10 +23,10 @@ const Shops = () => {
 
 
     let shopsElements = shops.map(
-        (shop) => <Shop key={shop.id} shopId={shop.id} {...shop}/>
+        (shop) => <Shop key={shop.id} {...shop} initShops={initShops}/>
     )
     if (checkUserMinStatus(UserStatus.OWNER)) {
-        shopsElements.push(<AddShop initShops={initShops} key={"add-shop"} />)
+        shopsElements.push(<AddShop key={"add-shop"} initShops={initShops}/>)
     }
 
     return <div className="shops">{shopsElements}</div>
