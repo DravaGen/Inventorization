@@ -9,6 +9,7 @@ export { default as ManagerItem } from "./ManagerItem"
 export { default as ManagerItemUser } from "./ManagerItemUser"
 export { default as ManagerItemAllItem } from "./ManagerItemAllItem"
 export { default as ManagerItemShopItem } from "./ManagerItemShopItem"
+export { default as ManagerItemCartItem } from "./ManagerItemCartItem"
 
 const getElementUUID = (element) => {
     const row = element.closest('.manager-item-row')

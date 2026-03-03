@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect } from "react"
 import { useParams } from "react-router-dom"
 
-import { SearchInput } from "../components/Input"
+import { AddCartItem } from "../components/Add"
 import { Block, BlockHeader } from "../components/Block"
 import {
     Manager, ManagerBlock, ManagerContentItems,
-    ManagerItemShopItem
+    ManagerItemShopItem, ManagerItemCartItem
 } from "../components/Manager"
 import RestAPI from "../../RestAPI"
 
@@ -26,7 +26,7 @@ const CartManager = () => {
 
     const getItemsInCart = useCallback(async () => {
         const [ok, response] = await RestAPI.getCartItems(shop_id)
-        ok && setItemsInCart(response.items)
+        ok && setItemsInCart(response)
     }, [shop_id, setItemsInCart])
 
     useEffect(() => {
@@ -43,6 +43,18 @@ const CartManager = () => {
             <ManagerBlock>
                 <Block>
                     <BlockHeader>Корзина покупок</BlockHeader>
+                    <AddCartItem
+                        items={itemsInShop}
+                        shop_id={shop_id}
+                        getItemsInCart={getItemsInCart}
+                    />
+                    <ManagerContentItems
+                        elements={itemsInCart}
+                        elementName={"item"}
+                        Component={ManagerItemCartItem}
+                        useIndexInKey={true}
+                        useSearchInput={() => [true, "name"]}
+                    />
                 </Block>
             </ManagerBlock>
 
