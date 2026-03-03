@@ -7,7 +7,7 @@ import {
     useMemo,
     useCallback
 } from "react"
-import { Input } from "../Input"
+import { SearchInput } from "../Input"
 
 
 const Select = forwardRef((
@@ -188,12 +188,9 @@ const Select = forwardRef((
             className={`select ${small ? "small" : ""}`}
             style={{ height: selectHeight }}
         >
-            {
-                searchInput && <Input
-                    placeholder={"Поиск"}
-                    onChange={(e) => {setSearch(e.target.value)}}
-                ></Input>
-            }
+            {searchInput && <SearchInput
+                onChange={(e) => {setSearch(e.target.value)}}
+            />}
             {showItems.map((child) => {
                 const val = child.props.value
                 const isHover = hovered === val
