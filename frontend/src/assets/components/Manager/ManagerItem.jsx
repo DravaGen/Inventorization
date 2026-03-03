@@ -9,8 +9,9 @@ const ManagerItem = ({
     updateSelected = () => [() => {}, undefined],
     managerItemData = {},
     canSelected=false,
+    ref={}
 }) => {
-    const ref = useRef()
+    const innerRef = useRef()
     const [open, setOpen] = useState(false)
     const [isChecked, setIsChecked] = useState(false)
 
@@ -23,7 +24,7 @@ const ManagerItem = ({
         const key = receivedValue ?? title
         setSelected(prev => {
             return checked ?
-                [...prev, {key, ref}]
+                [...prev, {key, ref: innerRef}]
                 : prev.filter(i => i.key != key)
         })
     }, [title, updateSelected])
@@ -59,6 +60,7 @@ const ManagerItem = ({
             <div
                 ref={(element) => {
                     ref.current = element
+                    innerRef.current = element
                     setRemoveCheckedMethod(element)
                 }}
                 className={`manager-item ${open ? "open" : ""}`}
