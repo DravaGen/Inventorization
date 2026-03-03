@@ -92,6 +92,7 @@ const UsersManager = () => {
                         elementName={"user"}
                         Component={ManagerItemUser}
                         setSelectedList={setAccessSelected}
+                        useSearchInput={() => [true, "email"]}
                         canSelected={true}
                     />
                     <ManagerControlButton
@@ -111,6 +112,7 @@ const UsersManager = () => {
                         elementName={"user"}
                         Component={ManagerItemUser}
                         setSelectedList={setOtherSelected}
+                        useSearchInput={() => [true, "email"]}
                         canSelected={true}
                     />
                     <ManagerControlButton

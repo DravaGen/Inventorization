@@ -49,12 +49,12 @@ const CartManager = () => {
             <ManagerBlock>
                 <Block>
                     <BlockHeader>Товар в магазине</BlockHeader>
-                    <SearchInput />
                     <ManagerContentItems
                         elements={itemsInShop}
                         elementName={"item"}
                         Component={ManagerItemShopItem}
                         useIndexInKey={true}
+                        useSearchInput={() => [true, "name"]}
                     />
                 </Block>
             </ManagerBlock>

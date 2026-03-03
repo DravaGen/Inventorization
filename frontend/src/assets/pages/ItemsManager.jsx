@@ -99,6 +99,7 @@ const ItemsManager = () => {
                         Component={ManagerItemShopItem}
                         useIndexInKey={true}
                         setSelectedList={setShopItemsSlected}
+                        useSearchInput={() => [true, "name"]}
                         canSelected={true}
                     />
                     <ManagerControlButton
@@ -117,6 +118,7 @@ const ItemsManager = () => {
                         elementName={"item"}
                         Component={ManagerItemAllItem}
                         setSelectedList={setAllItemsSlected}
+                        useSearchInput={() => [true, "name"]}
                         canSelected={true}
                     />
                     <ManagerControlButton
