@@ -350,13 +350,25 @@ async def get_cart_items(
     """Возвращает товары из корзины"""
 
     cart = await db.execute(
-        select(ShopCartORM.item_id, ShopCartORM.quantity)
+        select(ShopCartORM)
+        .options(
+            joinedload(ShopCartORM.shop_items)
+            .joinedload(ShopItemsORM.item)  # загружаем item через shop_items
+        )
         .where(
             (ShopCartORM.user_id == user_id)
             & (ShopCartORM.shop_id == shop_id)
         )
     )
-    return convert_query_to_list_dicts(ShopCartItemResponse, cart)
+    cart = cart.scalars().unique().all()
+
+    return [
+        ShopCartItemResponse(
+            item_id=x.item_id,
+            name=x.shop_items.item.name,
+            quantity=x.quantity
+        ) for x in cart
+    ]
 
 
 @item_cart_route.delete(

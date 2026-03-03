@@ -73,5 +73,7 @@ class ShopCartItemForm(BaseModel):
 class ShopCartItemResponse(BaseModel):
     """Товары в корзине"""
 
-    item_id: UUID
+    item_id: UUID = Field(serialization_alias="id")
+    name: str
     quantity: int
+
