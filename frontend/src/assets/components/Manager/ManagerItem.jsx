@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { Input } from "../Input"
 
 
@@ -9,7 +9,7 @@ const ManagerItem = ({
     updateSelected = () => [() => {}, undefined],
     managerItemData = {},
     canSelected=false,
-    ref={}
+    ref: queryRef
 }) => {
     const innerRef = useRef()
     const [open, setOpen] = useState(false)
@@ -41,11 +41,29 @@ const ManagerItem = ({
         dataAttributes[dataKey] = value;
     })
 
-    const setRemoveCheckedMethod = useCallback((element) => {
-        if (element) {
-            element.removeChecked = () => {
+    const setRefs = useCallback((element) => {
+        innerRef.current = element
+
+        if (queryRef) {
+            if (typeof queryRef === 'function') {
+                queryRef(element)
+            } else {
+                queryRef.current = element
+            }
+        }
+    }, [innerRef, queryRef])
+
+    useEffect(() => {
+        if (innerRef.current) {
+            innerRef.current.removeChecked = () => {
                 setIsChecked(false)
                 toggleSelectedList(false)
+            }
+        }
+
+        return () => {
+            if (innerRef.current) {
+                delete innerRef.current.removeChecked
             }
         }
     }, [setIsChecked, toggleSelectedList])
@@ -58,11 +76,7 @@ const ManagerItem = ({
                 onChange={onChangeCheckBox}
             />}
             <div
-                ref={(element) => {
-                    ref.current = element
-                    innerRef.current = element
-                    setRemoveCheckedMethod(element)
-                }}
+                ref={setRefs}
                 className={`manager-item ${open ? "open" : ""}`}
                 {...dataAttributes}
             >
