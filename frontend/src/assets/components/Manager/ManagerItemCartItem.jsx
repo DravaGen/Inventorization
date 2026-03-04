@@ -9,7 +9,6 @@ import RestAPI from "../../../RestAPI"
 const ManagerItemCartItem = ({
     item,
     shop_id,
-    updateSelected,
     getItemsInCart,
     ...props
 }) => {
@@ -64,7 +63,6 @@ const ManagerItemCartItem = ({
     return (
         <ManagerItem
             title={customTitle}
-            updateSelected={updateSelected}
             {...props}
         >
             <div>id: {item.id}</div>
