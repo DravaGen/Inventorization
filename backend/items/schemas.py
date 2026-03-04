@@ -85,3 +85,26 @@ class ItemSoldResoinse(BaseModel):
     date: date
     count: int
     income: int
+
+
+class ItemInCartSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    item_id: UUID = Field(..., serialization_alias="id")
+    quantity: int
+
+
+class AddItemInCartResponse(BaseModel):
+    item: ItemInCartSchema
+
+
+class DeleteItemInCartResponse(BaseModel):
+    item: ItemInCartSchema | None
+
+
+class UpdateCartItemQuantityForm(BaseModel):
+    item_id: UUID
+    quantity: int
+
+
+class UpdateItemInCartResponse(BaseModel):
+    item: ItemInCartSchema | None

@@ -8,7 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from .models import ItemORM, ItemSoldORM
 from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemResponse, ItemInShopResponse, ItemSoldResoinse, ItemShopForm, \
-    ItemQueueForm, ItemQueueDeleteForm
+    ItemQueueForm, ItemQueueDeleteForm, ItemInCartSchema, \
+    AddItemInCartResponse, DeleteItemInCartResponse, \
+    UpdateItemInCartResponse, UpdateCartItemQuantityForm
 from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
     get_items_quantity, format_items_in_shop, get_queues_in_shop
 
@@ -299,7 +301,7 @@ async def add_cart_item(
         shop_id: CurrentShopID,
         form_data: ShopCartItemForm,
         db: SessionDep
-) -> ResponseOK:
+) -> AddItemInCartResponse:
     """Добавляет товар в корзину"""
 
     item_id = form_data.item_id
@@ -319,23 +321,35 @@ async def add_cart_item(
         )
 
     if item_cart:
-        await db.execute(
+        item = await db.execute(
             update(ShopCartORM)
-            .where(ShopCartORM.item_id == item_id)
+            .where(
+                (ShopCartORM.user_id == user_id)
+                & (ShopCartORM.shop_id == shop_id)
+                & (ShopCartORM.item_id == item_id)
+            )
             .values(quantity=ShopCartORM.quantity + form_data.quantity)
+            .returning(ShopCartORM)
         )
 
     else:
-        await db.execute(
+        item = await db.execute(
             insert(ShopCartORM)
             .values(
                 shop_id=shop_id,
                 user_id=user_id,
                 **form_data.model_dump()
             )
+            .returning(ShopCartORM)
         )
 
-    return ResponseOK(detail="item added to cart")
+    item = item.scalar()
+    return AddItemInCartResponse(
+        item=ItemInCartSchema(
+            item_id=item.item_id,
+            quantity=item.quantity
+        )
+    )
 
 
 @item_cart_route.get(
@@ -387,7 +401,7 @@ async def del_cart_item(
         shop_id: CurrentShopID,
         form_data: ShopCartItemForm,
         db: SessionDep
-) -> ResponseOK:
+) -> DeleteItemInCartResponse:
     """Удаляет товар из корзины"""
 
     item = await get_item_in_cart(user_id, shop_id, form_data.item_id, db)
@@ -402,8 +416,14 @@ async def del_cart_item(
         item.quantity -= form_data.quantity
     else:
         await db.delete(item)
+        item = None
 
-    return ResponseOK(detail="item deleted from cart")
+    return DeleteItemInCartResponse(
+        item=ItemInCartSchema(
+            item_id=item.item_id,
+            quantity=item.quantity
+        ) if item else None
+    )
 
 
 @item_cart_route.delete(
@@ -425,6 +445,55 @@ async def clear_cart(
         )
     )
     return ResponseOK(detail="cleaned cart")
+
+
+@item_cart_route.patch(
+    "/quantity",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[UserStatusISWorker],
+    responses=ResponseDescriptions((
+        ResponseDescription(
+            status_code=status.HTTP_409_CONFLICT,
+            description="Exceed available quantity"
+        ),
+    ))
+)
+async def update_cart_item_quantity(
+        user_id: CurrentUserID,
+        shop_id: CurrentShopID,
+        form_data: UpdateCartItemQuantityForm,
+        db: SessionDep
+) -> UpdateItemInCartResponse:
+    """Добавляет товар в корзину"""
+
+    item_id = form_data.item_id
+
+    item_cart = await get_item_in_cart(user_id, shop_id, item_id, db)
+    item_shop = await get_item_in_shop(item_id, shop_id, db)
+
+    if (
+        item_shop.quantity
+        - (item_cart.quantity if item_cart else 0)
+        - form_data.quantity
+        < 0
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Exceed available quantity"
+        )
+
+    if item_cart.quantity > 0:
+        item_cart.quantity = form_data.quantity
+    else:
+        await db.delete(item_cart)
+        item_cart = None
+
+    return UpdateItemInCartResponse(
+        item=ItemInCartSchema(
+            item_id=item_cart.item_id,
+            quantity=item_cart.quantity
+        ) if item_cart else None
+    )
 
 
 @item_cart_route.post(

@@ -54,6 +54,8 @@ const CartManager = () => {
                         Component={ManagerItemCartItem}
                         useIndexInKey={true}
                         useSearchInput={() => [true, "name"]}
+                        shop_id={shop_id}
+                        getItemsInCart={getItemsInCart}
                     />
                 </Block>
             </ManagerBlock>

@@ -384,6 +384,19 @@ class RestAPI {
         )
     }
 
+    static async updateCartItemQuantity(shopId, itemID, quantity) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/cart/quantity?shop_id=${shopId}`,
+            {
+                method: 'PATCH',
+                json: {
+                    item_id: itemID,
+                    quantity
+                }
+            }
+        )
+    }
+
     static async confirmCart(shopId) {
         return await this._makeRequest(
             `${SERVER_URL}/items/cart/confirm?shop_id=${shopId}`,

@@ -69,6 +69,23 @@
     position: relative;
 }
 
+.control-item-header .name-item {
+    display: flex;
+    align-items: center;
+}
+
+.manager-item-header .control-item-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.manager-item-header .control-item-header input {
+    max-width: 80px;
+    margin-inline: 2px;
+}
+
 .manager-item-header .indicator {
     display: inline-block;
     width: 10px;

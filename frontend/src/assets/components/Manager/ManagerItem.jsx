@@ -15,7 +15,8 @@ const ManagerItem = ({
     const [open, setOpen] = useState(false)
     const [isChecked, setIsChecked] = useState(false)
 
-    const loggleOpen = useCallback(() => {
+    const loggleOpen = useCallback((e) => {
+        if (e.target.closest('.control-item-block') !== null) return
         setOpen(prev => !prev)
     }, [])
 
