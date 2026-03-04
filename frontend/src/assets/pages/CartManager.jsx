@@ -21,6 +21,12 @@ const CartManager = () => {
     const [itemsInShop, setItemsInShop] = useState([])
     const [itemsInCart, setItemsInCart] = useState([])
 
+    const shopItemsMap = new Map(itemsInShop.map(item => [item.id, item]))
+
+    const totalPrice = itemsInCart.reduce((sum, item) => {
+        return sum + item.quantity * shopItemsMap.get(item.id).price
+    }, 0)
+
     const getItemsInShop = useCallback(async () => {
         const [ok, response] = await RestAPI.getShopItems(shop_id)
         ok && setItemsInShop(response.items)
@@ -70,12 +76,15 @@ const CartManager = () => {
                         getItemsInCart={getItemsInCart}
                     />
                     <ManagerControlGroup>
-                        <Button
-                            onClick={logicClearCart}
-                        >Очистить</Button>
-                        <Button
-                            onClick={logicConfirmCart}
-                        >Подтвердить</Button>
+                        <div>Итог: {totalPrice}</div>
+                        <div className="control-button">
+                            <Button
+                                onClick={logicClearCart}
+                            >Очистить</Button>
+                            <Button
+                                onClick={logicConfirmCart}
+                            >Подтвердить</Button>
+                        </div>
                     </ManagerControlGroup>
                 </Block>
             </ManagerBlock>
