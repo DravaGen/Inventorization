@@ -2,7 +2,7 @@ import { InlineGroup } from "../InlineGroup"
 
 
 const ManagerControlGroup = ({ children }) => {
-    return <InlineGroup className="control-button">{children}</InlineGroup>
+    return <InlineGroup className="control-group">{children}</InlineGroup>
 }
 
 

@@ -28,7 +28,14 @@
 }
 
 .control-button {
+    gap: 5px;
+    display: flex;
     align-self: center;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
 }
 
 @media (max-width: 768px) {
