@@ -5,8 +5,10 @@ import { AddCartItem } from "../components/Add"
 import { Block, BlockHeader } from "../components/Block"
 import {
     Manager, ManagerBlock, ManagerContentItems,
-    ManagerItemShopItem, ManagerItemCartItem
+    ManagerItemShopItem, ManagerItemCartItem,
+    ManagerControlGroup
 } from "../components/Manager"
+import { Button } from "../components/Button"
 import RestAPI from "../../RestAPI"
 
 
@@ -28,6 +30,16 @@ const CartManager = () => {
         const [ok, response] = await RestAPI.getCartItems(shop_id)
         ok && setItemsInCart(response)
     }, [shop_id, setItemsInCart])
+
+    const logicClearCart = useCallback(async () => {
+        const [ok, ] = await RestAPI.clearCart(shop_id)
+        ok && getItemsInCart()
+    }, [shop_id, getItemsInCart])
+
+    const logicConfirmCart = useCallback(async () => {
+        const [ok, ] = await RestAPI.confirmCart(shop_id)
+        ok && getItemsInCart()
+    }, [shop_id, getItemsInCart])
 
     useEffect(() => {
         async function fetchData() {
@@ -57,6 +69,14 @@ const CartManager = () => {
                         shop_id={shop_id}
                         getItemsInCart={getItemsInCart}
                     />
+                    <ManagerControlGroup>
+                        <Button
+                            onClick={logicClearCart}
+                        >Очистить</Button>
+                        <Button
+                            onClick={logicConfirmCart}
+                        >Подтвердить</Button>
+                    </ManagerControlGroup>
                 </Block>
             </ManagerBlock>
 
