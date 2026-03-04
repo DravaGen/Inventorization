@@ -449,7 +449,7 @@ async def clear_cart(
 
 @item_cart_route.patch(
     "/quantity",
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_200_OK,
     dependencies=[UserStatusISWorker],
     responses=ResponseDescriptions((
         ResponseDescription(
@@ -482,7 +482,7 @@ async def update_cart_item_quantity(
             detail="Exceed available quantity"
         )
 
-    if item_cart.quantity > 0:
+    if form_data.quantity > 0:
         item_cart.quantity = form_data.quantity
     else:
         await db.delete(item_cart)

@@ -7,6 +7,10 @@ export { default as InputNumber } from "./InputNumber"
 export { default as SearchInput } from "./SearchInput"
 
 
+function isUnsignedNnumber(number) {
+    return +number >= 0
+}
+
 function isNnumberPositive(number) {
     return +number > 0
 }
@@ -19,11 +23,16 @@ function isInteger(number) {
     return isNnumberNotMore(number, 2147483647)
 }
 
+function isUnsignedInteger(number) {
+    return isUnsignedNnumber(number) && isInteger(number)
+}
+
 function isUnsignedIntegerPositive(number) {
     return isNnumberPositive(number) && isInteger(number)
 }
 
 export {
-    isNnumberPositive, isNnumberNotMore,
-    isInteger, isUnsignedIntegerPositive
+    isUnsignedNnumber, isNnumberPositive,
+    isNnumberNotMore, isInteger,
+    isUnsignedInteger, isUnsignedIntegerPositive
 }
