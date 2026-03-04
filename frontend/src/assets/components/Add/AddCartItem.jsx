@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react"
 import AddConstructor from "./AddConstructor"
 import { Button } from "../Button"
 import { InlineGroup } from "../InlineGroup"
-import { InputNumber, isUnsignedInteger } from "../Input"
+import { InputNumber, isUnsignedIntegerPositive } from "../Input"
 import { Select, SelectOption } from "../Select"
 import RestAPI from "../../../RestAPI"
 
@@ -51,7 +51,7 @@ const AddCartItem = ({ items, shop_id, getItemsInCart }) => {
                 ref={quantityRef}
                 type={"number"}
                 placeholder={"Количество"}
-                condition={isUnsignedInteger}
+                condition={isUnsignedIntegerPositive}
                 updateForm={() => [setForm, "quantity"]}
                 defaultValue={"1"}
             />

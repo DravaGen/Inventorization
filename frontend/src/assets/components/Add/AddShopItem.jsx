@@ -1,7 +1,7 @@
 import { useCallback, useContext, useRef, useState} from "react"
 
 import AddConstructor from "./AddConstructor"
-import { InputNumber, isUnsignedInteger } from "../Input"
+import { InputNumber, isUnsignedIntegerPositive } from "../Input"
 import { Select, SelectOption } from "../Select"
 import { Button } from "../Button"
 import { InlineGroup } from "../InlineGroup"
@@ -66,7 +66,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
                 ref={quantityRef}
                 type="number"
                 placeholder="Количество"
-                condition={isUnsignedInteger}
+                condition={isUnsignedIntegerPositive}
                 updateForm={() => [setForm, "quantity"]}
             />
             <InlineGroup>
@@ -74,14 +74,14 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
                     ref={priceRef}
                     type="number"
                     placeholder="Цена продажи"
-                    condition={isUnsignedInteger}
+                    condition={isUnsignedIntegerPositive}
                     updateForm={() => [setForm, "price"]}
                 />
                 <InputNumber
                     ref={purchaseRef}
                     type="number"
                     placeholder="Цена закупки"
-                    condition={isUnsignedInteger}
+                    condition={isUnsignedIntegerPositive}
                     updateForm={() => [setForm, "purchasePrice"]}
                 />
             </InlineGroup>

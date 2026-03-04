@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react"
 
 import ManagerItem from "./ManagerItem"
-import { InputNumber, isUnsignedInteger } from "../Input"
+import { InputNumber, isUnsignedIntegerPositive } from "../Input"
 import { Button } from "../Button"
 import RestAPI from "../../../RestAPI"
 
@@ -45,10 +45,10 @@ const ManagerItemCartItem = ({
                 defaultValue={form.quantity}
                 updateForm={() => [setForm, "quantity"]}
                 condition={async (e) => {
-                    const isInt = isUnsignedInteger(e)
+                    const isInt = isUnsignedIntegerPositive(e)
                     if (!isInt) return false
 
-                    const [ok, ] = await RestAPI.updateCartItemQuantity(
+                    const ok = await RestAPI.updateCartItemQuantity(
                         shop_id, item.id, +e
                     )
                     if (!ok) return false

@@ -19,11 +19,11 @@ function isInteger(number) {
     return isNnumberNotMore(number, 2147483647)
 }
 
-function isUnsignedInteger(number) {
+function isUnsignedIntegerPositive(number) {
     return isNnumberPositive(number) && isInteger(number)
 }
 
 export {
     isNnumberPositive, isNnumberNotMore,
-    isInteger, isUnsignedInteger
+    isInteger, isUnsignedIntegerPositive
 }
