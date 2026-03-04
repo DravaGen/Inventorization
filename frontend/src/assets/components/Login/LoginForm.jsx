@@ -34,7 +34,8 @@ const LoginForm = () => {
             setDataQrCodeReader(null)
         }
         loginAboutQrCode()
-    }, [form, dataQrCodeReader, setDataQrCodeReader, addNotification])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dataQrCodeReader])
 
     const logicSendCode = useCallback(async () => {
         const [ok, ] = await RestAPI.sendOtp(form.email)
