@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 
+from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis.client import Redis
@@ -70,7 +71,7 @@ async def login(
     ))
 )
 async def send_otp_code(
-        email: str,
+        email: EmailStr,
         db: AsyncSession = Depends(get_db),
         redis: Redis = Depends(get_redis)
 ) -> JSONResponse:
