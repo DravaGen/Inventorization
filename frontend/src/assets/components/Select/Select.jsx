@@ -8,6 +8,7 @@ import {
     useCallback
 } from "react"
 import { BlockSearch } from "../Block"
+import { filterBySearch } from "../Input"
 
 
 const Select = forwardRef((
@@ -37,12 +38,11 @@ const Select = forwardRef((
     const [hovered, setHovered] = useState(getInitial)
 
     const showItems = useMemo(() => {
-        if (!search.trim()) return items
-
-        return items.filter(item =>
-            item?.props.children
-                .toLowerCase()
-                .startsWith(search.toLowerCase())
+        return filterBySearch(
+            items, search, [
+                item => item.props.children,
+                item => item.props.value
+            ]
         )
     }, [search, items])
 

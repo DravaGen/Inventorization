@@ -31,8 +31,24 @@ function isUnsignedIntegerPositive(number) {
     return isNnumberPositive(number) && isInteger(number)
 }
 
+const filterBySearch = (list, search, getters) => {
+    const value = search.trim().toLowerCase()
+
+    if (!value) return list
+
+    return list.filter(item =>
+        getters.some(get =>
+            (get(item) ?? "")
+                .toString()
+                .toLowerCase()
+                .includes(value)
+        )
+    )
+}
+
 export {
     isUnsignedNnumber, isNnumberPositive,
     isNnumberNotMore, isInteger,
-    isUnsignedInteger, isUnsignedIntegerPositive
+    isUnsignedInteger, isUnsignedIntegerPositive,
+    filterBySearch
 }

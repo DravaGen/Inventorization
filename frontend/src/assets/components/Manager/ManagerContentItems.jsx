@@ -2,6 +2,7 @@ import { useState, useMemo, useRef} from "react"
 
 import ManagerContent from "./ManagerContent"
 import { BlockSearch } from "../Block"
+import { filterBySearch } from "../Input"
 
 
 const ManagerContentItems = ({
@@ -19,15 +20,10 @@ const ManagerContentItems = ({
     const [enableSearch, keySearch] = useSearchInput()
 
     const showElements = useMemo(() => {
-        if (!search.trim()) return elements
-
-        return elements.filter(element => {
-            const searchValue = search.toLowerCase()
-            return (
-                element[keySearch].toLowerCase().startsWith(searchValue)
-                || (element?.id ?? "").toLowerCase().startsWith(searchValue)
-            )
-        })
+        return filterBySearch(elements, search, [
+            element => element[keySearch],
+            element => element.id
+        ])
     }, [search, keySearch, elements])
 
     return (
