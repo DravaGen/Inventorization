@@ -4,7 +4,7 @@ from pydantic import BaseModel, model_validator
 from fastapi.responses import JSONResponse
 
 
-RESPONSE_MODEL = TypeVar("MODEL", bound=BaseModel)
+RESPONSE_MODEL = TypeVar("RESPONSE_MODEL", bound=BaseModel)
 
 
 class TextResponse(BaseModel):
@@ -27,7 +27,7 @@ class ResponseOK(JSONResponse):
 
 class ResponseDescription(BaseModel):
     status_code: int
-    model: Optional[Type[str] | RESPONSE_MODEL] = None
+    model: Optional[Type[str] | type[BaseModel]] = None
     description: Optional[str] = None
 
     @model_validator(mode="after")
@@ -36,7 +36,7 @@ class ResponseDescription(BaseModel):
         if (
             not len(
                 self.model_dump(
-                    exclude="status_code",
+                    exclude={"status_code"},
                     exclude_unset=True
                 ).values()
             ) != 0
@@ -44,7 +44,7 @@ class ResponseDescription(BaseModel):
             raise ValueError(f"response code {self.status_code} not field")
 
         if self.model == str:
-            self.model = TextResponse(detail="string")
+            self.model = TextResponse
 
         return self
 
@@ -67,7 +67,7 @@ class ResponseDescriptions(BaseModel):
 
         for x in self.responses:
             response[x.status_code] = x.model_dump(
-                exclude=["status_code", "model"],
+                exclude={"status_code", "model"},
                 exclude_unset=True
             )
 

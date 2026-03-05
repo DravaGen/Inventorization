@@ -65,7 +65,7 @@ async def login(
         ),
         ResponseDescription(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            model=SMTPDelayErrorResponse(detail="", delay=0),
+            model=SMTPDelayErrorResponse,
             description="Too Many Requests, wait in {x} sec"
         )
     ))
