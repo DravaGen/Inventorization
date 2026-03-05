@@ -74,7 +74,7 @@ async def send_otp_code(
         email: str,
         db: AsyncSession = Depends(get_db),
         redis: Redis = Depends(get_redis)
-) -> ResponseOK:
+) -> JSONResponse:
     """"""
     user = await get_user(email, db)
 
