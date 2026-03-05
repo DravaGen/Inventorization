@@ -50,8 +50,8 @@ const App = () => {
         )
     }, [])
 
-    const openQrReader = useCallback(() => {
-        setOpenQrCodeReader(true)
+    const openQrReader = useCallback((source) => {
+        setOpenQrCodeReader(source)
     }, [setOpenQrCodeReader])
 
     const closeQrReader = useCallback(() => {

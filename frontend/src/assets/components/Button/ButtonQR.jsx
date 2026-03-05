@@ -4,13 +4,14 @@ import Button from "./Button"
 import AppContext from "../../AppContext"
 
 
-const ButtonQR = () => {
+const ButtonQR = ({ source=true }) => {
     const {
         openQrReader,
     } = useContext(AppContext)
+
     return (
         <Button
-            onClick={openQrReader}
+            onClick={() => openQrReader(source)}
         >QR</Button>
     )
 }
