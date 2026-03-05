@@ -2,7 +2,7 @@ import uuid
 import datetime
 from uuid import UUID
 
-from sqlalchemy import String, Enum, func
+from sqlalchemy import String, Enum, func, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,6 +32,13 @@ class UserORM(Base):
         overlaps="shop_access"
     )
 
+
     @classmethod
     async def get_by_id(cls, user_id: UUID, db: AsyncSession) -> "UserORM | None":
         return await db.get(cls, user_id)
+
+
+    @classmethod
+    async def get_by_email(cls, email: str, db: AsyncSession) -> "UserORM | None":
+        result = await db.execute(select(cls).where(cls.email == email))
+        return result.scalar()

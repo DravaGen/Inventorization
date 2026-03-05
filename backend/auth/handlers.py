@@ -12,7 +12,6 @@ from .schemas import AccessTokenData, AccessTokenResponse
 from smtp import SMTPServer, SMTPDelayError, SMTPDelayErrorResponse
 from users.models import UserORM
 from users.schemas import UserStatus
-from users.services import get_user
 from databases.sqlalchemy import get_db
 from databases.redis import get_redis
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
@@ -76,7 +75,7 @@ async def send_otp_code(
         redis: Redis = Depends(get_redis)
 ) -> JSONResponse:
     """"""
-    user = await get_user(email, db)
+    user = await UserORM.get_by_email(email, db)
 
     if user and user.status != UserStatus.BANNED:
         try:

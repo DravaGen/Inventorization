@@ -6,7 +6,6 @@ from sqlalchemy import select, insert, update
 from .models import UserORM
 from .schemas import UserSignupForm, UserUpdateForm, EMAIL, \
     GetUserRequest, UserResponse
-from .services import get_user
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import UserStatusISOwner
@@ -33,7 +32,7 @@ async def signup_user(
 ) -> ResponseOK:
     """Регистрирует пользотеля"""
 
-    if await get_user(form_data.email, db):
+    if await UserORM.get_by_email(form_data.email, db):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="You can't create a user"
@@ -65,7 +64,7 @@ async def update_user(
 ) -> ResponseOK:
     """Обновляет пользотеля"""
 
-    if not await get_user(email, db):
+    if not await UserORM.get_by_email(email, db):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="You cannot update the user's data"
