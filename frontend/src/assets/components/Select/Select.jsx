@@ -7,7 +7,7 @@ import {
     useMemo,
     useCallback
 } from "react"
-import { SearchInput } from "../Input"
+import { BlockSearch } from "../Block"
 
 
 const Select = forwardRef((
@@ -26,6 +26,7 @@ const Select = forwardRef((
     const containerRef = useRef(null)
     const itemRefs = useRef({})
     const hoveredRef = useRef(null)
+    const source = useRef(new Date().getTime())
 
     const items = useMemo(() => Array.from(children), [children]);
     const [search, setSearch] = useState("")
@@ -188,8 +189,10 @@ const Select = forwardRef((
             className={`select ${small ? "small" : ""}`}
             style={{ height: selectHeight }}
         >
-            {searchInput && <SearchInput
-                onChange={(e) => {setSearch(e.target.value)}}
+            {searchInput && <BlockSearch
+                search={search}
+                setSearch={setSearch}
+                source={source}
             />}
             {showItems.map((child) => {
                 const val = child.props.value
