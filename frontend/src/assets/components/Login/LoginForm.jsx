@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
 
 import { InputEmail, InputCode } from "../Input"
-import { Button } from "../Button"
+import { Button, ButtonQR } from "../Button"
 import { InlineGroup } from "../InlineGroup"
 import AppContext from "../../AppContext"
 import RestAPI, { UserStatus, parseJWT } from "../../../RestAPI"
@@ -12,7 +12,6 @@ const LoginForm = () => {
     const {
         logining,
         addNotification,
-        openQrReader,
         dataQrCodeReader,
         setDataQrCodeReader
     } = useContext(AppContext)
@@ -76,9 +75,7 @@ const LoginForm = () => {
                     updateForm={() => [setForm, "email"]}
                     placeholder={"Введите email"}
                 />
-                <Button
-                    onClick={openQrReader}
-                >QR</Button>
+                <ButtonQR/>
             </InlineGroup>
 
             <InlineGroup>
