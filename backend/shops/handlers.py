@@ -93,13 +93,17 @@ async def get_shops(
     shops = []
 
     if (user.status == UserStatus.OWNER):
-        shops = await db.execute(select(ShopORM))
+        shops = await db.execute(
+            select(ShopORM)
+            .order_by(ShopORM.id)
+        )
         shops = shops.scalars()
     else:
         accesses = await db.execute(
             select(ShopAccessORM)
             .options(joinedload(ShopAccessORM.shop))
             .where(ShopAccessORM.user_id == user_id)
+            .order_by(ShopAccessORM.shop_id)
         )
         accesses = accesses.scalars().all()
         shops = [accesse.shop for accesse in accesses]
@@ -183,6 +187,7 @@ async def get_self_access(
     shops = await db.execute(
         select(ShopAccessORM.shop_id)
         .where(ShopAccessORM.user_id == user_id)
+        .order_by(ShopAccessORM.shop_id)
     )
     return UserAccessResponse(
         user_id=user_id,

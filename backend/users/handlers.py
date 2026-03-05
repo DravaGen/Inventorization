@@ -90,7 +90,7 @@ async def get_users(
 ) -> list[UserResponse]:
     """"""
 
-    query = select(UserORM)
+    query = select(UserORM).order_by(UserORM.id)
 
     if data.user_ids:
         query = query.where(UserORM.id.in_(data.user_ids))

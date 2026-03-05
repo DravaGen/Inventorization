@@ -65,6 +65,7 @@ async def get_items(
     items = await db.execute(
         select(ItemORM)
         .options(joinedload(ItemORM.shop_items))
+        .order_by(ItemORM.id)
     )
 
     return get_items_quantity(items.unique().scalars().all())
@@ -167,12 +168,14 @@ async def get_shop_items(
         select(ShopItemsORM)
         .options(joinedload(ShopItemsORM.item))
         .where(ShopItemsORM.shop_id == shop_id)
+        .order_by(ShopItemsORM.item_id)
     )
 
     queue = await db.execute(
         select(ShopQueueORM)
         .options(joinedload(ShopQueueORM.item))
         .where(ShopQueueORM.shop_id == shop_id)
+        .order_by(ShopQueueORM.item_id)
     )
 
     return ItemInShopResponse(
@@ -373,6 +376,7 @@ async def get_cart_items(
             (ShopCartORM.user_id == user_id)
             & (ShopCartORM.shop_id == shop_id)
         )
+        .order_by(ShopCartORM.item_id)
     )
     cart = cart.scalars().unique().all()
 

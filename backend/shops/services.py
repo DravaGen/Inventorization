@@ -64,6 +64,7 @@ async def get_shop_access(
     users = await db.execute(
         select(ShopAccessORM.user_id)
         .where(ShopAccessORM.shop_id == shop_id)
+        .order_by(ShopAccessORM.user_id)
     )
     return ShopAccessResponse(
         shop_id=shop_id,
