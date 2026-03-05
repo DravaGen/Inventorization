@@ -13,8 +13,8 @@ from .services import grant_shop_access, check_shop_access, \
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentUserID, CurrentShopID, \
     UserStatusISOwner, UserStatusISWorker, UserStatusISAdmin
+from users.models import UserORM
 from users.schemas import UserStatus
-from users.services import get_user_by_id
 from databases.sqlalchemy import SessionDep
 
 
@@ -89,7 +89,7 @@ async def get_shops(
 ) -> list[Optional[ShopResponse]]:
     """Возвращает все магазины в зависимости от доступа"""
 
-    user = await get_user_by_id(user_id, db)
+    user = await UserORM.get_by_id(user_id, db)
     shops = []
 
     if (user.status == UserStatus.OWNER):

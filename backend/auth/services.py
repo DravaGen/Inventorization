@@ -12,7 +12,6 @@ from jwt.exceptions import DecodeError, InvalidSignatureError, \
 from .jwt import JWTService
 from .schemas import AccessTokenData
 from users.models import UserORM
-from users.services import get_user_by_id
 from users.schemas import UserStatus, weights_user_status
 from shops.services import check_shop_access
 from databases.sqlalchemy import get_db
@@ -29,7 +28,7 @@ async def get_token_data(
 
     try:
         token_data = AccessTokenData(**JWTService.decode(token))
-        user_data = await get_user_by_id(token_data.sub, db)
+        user_data = await UserORM.get_by_id(token_data.sub, db)
 
         if token_data.status != user_data.status:
             raise HTTPException(
@@ -66,7 +65,7 @@ async def get_shop_id(
 
     access = (
         await check_shop_access(user_id, shop_id, db)
-        or (await get_user_by_id(user_id, db)).status == UserStatus.OWNER
+        or (await UserORM.get_by_id(user_id, db)).status == UserStatus.OWNER
     )
 
     if not access:

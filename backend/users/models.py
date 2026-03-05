@@ -1,8 +1,10 @@
 import uuid
 import datetime
+from uuid import UUID
 
 from sqlalchemy import String, Enum, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .schemas import UserStatus
 from databases.sqlalchemy import Base, get_enum_values
@@ -29,3 +31,7 @@ class UserORM(Base):
         back_populates="users",
         overlaps="shop_access"
     )
+
+    @classmethod
+    async def get_by_id(cls, user_id: UUID, db: AsyncSession) -> "UserORM | None":
+        return await db.get(cls, user_id)
