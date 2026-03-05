@@ -50,6 +50,14 @@ const App = () => {
         )
     }, [])
 
+    const openQrReader = useCallback(() => {
+        setOpenQrCodeReader(true)
+    }, [setOpenQrCodeReader])
+
+    const closeQrReader = useCallback(() => {
+        setOpenQrCodeReader(false)
+    }, [setOpenQrCodeReader])
+
     useEffect(() => {
         if (!login) return
 
@@ -74,7 +82,8 @@ const App = () => {
             logining,
             logouting,
             openQrCodeReader,
-            setOpenQrCodeReader,
+            openQrReader,
+            closeQrReader,
             dataQrCodeReader,
             setDataQrCodeReader
         }}>

@@ -12,7 +12,7 @@ const LoginForm = () => {
     const {
         logining,
         addNotification,
-        setOpenQrCodeReader,
+        openQrReader,
         dataQrCodeReader,
         setDataQrCodeReader
     } = useContext(AppContext)
@@ -76,7 +76,7 @@ const LoginForm = () => {
                     placeholder={"Введите email"}
                 />
                 <Button
-                    onClick={() => setOpenQrCodeReader(true)}
+                    onClick={openQrReader}
                 >QR</Button>
             </InlineGroup>
 

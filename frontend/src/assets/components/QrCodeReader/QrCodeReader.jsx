@@ -10,7 +10,8 @@ const QrCodeReader = () => {
 
     const {
         openQrCodeReader,
-        setOpenQrCodeReader,
+        openQrReader,
+        closeQrReader,
         setDataQrCodeReader
     } = useContext(AppContext)
 
@@ -22,13 +23,13 @@ const QrCodeReader = () => {
                     <BarcodeScanner
                         onUpdate={(error, result) => {
                             result ? setDataQrCodeReader(result) : null
-                            result ? setOpenQrCodeReader(false) : null
+                            result ? closeQrReader() : null
                         }}
                         facingMode="environment"
                     />
                 }
                 <Button
-                    onClick={() => setOpenQrCodeReader(false)}
+                    onClick={closeQrReader}
                 >Закрыть камеру</Button>
             </Block>
         </div>
