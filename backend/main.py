@@ -54,7 +54,7 @@ def openapi_depends(route: BaseRoute,  dep: Dependant) -> None:
                 description="Access is denied. " \
                     "Privileges are less than necessary."
             ),
-        ))()
+        ))
         responses[403] = descript[403]
 
     if bool(len(dep.dependencies)):

@@ -1,5 +1,5 @@
 from fastapi import status
-from typing import Type, TypeVar, Optional, Iterator
+from typing import Any, Type, TypeVar, Optional
 from pydantic import BaseModel, model_validator
 from fastapi.responses import JSONResponse
 
@@ -49,49 +49,29 @@ class ResponseDescription(BaseModel):
         return self
 
 
-class ResponseDescriptions(BaseModel):
-    responses: tuple[ResponseDescription, ...]
-
+class ResponseDescriptions(dict[int | str, dict[str, Any]]):
 
     def __init__(
-            self,
-            responses: tuple[ResponseDescription, ...]
+        self,
+        responses: tuple[ResponseDescription, ...]
     ):
-        super().__init__(responses=responses)
-        self.__responses = self.__forming()
+        super().__init__(self.__forming(responses))
 
 
-    def __forming(self) -> dict[int, dict]:
+    def __forming(
+        self,
+        responses: tuple[ResponseDescription, ...]
+    ) -> dict[int | str, dict[str, Any]]:
 
-        response = {}
+        result: dict[int | str, dict[str, Any]] = {}
 
-        for x in self.responses:
-            response[x.status_code] = x.model_dump(
+        for x in responses:
+            result[x.status_code] = x.model_dump(
                 exclude={"status_code", "model"},
                 exclude_unset=True
             )
 
             if x.model:
-                response[x.status_code]["model"] = x.model
+                result[x.status_code]["model"] = x.model
 
-        return response
-
-
-    def __call__(self, *args, **kwds) -> dict[int, dict]:
-        return self.__forming()
-
-
-    def keys(self):
-        return self.__responses.keys()
-
-
-    def __getitem__(self, key: int) -> dict:
-        return self.__responses[key]
-
-
-    def __iter__(self) -> Iterator:
-        return iter(self.__responses)
-
-
-    def __len__(self) -> int:
-        return len(self.__responses)
+        return result
