@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react"
 import { Block, BlockHeader } from "../Block"
 
 
@@ -7,13 +8,22 @@ const AddConstructor = ({
     children,
     addStyle = true
 }) => {
+    const [showChildrens, setShowChildrens] = useState(false)
+
+    const toggleShowChildrens = useCallback(() => {
+        setShowChildrens(prev => !prev)
+    }, [setShowChildrens])
+
     return (
         <Block
             id={idName}
             className={addStyle ? "add-coustructor" : ""}
         >
-            <BlockHeader>{blockName}</BlockHeader>
-            {children}
+            <BlockHeader
+                className={"can-clicked"}
+                onClick={toggleShowChildrens}
+            >{blockName}</BlockHeader>
+            {showChildrens && children}
         </Block>
     )
 }

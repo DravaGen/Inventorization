@@ -1,7 +1,7 @@
 
 
-const BlockHeader = ({ children }) => {
-    return <div className="block-header">{children}</div>
+const BlockHeader = ({ children, className="", ...props }) => {
+    return <div className={`block-header ${className}`} {...props}>{children}</div>
 }
 
 
