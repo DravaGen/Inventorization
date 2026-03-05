@@ -58,7 +58,8 @@ const App = () => {
             (ttl > 0 ? ttl : 0) * 1000
         )
         return () => {clearTimeout(interval)}
-    }, [login, logouting])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         RestAPI.setAddNotif(addNotification)
