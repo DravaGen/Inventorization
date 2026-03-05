@@ -28,10 +28,11 @@ const LoginForm = () => {
     useEffect(() => {
         async function loginAboutQrCode() {
             if (!dataQrCodeReader) return
-            emailInput.current.value = dataQrCodeReader.text
-            const [ok, ] = await RestAPI.sendOtp(form.email)
-            ok && addNotification("Код отправлен")
+            const email = emailInput.current.setValue(dataQrCodeReader.text)
             setDataQrCodeReader(null)
+            if (!email) return
+            const [ok, ] = await RestAPI.sendOtp(email)
+            ok && addNotification("Код отправлен")
         }
         loginAboutQrCode()
         // eslint-disable-next-line react-hooks/exhaustive-deps

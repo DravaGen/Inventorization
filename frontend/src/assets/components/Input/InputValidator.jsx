@@ -23,16 +23,20 @@ const InputValidator = forwardRef((
         setInputValue(value)
         setError(!result && value)
         setForm(prev => ({...prev, [key]: result && value ? value : false}))
+        return result && value ? value : false
     }, [output, condition, setInputValue, setError, setForm, key])
 
     useImperativeHandle(ref, () => ({
         set value(v) {
             checkInvalidInput(v)
         },
+        setValue(v) {
+            return checkInvalidInput(v)
+        },
         clear() {
             checkInvalidInput("")
         }
-    }), [checkInvalidInput])
+    }), [condition, inputValue, checkInvalidInput])
 
     return (
         <Input {...props}
