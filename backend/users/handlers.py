@@ -1,10 +1,11 @@
 from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 
+from pydantic import EmailStr
 from sqlalchemy import select, insert, update
 
 from .models import UserORM
-from .schemas import UserSignupForm, UserUpdateForm, EMAIL, \
+from .schemas import UserSignupForm, UserUpdateForm, \
     GetUserRequest, UserResponse
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
@@ -58,7 +59,7 @@ async def signup_user(
     ))
 )
 async def update_user(
-        email: EMAIL,
+        email: EmailStr,
         form_data: UserUpdateForm,
         db: SessionDep
 ) -> ResponseOK:
