@@ -1,7 +1,7 @@
-import { useState, useCallback, useMemo} from "react"
+import { useState, useMemo, useRef} from "react"
 
 import ManagerContent from "./ManagerContent"
-import { SearchInput } from "../Input"
+import { BlockSearch } from "../Block"
 
 
 const ManagerContentItems = ({
@@ -14,6 +14,7 @@ const ManagerContentItems = ({
     ...props
 }) => {
 
+    const source = useRef(new Date().getTime())
     const [search, setSearch] = useState("")
     const [enableSearch, keySearch] = useSearchInput()
 
@@ -29,15 +30,12 @@ const ManagerContentItems = ({
         })
     }, [search, keySearch, elements])
 
-    const setSearchValue = useCallback((e) => {
-        setSearch(e.target.value)
-    }, [setSearch])
-
     return (
         <ManagerContent>
-            {enableSearch && <SearchInput
-                value={search}
-                onChange={setSearchValue}
+            {enableSearch && <BlockSearch
+                search={search}
+                setSearch={setSearch}
+                source={source}
             />}
             {showElements.map(
                 (element, index) => {
