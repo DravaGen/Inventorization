@@ -32,11 +32,9 @@ class UserORM(Base):
         overlaps="shop_access"
     )
 
-
     @classmethod
     async def get_by_id(cls, user_id: UUID, db: AsyncSession) -> "UserORM | None":
         return await db.get(cls, user_id)
-
 
     @classmethod
     async def get_by_email(cls, email: str, db: AsyncSession) -> "UserORM | None":
