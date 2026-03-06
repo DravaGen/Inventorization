@@ -50,8 +50,8 @@ class ItemResponse(ItemSchema):
 
 class ItemInShopResponse(BaseModel):
 
-    items: list[Optional[ItemInShopSchema]]
-    queues: list[Optional[ItemInShopSchema]]
+    items: list[ItemInShopSchema]
+    queues: list[ItemInShopSchema]
 
 
 class ItemShopForm(BaseModel):

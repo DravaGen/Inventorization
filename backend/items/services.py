@@ -5,16 +5,15 @@ from fastapi import HTTPException, status
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import ItemORM
+from .models import ItemORM, ItemShopORM, ItemQueueORM, ItemCartORM
 from .schemas import ItemSchema, ItemResponse, ItemInShopSchema, \
     ItemShopForm, ItemQueueForm
 
 from responses import ResponseOK
-from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
 
 
 def get_items_quantity(
-        items: list[ItemORM | ShopItemsORM]
+        items: list[ItemORM | ItemShopORM]
 ) -> list[Optional[ItemResponse]]:
     """
         Возвращает список информации о товаре и его общем количестве.
@@ -25,14 +24,14 @@ def get_items_quantity(
 
     for item in items:
 
-        if type(item) == ItemORM:
+        if isinstance(item, ItemORM):
             item_data = item
             quantity = sum(
                 shop.quantity
                 for shop in item.shop_items
             )
 
-        elif type(item) == ShopItemsORM:
+        elif isinstance(item, ItemShopORM):
             item_data = item.item
             quantity = item.quantity
 
@@ -53,7 +52,7 @@ def get_items_quantity(
 
 
 def format_items_in_shop(
-        items: list[ShopItemsORM | ShopQueueORM]
+        items: list[ItemShopORM | ItemQueueORM]
 ) -> list[ItemInShopSchema]:
     """"""
 
@@ -61,7 +60,7 @@ def format_items_in_shop(
 
     for item in items:
 
-        if isinstance(item, ShopItemsORM):
+        if isinstance(item, ItemShopORM):
             created_at = None
         else:
             created_at = item.created_at
@@ -105,10 +104,10 @@ async def get_item_in_shop(
         item_id: UUID,
         shop_id: UUID,
         db: AsyncSession
-) -> ShopItemsORM | None:
+) -> ItemShopORM | None:
     """Возрощяет True если item есть в магазине"""
 
-    return await db.get(ShopItemsORM, (item_id, shop_id))
+    return await db.get(ItemShopORM, (item_id, shop_id))
 
 
 async def raise_if_item_in_shop_not_found(
@@ -129,20 +128,20 @@ async def get_queues_in_shop(
         item_id: UUID,
         shop_id: UUID,
         db: AsyncSession
-) -> list[ShopQueueORM]:
+) -> list[ItemQueueORM]:
     """"""
 
     queues = await db.execute(
-        select(ShopQueueORM)
+        select(ItemQueueORM)
         .where(
-            (ShopQueueORM.shop_id == shop_id)
-            & (ShopQueueORM.item_id == item_id)
+            (ItemQueueORM.shop_id == shop_id)
+            & (ItemQueueORM.item_id == item_id)
         )
-        .order_by(ShopQueueORM.created_at)
+        .order_by(ItemQueueORM.created_at)
     )
     queues = queues.scalars().all()
 
-    return queues
+    return list(queues)
 
 
 async def add_item_shop(
@@ -157,7 +156,7 @@ async def add_item_shop(
     item_exists = await get_item_in_shop(item_id, shop_id, db)
 
     await db.execute(
-        insert(ShopQueueORM if item_exists else ShopItemsORM)
+        insert(ItemQueueORM if item_exists else ItemShopORM)
         .values(**form_data.model_dump(), shop_id=shop_id)
     )
 
@@ -176,9 +175,9 @@ def get_item_in_cart_conditions(
     """Возвращает условия поиска товара в корзине"""
 
     return (
-        (ShopCartORM.user_id == user_id)
-        & (ShopCartORM.shop_id == shop_id)
-        & (ShopCartORM.item_id == item_id)
+        (ItemCartORM.user_id == user_id)
+        & (ItemCartORM.shop_id == shop_id)
+        & (ItemCartORM.item_id == item_id)
     )
 
 
@@ -187,11 +186,11 @@ async def get_item_in_cart(
         shop_id: UUID,
         item_id: UUID,
         db: AsyncSession
-) -> ShopCartORM | None:
+) -> ItemCartORM | None:
     """Проверяет есть ли товар в корзине"""
 
     exists = await db.execute(
-        select(ShopCartORM)
+        select(ItemCartORM)
         .where(
             get_item_in_cart_conditions(
                 user_id, shop_id, item_id

@@ -1,11 +1,9 @@
 import datetime
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import String, ForeignKey, CheckConstraint, \
-    PrimaryKeyConstraint, ForeignKeyConstraint, func, select, \
-    delete
+from sqlalchemy import String, ForeignKey, func, select, delete
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from databases.sqlalchemy import Base
 
@@ -29,7 +27,7 @@ class ShopORM(Base):
         back_populates="shops",
         overlaps="shop_access"
     )
-    shop_items = relationship("ShopItemsORM", back_populates="shop")
+    shop_items = relationship("ItemShopORM", back_populates="shop")
     shop_access = relationship(
         "ShopAccessORM",
         back_populates="shop",
@@ -100,63 +98,4 @@ class ShopAccessORM(Base):
         "ShopORM",
         back_populates="shop_access",
         overlaps="shops,users"
-    )
-
-
-class ShopCartORM(Base):
-    __tablename__ = "shop_cart"
-
-    shop_id: Mapped[UUID] = mapped_column()
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    item_id: Mapped[UUID] = mapped_column()
-    quantity: Mapped[int] = mapped_column(server_default="1")
-
-    shop_items = relationship("ShopItemsORM", back_populates="cart")
-
-    __table_args__ = (
-        PrimaryKeyConstraint(shop_id, user_id, item_id),
-        CheckConstraint("quantity > 0", name="check_quantity_positive"),
-        ForeignKeyConstraint(
-            ["item_id", "shop_id"],
-            ["shop_items.item_id", "shop_items.shop_id"]
-        )
-    )
-
-
-class ShopItemsORM(Base):
-    __tablename__ = "shop_items"
-
-    item_id: Mapped[UUID] = mapped_column(ForeignKey("items.id"))
-    shop_id: Mapped[UUID] = mapped_column(ForeignKey("shops.id"))
-    price: Mapped[int]
-    quantity: Mapped[int]
-    purchase_price: Mapped[int]
-
-    item = relationship("ItemORM", back_populates="shop_items")
-    shop = relationship("ShopORM", back_populates="shop_items")
-    cart = relationship("ShopCartORM", back_populates="shop_items")
-
-    __table_args__ = (
-        PrimaryKeyConstraint(item_id, shop_id),
-        CheckConstraint("price > 0", name="check_price_positive"),
-        CheckConstraint("quantity >= 0", name="check_quantity")
-    )
-
-
-class ShopQueueORM(Base):
-    __tablename__ = "shop_queues"
-
-    item_id: Mapped[UUID] = mapped_column(ForeignKey("items.id"))
-    shop_id: Mapped[UUID] = mapped_column(ForeignKey("shops.id"))
-    price: Mapped[int]
-    quantity: Mapped[int]
-    purchase_price: Mapped[int]
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=func.now()
-    )
-
-    item = relationship("ItemORM", back_populates="shop_queues")
-
-    __table_args__ = (
-        PrimaryKeyConstraint(item_id, shop_id, created_at),
     )
