@@ -7,8 +7,6 @@ from sqlalchemy.orm import joinedload
 from .models import ShopORM, ShopAccessORM
 from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
     ShopUpdateForm, UserAccessResponse, ShopAccessResponse, ShopAccessForm
-from .services import grant_shop_access, check_shop_access, \
-    delete_shop_access, get_shop_access
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentUserID, CurrentShopID, \
@@ -36,14 +34,14 @@ async def create_shop(
 ) -> ShopCrateResponse:
     """Создает магазин"""
 
-    shop = await db.execute(
+    result = await db.execute(
         insert(ShopORM)
         .values(**form_data.model_dump())
         .returning(ShopORM)
     )
-    shop = shop.scalar()
+    shop = result.scalar_one()
 
-    await grant_shop_access(user_id, shop.id, db)
+    await shop.grant_access(user_id, db)
     return ShopCrateResponse.model_validate(shop)
 
 
@@ -64,7 +62,7 @@ async def update_shop(
 ) -> ResponseOK:
     """Обновляет магазин"""
 
-    if not await db.get(ShopORM, shop_id):
+    if not await ShopORM.get_by_id(shop_id, db):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="You cannot update the shop data"
@@ -90,6 +88,10 @@ async def get_shops(
     """Возвращает все магазины в зависимости от доступа"""
 
     user = await UserORM.get_by_id(user_id, db)
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
     shops = []
 
     if (user.status == UserStatus.OWNER):
@@ -121,8 +123,15 @@ async def get_access(
 ) -> ShopAccessResponse:
     """Возвращает пользователей которые имеют доступ в магазин"""
 
-    access = await get_shop_access(shop_id, db)
-    return access
+    users = await db.execute(
+        select(ShopAccessORM.user_id)
+        .where(ShopAccessORM.shop_id == shop_id)
+        .order_by(ShopAccessORM.user_id)
+    )
+    return ShopAccessResponse(
+        shop_id=shop_id,
+        user_ids=list(users.scalars().all())
+    )
 
 
 @shops_access_router.post(
@@ -139,21 +148,26 @@ async def get_access(
 async def grant_access(
         form_data: ShopAccessForm,
         db: SessionDep
-)-> ShopAccessResponse:
+)-> ResponseOK:
     """Выдает доступ к магазину"""
 
-    form_data: dict = form_data.model_dump()
-    shop_id = form_data.get("shop_id")
+    shop = await ShopORM.get_by_id(form_data.shop_id, db)
+    user_id = form_data.user_id
 
-    if await check_shop_access(**form_data, db=db):
+    if not shop:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="shop not found"
+        )
+
+    if shop.check_access(user_id, db):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Access rights cannot be granted"
         )
 
-    await grant_shop_access(**form_data, db=db)
-    access = await get_shop_access(shop_id, db)
-    return access
+    await shop.grant_access(user_id, db)
+    return ResponseOK(detail="granted access")
 
 
 @shops_access_router.delete(
@@ -163,15 +177,21 @@ async def grant_access(
 async def delete_access(
         form_data: ShopAccessForm,
         db: SessionDep
-)-> ShopAccessResponse:
+)-> ResponseOK:
     """Удаляет доступ к магазину"""
 
-    form_data: dict = form_data.model_dump()
-    await delete_shop_access(**form_data, db=db)
+    shop = await ShopORM.get_by_id(form_data.shop_id, db)
+    user_id = form_data.user_id
 
-    shop_id = form_data.get("shop_id")
-    access = await get_shop_access(shop_id, db)
-    return access
+    if not shop:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="shop not found"
+        )
+
+    await shop.revoke_access(user_id, db)
+
+    return ResponseOK(detail="revoked access")
 
 
 @shops_access_router.get(
@@ -191,7 +211,7 @@ async def get_self_access(
     )
     return UserAccessResponse(
         user_id=user_id,
-        shop_ids=shops.scalars().all()
+        shop_ids=list(shops.scalars().all())
     )
 
 

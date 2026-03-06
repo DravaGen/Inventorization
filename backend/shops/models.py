@@ -1,8 +1,10 @@
-import uuid
 import datetime
+from uuid import UUID
 
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import String, ForeignKey, CheckConstraint, \
-    PrimaryKeyConstraint, ForeignKeyConstraint, func
+    PrimaryKeyConstraint, ForeignKeyConstraint, func, select, \
+    delete
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from databases.sqlalchemy import Base
@@ -11,7 +13,7 @@ from databases.sqlalchemy import Base
 class ShopORM(Base):
     __tablename__ = "shops"
 
-    id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[UUID] = mapped_column(
         primary_key=True,
         server_default=func.gen_random_uuid()
     )
@@ -35,13 +37,59 @@ class ShopORM(Base):
     )
 
 
+    @classmethod
+    async def get_by_id(cls, shop_id: UUID, db: AsyncSession) -> "ShopORM | None":
+        return await db.get(cls, shop_id)
+
+
+    async def grant_access(self, user_id: UUID, db: AsyncSession) -> None:
+        access = ShopAccessORM(shop_id=self.id, user_id=user_id)
+        db.add(access)
+        await db.flush()
+
+
+    async def check_access(self, user_id: UUID, db: AsyncSession) -> bool:
+        result = await db.execute(
+            select(ShopAccessORM)
+            .where(
+                (ShopAccessORM.shop_id == self.id)
+                & (ShopAccessORM.user_id == user_id)
+            )
+        )
+        return result.scalar_one_or_none() is not None
+
+
+    async def revoke_access(
+            self,
+            user_id: UUID,
+            db: AsyncSession
+    ) -> None:
+        await db.execute(
+            delete(ShopAccessORM)
+            .where(
+                (ShopAccessORM.shop_id == self.id)
+                & (ShopAccessORM.user_id == user_id)
+            )
+        )
+        await db.flush()
+
+
+    async def list_users(self, db: AsyncSession) -> list[UUID]:
+        result = await db.execute(
+            select(ShopAccessORM.user_id)
+            .where(ShopAccessORM.shop_id == self.id)
+            .order_by(ShopAccessORM.user_id)
+        )
+        return list(result.scalars().all())
+
+
 class ShopAccessORM(Base):
     __tablename__ = "shop_access"
 
-    shop_id: Mapped[uuid.UUID] = mapped_column(
+    shop_id: Mapped[UUID] = mapped_column(
         ForeignKey("shops.id"), primary_key=True
     )
-    user_id: Mapped[uuid.UUID] = mapped_column(
+    user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id"), primary_key=True
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
@@ -58,9 +106,9 @@ class ShopAccessORM(Base):
 class ShopCartORM(Base):
     __tablename__ = "shop_cart"
 
-    shop_id: Mapped[uuid.UUID] = mapped_column()
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    item_id: Mapped[uuid.UUID] = mapped_column()
+    shop_id: Mapped[UUID] = mapped_column()
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    item_id: Mapped[UUID] = mapped_column()
     quantity: Mapped[int] = mapped_column(server_default="1")
 
     shop_items = relationship("ShopItemsORM", back_populates="cart")
@@ -78,8 +126,8 @@ class ShopCartORM(Base):
 class ShopItemsORM(Base):
     __tablename__ = "shop_items"
 
-    item_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("items.id"))
-    shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
+    item_id: Mapped[UUID] = mapped_column(ForeignKey("items.id"))
+    shop_id: Mapped[UUID] = mapped_column(ForeignKey("shops.id"))
     price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]
@@ -98,8 +146,8 @@ class ShopItemsORM(Base):
 class ShopQueueORM(Base):
     __tablename__ = "shop_queues"
 
-    item_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("items.id"))
-    shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.id"))
+    item_id: Mapped[UUID] = mapped_column(ForeignKey("items.id"))
+    shop_id: Mapped[UUID] = mapped_column(ForeignKey("shops.id"))
     price: Mapped[int]
     quantity: Mapped[int]
     purchase_price: Mapped[int]

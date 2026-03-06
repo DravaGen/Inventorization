@@ -13,7 +13,7 @@ from .jwt import JWTService
 from .schemas import AccessTokenData
 from users.models import UserORM
 from users.schemas import UserStatus, weights_user_status
-from shops.services import check_shop_access
+from shops.models import ShopORM
 from databases.sqlalchemy import get_db
 
 
@@ -63,8 +63,16 @@ async def get_shop_id(
 ) -> UUID:
     """Возвращает shop_id и проверяет что к нему есть доступ"""
 
+    shop = await ShopORM.get_by_id(shop_id, db)
+
+    if not shop:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="shop not found"
+        )
+
     access = (
-        await check_shop_access(user_id, shop_id, db)
+        await shop.check_access(user_id, db)
         or (await UserORM.get_by_id(user_id, db)).status == UserStatus.OWNER
     )
 
