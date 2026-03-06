@@ -6,13 +6,23 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 
 from .models import ItemORM, ItemShopORM, ItemQueueORM, ItemCartORM, ItemSoldORM
-from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
-    ItemResponse, ItemInShopResponse, ItemSoldResoinse, ItemShopForm, \
-    ItemQueueForm, ItemQueueDeleteForm, ItemInCartSchema, \
-    AddItemInCartResponse, DeleteItemInCartResponse, \
-    UpdateItemInCartResponse, UpdateCartItemQuantityForm, \
-    ShopCartItemResponse, ShopCartItemForm, ItemSchema, \
-    ItemInShopSchema
+from .schemas import (
+    ItemInitForm,
+    ItemInitResponse,
+    ItemResponse,
+    ItemShopResponse,
+    ItemSoldResponse,
+    ItemShopForm,
+    ItemQueueDeleteForm,
+    CartItemSchema,
+    UpdateCartItemQuantityForm,
+    ShopCartItemResponse,
+    ShopCartItemForm,
+    ItemSchema,
+    ItemShopSchema,
+    ItemQueueSchema,
+    ItemDeleteForm
+)
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentShop, CurrentUser, UserStatusISOwner, \
@@ -118,7 +128,7 @@ async def get_solds(
         db: SessionDep,
         offset: int = Query(0, ge=0),
         limit: int = Query(7, ge=1, le=31)
-) -> list[ItemSoldResoinse]:
+) -> list[ItemSoldResponse]:
     """Возвращает статистику о продаже"""
 
     sold_items = await db.execute(
@@ -131,7 +141,7 @@ async def get_solds(
         .offset(offset)
         .limit(limit)
     )
-    return convert_query_to_list_dicts(ItemSoldResoinse, sold_items)
+    return convert_query_to_list_dicts(ItemSoldResponse, sold_items)
 
 
 @item_shop_route.post(
@@ -186,7 +196,7 @@ async def add_shop_item(
 async def get_shop_items(
         shop: CurrentShop,
         db: SessionDep
-) -> ItemInShopResponse:
+) -> ItemShopResponse:
     """Возвращает все товары которые есть в магазине"""
 
     items = await db.execute(
@@ -203,20 +213,19 @@ async def get_shop_items(
         .order_by(ItemQueueORM.item_id)
     )
 
-    return ItemInShopResponse(
+    return ItemShopResponse(
         items=[
-            ItemInShopSchema(
+            ItemShopSchema(
                 id=item.item_id,
                 name=item.item.name,
                 price=item.price,
                 quantity=item.quantity,
                 purchase_price=item.purchase_price,
-                created_at=None
             )
             for item in items.unique().scalars().all()
         ],
         queues=[
-            ItemInShopSchema(
+            ItemQueueSchema(
                 id=item.item_id,
                 name=item.item.name,
                 price=item.price,
@@ -318,7 +327,7 @@ async def add_cart_item(
         shop: CurrentShop,
         form_data: ShopCartItemForm,
         db: SessionDep
-) -> AddItemInCartResponse:
+) -> CartItemSchema:
     """Добавляет товар в корзину"""
 
     item_id = form_data.item_id
@@ -368,11 +377,9 @@ async def add_cart_item(
 
     item = result.scalar_one()
 
-    return AddItemInCartResponse(
-        item=ItemInCartSchema(
-            item_id=item.item_id,
-            quantity=item.quantity
-        )
+    return CartItemSchema(
+        item_id=item.item_id,
+        quantity=item.quantity
     )
 
 
@@ -426,7 +433,7 @@ async def del_cart_item(
         shop: CurrentShop,
         form_data: ShopCartItemForm,
         db: SessionDep
-) -> DeleteItemInCartResponse:
+) -> CartItemSchema | None:
     """Удаляет товар из корзины"""
 
     item = await ItemCartORM.get(form_data.item_id, user.id, shop.id, db)
@@ -437,18 +444,19 @@ async def del_cart_item(
             detail="You can't delete an item from the cart."
         )
 
+    response = None
+
     if item.quantity - form_data.quantity > 0:
         item.quantity -= form_data.quantity
+        response = CartItemSchema(
+            item_id=item.item_id,
+            quantity=item.quantity
+        )
     else:
         await db.delete(item)
         item = None
 
-    return DeleteItemInCartResponse(
-        item=ItemInCartSchema(
-            item_id=item.item_id,
-            quantity=item.quantity
-        ) if item else None
-    )
+    return response
 
 
 @item_cart_route.delete(
@@ -488,7 +496,7 @@ async def update_cart_item_quantity(
         shop: CurrentShop,
         form_data: UpdateCartItemQuantityForm,
         db: SessionDep
-) -> UpdateItemInCartResponse:
+) -> CartItemSchema | None:
     """Добавляет товар в корзину"""
 
     item_id = form_data.item_id
@@ -519,18 +527,19 @@ async def update_cart_item_quantity(
             detail="Exceed available quantity"
         )
 
+    response = None
+
     if form_data.quantity > 0:
         item_cart.quantity = form_data.quantity
+        response = CartItemSchema(
+            item_id=item_cart.item_id,
+            quantity=item_cart.quantity
+        )
     else:
         await db.delete(item_cart)
         item_cart = None
 
-    return UpdateItemInCartResponse(
-        item=ItemInCartSchema(
-            item_id=item_cart.item_id,
-            quantity=item_cart.quantity
-        ) if item_cart else None
-    )
+    return response
 
 
 @item_cart_route.post(
