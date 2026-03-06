@@ -108,3 +108,18 @@ class UpdateCartItemQuantityForm(BaseModel):
 
 class UpdateItemInCartResponse(BaseModel):
     item: ItemInCartSchema | None
+
+
+class ShopCartItemResponse(BaseModel):
+
+    model_config = ConfigDict(from_attributes=True)
+
+    item_id: UUID = Field(serialization_alias="id")
+    name: str
+    quantity: int
+
+
+class ShopCartItemForm(BaseModel):
+
+    item_id: UUID
+    quantity: int = Field(1, ge=1)

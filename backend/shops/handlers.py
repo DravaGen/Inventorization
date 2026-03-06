@@ -5,8 +5,8 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.orm import joinedload
 
 from .models import ShopORM, ShopAccessORM
-from .schemas import ShopResponse, ShopCrateForm, ShopCrateResponse, \
-    ShopUpdateForm, UserAccessResponse, ShopAccessResponse, ShopAccessForm
+from .schemas import ShopResponse, ShopCreateForm, ShopUpdateForm, \
+    UserAccessResponse, ShopAccessResponse, ShopAccessForm
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentUserID, CurrentShopID, \
@@ -29,9 +29,9 @@ shops_access_router = APIRouter(
 )
 async def create_shop(
         user_id: CurrentUserID,
-        form_data: ShopCrateForm,
+        form_data: ShopCreateForm,
         db: SessionDep
-) -> ShopCrateResponse:
+) -> ShopResponse:
     """Создает магазин"""
 
     result = await db.execute(
@@ -42,7 +42,7 @@ async def create_shop(
     shop = result.scalar_one()
 
     await shop.grant_access(user_id, db)
-    return ShopCrateResponse.model_validate(shop)
+    return ShopResponse.model_validate(shop)
 
 
 @shops_router.patch(

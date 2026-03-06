@@ -10,12 +10,12 @@ from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemResponse, ItemInShopResponse, ItemSoldResoinse, ItemShopForm, \
     ItemQueueForm, ItemQueueDeleteForm, ItemInCartSchema, \
     AddItemInCartResponse, DeleteItemInCartResponse, \
-    UpdateItemInCartResponse, UpdateCartItemQuantityForm
+    UpdateItemInCartResponse, UpdateCartItemQuantityForm, \
+    ShopCartItemResponse, ShopCartItemForm
 from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
     get_items_quantity, format_items_in_shop, get_queues_in_shop
 
 from shops.models import ShopItemsORM, ShopQueueORM, ShopCartORM
-from shops.schemas import ShopCartItemResponse, ShopCartItemForm
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentShopID, CurrentUserID, UserStatusISOwner, \
