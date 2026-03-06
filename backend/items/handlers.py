@@ -15,7 +15,7 @@ from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemInShopSchema
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
-from auth.services import CurrentShopID, CurrentUserID, UserStatusISOwner, \
+from auth.services import CurrentShop, CurrentUser, UserStatusISOwner, \
     UserStatusISAdmin, UserStatusISWorker
 from databases.sqlalchemy import SessionDep, convert_query_to_list_dicts
 
@@ -152,7 +152,7 @@ async def get_solds(
     ))
 )
 async def add_shop_item(
-        shop_id: CurrentShopID,
+        shop: CurrentShop,
         form_data: ItemShopForm,
         db: SessionDep
 ) -> ResponseOK:
@@ -166,10 +166,10 @@ async def add_shop_item(
             detail="item not found"
         )
 
-    item_exists = await ItemShopORM.check_exists(item_id, shop_id, db)
+    item_exists = await ItemShopORM.check_exists(item_id, shop.id, db)
     await db.execute(
         insert(ItemQueueORM if item_exists else ItemShopORM)
-        .values(**form_data.model_dump(), shop_id=shop_id)
+        .values(**form_data.model_dump(), shop_id=shop.id)
     )
 
     return ResponseOK(
@@ -184,7 +184,7 @@ async def add_shop_item(
     dependencies=[UserStatusISWorker]
 )
 async def get_shop_items(
-        shop_id: CurrentShopID,
+        shop: CurrentShop,
         db: SessionDep
 ) -> ItemInShopResponse:
     """Возвращает все товары которые есть в магазине"""
@@ -192,14 +192,14 @@ async def get_shop_items(
     items = await db.execute(
         select(ItemShopORM)
         .options(joinedload(ItemShopORM.item))
-        .where(ItemShopORM.shop_id == shop_id)
+        .where(ItemShopORM.shop_id == shop.id)
         .order_by(ItemShopORM.item_id)
     )
 
     queue = await db.execute(
         select(ItemQueueORM)
         .options(joinedload(ItemQueueORM.item))
-        .where(ItemQueueORM.shop_id == shop_id)
+        .where(ItemQueueORM.shop_id == shop.id)
         .order_by(ItemQueueORM.item_id)
     )
 
@@ -241,7 +241,7 @@ async def get_shop_items(
     ))
 )
 async def delete_shop_item(
-        shop_id: CurrentShopID,
+        shop: CurrentShop,
         form_data: ItemDeleteForm,
         db: SessionDep
 ) -> ResponseOK:
@@ -252,10 +252,10 @@ async def delete_shop_item(
             delete(ItemShopORM)
             .where(
                 (ItemShopORM.item_id == form_data.item_id)
-                & (ItemShopORM.shop_id == shop_id)
+                & (ItemShopORM.shop_id == shop.id)
             )
         )
-        next_queue = await ItemQueueORM.get_next(form_data.item_id, shop_id, db)
+        next_queue = await ItemQueueORM.get_next(form_data.item_id, shop.id, db)
         if (next_queue):
             await db.execute(
                 insert(ItemShopORM)
@@ -284,7 +284,7 @@ async def delete_shop_item(
     dependencies=[UserStatusISAdmin]
 )
 async def delete_shop_queue(
-        shop_id: CurrentShopID,
+        shop: CurrentShop,
         form_data: ItemQueueDeleteForm,
         db: SessionDep
 ) -> ResponseOK:
@@ -295,7 +295,7 @@ async def delete_shop_queue(
         .where(
             (ItemQueueORM.item_id == form_data.item_id)
             & (ItemQueueORM.created_at == form_data.created_at)
-            & (ItemQueueORM.shop_id == shop_id)
+            & (ItemQueueORM.shop_id == shop.id)
         )
     )
 
@@ -314,8 +314,8 @@ async def delete_shop_queue(
     ))
 )
 async def add_cart_item(
-        user_id: CurrentUserID,
-        shop_id: CurrentShopID,
+        user: CurrentUser,
+        shop: CurrentShop,
         form_data: ShopCartItemForm,
         db: SessionDep
 ) -> AddItemInCartResponse:
@@ -323,8 +323,8 @@ async def add_cart_item(
 
     item_id = form_data.item_id
 
-    item_cart = await ItemCartORM.get(item_id, user_id, shop_id, db)
-    item_shop = await ItemShopORM.get(item_id, shop_id, db)
+    item_cart = await ItemCartORM.get(item_id, user.id, shop.id, db)
+    item_shop = await ItemShopORM.get(item_id, shop.id, db)
 
     if not item_shop:
         raise HTTPException(
@@ -347,8 +347,8 @@ async def add_cart_item(
         result = await db.execute(
             update(ItemCartORM)
             .where(
-                (ItemCartORM.user_id == user_id)
-                & (ItemCartORM.shop_id == shop_id)
+                (ItemCartORM.user_id == user.id)
+                & (ItemCartORM.shop_id == shop.id)
                 & (ItemCartORM.item_id == item_id)
             )
             .values(quantity=ItemCartORM.quantity + form_data.quantity)
@@ -359,8 +359,8 @@ async def add_cart_item(
         result = await db.execute(
             insert(ItemCartORM)
             .values(
-                shop_id=shop_id,
-                user_id=user_id,
+                shop_id=shop.id,
+                user_id=user.id,
                 **form_data.model_dump()
             )
             .returning(ItemCartORM)
@@ -381,8 +381,8 @@ async def add_cart_item(
     dependencies=[UserStatusISWorker]
 )
 async def get_cart_items(
-        user_id: CurrentUserID,
-        shop_id: CurrentShopID,
+        user: CurrentUser,
+        shop: CurrentShop,
         db: SessionDep
 ) -> list[Optional[ShopCartItemResponse]]:
     """Возвращает товары из корзины"""
@@ -394,8 +394,8 @@ async def get_cart_items(
             .joinedload(ItemShopORM.item)  # загружаем item через shop_items
         )
         .where(
-            (ItemCartORM.user_id == user_id)
-            & (ItemCartORM.shop_id == shop_id)
+            (ItemCartORM.user_id == user.id)
+            & (ItemCartORM.shop_id == shop.id)
         )
         .order_by(ItemCartORM.item_id)
     )
@@ -422,14 +422,14 @@ async def get_cart_items(
     ))
 )
 async def del_cart_item(
-        user_id: CurrentUserID,
-        shop_id: CurrentShopID,
+        user: CurrentUser,
+        shop: CurrentShop,
         form_data: ShopCartItemForm,
         db: SessionDep
 ) -> DeleteItemInCartResponse:
     """Удаляет товар из корзины"""
 
-    item = await ItemCartORM.get(form_data.item_id, user_id, shop_id, db)
+    item = await ItemCartORM.get(form_data.item_id, user.id, shop.id, db)
 
     if item is None:
         raise HTTPException(
@@ -456,8 +456,8 @@ async def del_cart_item(
     dependencies=[UserStatusISWorker]
 )
 async def clear_cart(
-        user_id: CurrentUserID,
-        shop_id: CurrentShopID,
+        user: CurrentUser,
+        shop: CurrentShop,
         db: SessionDep
 ) -> ResponseOK:
     """Удаляет все товары из корзины"""
@@ -465,8 +465,8 @@ async def clear_cart(
     await db.execute(
         delete(ItemCartORM)
         .where(
-            (ItemCartORM.shop_id == shop_id)
-            & (ItemCartORM.user_id == user_id)
+            (ItemCartORM.shop_id == shop.id)
+            & (ItemCartORM.user_id == user.id)
         )
     )
     return ResponseOK(detail="cleaned cart")
@@ -484,8 +484,8 @@ async def clear_cart(
     ))
 )
 async def update_cart_item_quantity(
-        user_id: CurrentUserID,
-        shop_id: CurrentShopID,
+        user: CurrentUser,
+        shop: CurrentShop,
         form_data: UpdateCartItemQuantityForm,
         db: SessionDep
 ) -> UpdateItemInCartResponse:
@@ -493,8 +493,8 @@ async def update_cart_item_quantity(
 
     item_id = form_data.item_id
 
-    item_cart = await ItemCartORM.get(item_id, user_id, shop_id, db)
-    item_shop = await ItemShopORM.get(item_id, shop_id, db)
+    item_cart = await ItemCartORM.get(item_id, user.id, shop.id, db)
+    item_shop = await ItemShopORM.get(item_id, shop.id, db)
 
     if not item_shop:
         raise HTTPException(
@@ -548,8 +548,8 @@ async def update_cart_item_quantity(
     ))
 )
 async def confirm_cart(
-        user_id: CurrentUserID,
-        shop_id: CurrentShopID,
+        user: CurrentUser,
+        shop: CurrentShop,
         db: SessionDep
 ) -> ResponseOK:
     """Подтверждает покупку"""
@@ -560,8 +560,8 @@ async def confirm_cart(
             joinedload(ItemCartORM.shop_items)
         )
         .where(
-            (ItemCartORM.user_id == user_id)
-            & (ItemCartORM.shop_id == shop_id)
+            (ItemCartORM.user_id == user.id)
+            & (ItemCartORM.shop_id == shop.id)
         )
     )
     cart = cart.scalars().all()
@@ -601,7 +601,7 @@ async def confirm_cart(
                 queue = await db.execute(
                     select(ItemQueueORM)
                     .where(
-                        (ItemQueueORM.shop_id == shop_id)
+                        (ItemQueueORM.shop_id == shop.id)
                         & (ItemQueueORM.item_id == cart_item.item_id)
                     )
                     .order_by(ItemQueueORM.created_at.asc())
@@ -626,8 +626,8 @@ async def confirm_cart(
         await db.execute(
             delete(ItemCartORM)
             .where(
-                (ItemCartORM.shop_id == shop_id)
-                & (ItemCartORM.user_id == user_id)
+                (ItemCartORM.shop_id == shop.id)
+                & (ItemCartORM.user_id == user.id)
             )
         )
 

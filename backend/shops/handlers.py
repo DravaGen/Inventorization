@@ -9,7 +9,7 @@ from .schemas import ShopResponse, ShopCreateForm, ShopUpdateForm, \
     UserAccessResponse, ShopAccessResponse, ShopAccessForm
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
-from auth.services import CurrentUserID, CurrentShopID, \
+from auth.services import CurrentUser, CurrentShop, \
     UserStatusISOwner, UserStatusISWorker, UserStatusISAdmin
 from users.models import UserORM
 from users.schemas import UserStatus
@@ -28,7 +28,7 @@ shops_access_router = APIRouter(
     dependencies=[UserStatusISOwner]
 )
 async def create_shop(
-        user_id: CurrentUserID,
+        user: CurrentUser,
         form_data: ShopCreateForm,
         db: SessionDep
 ) -> ShopResponse:
@@ -41,7 +41,7 @@ async def create_shop(
     )
     shop = result.scalar_one()
 
-    await shop.grant_access(user_id, db)
+    await shop.grant_access(user.id, db)
     return ShopResponse.model_validate(shop)
 
 
@@ -56,22 +56,16 @@ async def create_shop(
     ))
 )
 async def update_shop(
-        shop_id: CurrentShopID,
+        shop: CurrentShop,
         form_data: ShopUpdateForm,
         db: SessionDep
 ) -> ResponseOK:
     """Обновляет магазин"""
 
-    if not await ShopORM.get_by_id(shop_id, db):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="You cannot update the shop data"
-        )
-
     await db.execute(
         update(ShopORM)
         .values(**form_data.model_dump(exclude_unset=True))
-        .where(ShopORM.id == shop_id)
+        .where(ShopORM.id == shop.id)
     )
 
     return ResponseOK(detail="shop updated")
@@ -82,15 +76,10 @@ async def update_shop(
     dependencies=[UserStatusISWorker]
 )
 async def get_shops(
-        user_id: CurrentUserID,
+        user: CurrentUser,
         db: SessionDep
 ) -> list[Optional[ShopResponse]]:
     """Возвращает все магазины в зависимости от доступа"""
-
-    user = await UserORM.get_by_id(user_id, db)
-
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
 
     shops = []
 
@@ -104,7 +93,7 @@ async def get_shops(
         accesses = await db.execute(
             select(ShopAccessORM)
             .options(joinedload(ShopAccessORM.shop))
-            .where(ShopAccessORM.user_id == user_id)
+            .where(ShopAccessORM.user_id == user.id)
             .order_by(ShopAccessORM.shop_id)
         )
         accesses = accesses.scalars().all()
@@ -118,18 +107,18 @@ async def get_shops(
     dependencies=[UserStatusISAdmin]
 )
 async def get_access(
-        shop_id: CurrentShopID,
+        shop: CurrentShop,
         db: SessionDep
 ) -> ShopAccessResponse:
     """Возвращает пользователей которые имеют доступ в магазин"""
 
     users = await db.execute(
         select(ShopAccessORM.user_id)
-        .where(ShopAccessORM.shop_id == shop_id)
+        .where(ShopAccessORM.shop_id == shop.id)
         .order_by(ShopAccessORM.user_id)
     )
     return ShopAccessResponse(
-        shop_id=shop_id,
+        shop_id=shop.id,
         user_ids=list(users.scalars().all())
     )
 
@@ -199,18 +188,18 @@ async def delete_access(
     dependencies=[UserStatusISWorker]
 )
 async def get_self_access(
-        user_id: CurrentUserID,
+        user: CurrentUser,
         db: SessionDep
 )-> UserAccessResponse:
     """Возвращает пользователей которые прикреплены к магазину"""
 
     shops = await db.execute(
         select(ShopAccessORM.shop_id)
-        .where(ShopAccessORM.user_id == user_id)
+        .where(ShopAccessORM.user_id == user.id)
         .order_by(ShopAccessORM.shop_id)
     )
     return UserAccessResponse(
-        user_id=user_id,
+        user_id=user.id,
         shop_ids=list(shops.scalars().all())
     )
 

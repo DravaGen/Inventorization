@@ -28,9 +28,12 @@ async def get_token_data(
 
     try:
         token_data = AccessTokenData(**JWTService.decode(token))
-        user_data = await UserORM.get_by_id(token_data.sub, db)
+        user = await UserORM.get_by_id(token_data.sub, db)
 
-        if token_data.status != user_data.status:
+        if not user:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        if token_data.status != user.status:
             raise HTTPException(
                 status_code=status.HTTP_428_PRECONDITION_REQUIRED,
                 detail="User state is outdated"
@@ -39,28 +42,28 @@ async def get_token_data(
     except (DecodeError, InvalidSignatureError, ExpiredSignatureError):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-    return user_data
+    return user
 
 
-async def get_user_id(
-        data: UserORM = Depends(get_token_data)
-) -> UUID:
+async def get_user(
+        user: UserORM = Depends(get_token_data)
+) -> UserORM:
     """Возвращает id авторизованного пользователя"""
 
-    if data.status == UserStatus.BANNED:
+    if user.status == UserStatus.BANNED:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="user is banned"
         )
 
-    return data.id
+    return user
 
 
-async def get_shop_id(
+async def get_shop(
     shop_id: UUID,
-    user_id: UUID = Depends(get_user_id),
+    user: UserORM = Depends(get_user),
     db: AsyncSession = Depends(get_db)
-) -> UUID:
+) -> ShopORM:
     """Возвращает shop_id и проверяет что к нему есть доступ"""
 
     shop = await ShopORM.get_by_id(shop_id, db)
@@ -72,8 +75,8 @@ async def get_shop_id(
         )
 
     access = (
-        await shop.check_access(user_id, db)
-        or (await UserORM.get_by_id(user_id, db)).status == UserStatus.OWNER
+        await shop.check_access(user.id, db)
+        or user.status == UserStatus.OWNER
     )
 
     if not access:
@@ -82,15 +85,15 @@ async def get_shop_id(
             detail="not shop access"
         )
 
-    return shop_id
+    return shop
 
 
 async def get_user_status(
-        data: UserORM = Depends(get_token_data)
+        user: UserORM = Depends(get_token_data)
 ) -> UserStatus:
     """Возвращает status авторизованного пользователя"""
 
-    return data.status
+    return user.status
 
 
 def check_user_min_status(
@@ -109,8 +112,8 @@ def check_user_min_status(
     return logic
 
 
-CurrentUserID = Annotated[UUID, Depends(get_user_id)]
-CurrentShopID = Annotated[UUID, Depends(get_shop_id)]
+CurrentUser = Annotated[UserORM, Depends(get_user)]
+CurrentShop = Annotated[ShopORM, Depends(get_shop)]
 UserStatusISWorker = Depends(check_user_min_status(UserStatus.WORKER))
 UserStatusISAdmin = Depends(check_user_min_status(UserStatus.ADMIN))
 UserStatusISOwner = Depends(check_user_min_status(UserStatus.OWNER))
