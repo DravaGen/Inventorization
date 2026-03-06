@@ -1,14 +1,12 @@
-from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from pydantic import EmailStr
-from sqlalchemy import select, insert, update
 
-from .models import UserORM
 from .schemas import UserSignupForm, UserUpdateForm, \
     GetUserRequest, UserResponse
+from .services import UserService
 
-from responses import ResponseOK, ResponseDescriptions, ResponseDescription
+from responses import ResponseDescriptions, ResponseDescription
 from auth.services import UserStatusISOwner
 from databases.sqlalchemy import SessionDep
 
@@ -28,23 +26,12 @@ users_router = APIRouter()
     ))
 )
 async def signup_user(
-        form_data: UserSignupForm,
-        db: SessionDep
-) -> ResponseOK:
-    """Регистрирует пользотеля"""
+    form: UserSignupForm,
+    db: SessionDep
+) -> None:
+    """ Регистрирует нового пользователя в системе"""
 
-    if await UserORM.get_by_email(form_data.email, db):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="You can't create a user"
-        )
-
-    await db.execute(
-        insert(UserORM)
-        .values(**form_data.model_dump())
-    )
-
-    return ResponseOK(detail="user signuped")
+    await UserService.signup(form, db)
 
 
 @users_router.patch(
@@ -60,24 +47,12 @@ async def signup_user(
 )
 async def update_user(
         email: EmailStr,
-        form_data: UserUpdateForm,
+        form: UserUpdateForm,
         db: SessionDep
-) -> ResponseOK:
-    """Обновляет пользотеля"""
+) -> None:
+    """Обновляет данные существующего пользователя"""
 
-    if not await UserORM.get_by_email(email, db):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="You cannot update the user's data"
-        )
-
-    await db.execute(
-        update(UserORM)
-        .values(**form_data.model_dump(exclude_unset=True))
-        .where(UserORM.email == email)
-    )
-
-    return ResponseOK(detail="user updated")
+    await UserService.update(email, form, db)
 
 
 @users_router.post(
@@ -88,13 +63,7 @@ async def get_users(
         db: SessionDep,
         data: GetUserRequest
 ) -> list[UserResponse]:
-    """"""
+    """Возвращает список пользователей в формате UserResponse"""
 
-    query = select(UserORM).order_by(UserORM.id)
-
-    if data.user_ids:
-        query = query.where(UserORM.id.in_(data.user_ids))
-
-    result = await db.execute(query)
-    users = result.scalars().all()
+    users = await UserService.get_users(db, data.user_ids)
     return [UserResponse.model_validate(x) for x in users]

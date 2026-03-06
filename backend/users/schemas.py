@@ -20,7 +20,7 @@ weights_user_status = {
 
 
 class GetUserRequest(BaseModel):
-    user_ids: list[UUID] = []
+    user_ids: list[UUID] | None = None
 
 
 class UserResponse(BaseModel):
