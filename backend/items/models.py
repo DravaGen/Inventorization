@@ -2,7 +2,7 @@ import datetime
 from uuid import UUID
 
 from sqlalchemy import String, BigInteger, ForeignKey, CheckConstraint, \
-    PrimaryKeyConstraint, func, ForeignKeyConstraint
+    PrimaryKeyConstraint, func, ForeignKeyConstraint, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,6 +28,11 @@ class ItemORM(Base):
         return await db.get(cls, item_id)
 
 
+    @classmethod
+    async def check_exists(cls, item_id: UUID, db: AsyncSession) -> bool:
+        return cls.get_by_id(item_id, db) is not None
+
+
 class ItemShopORM(Base):
     __tablename__ = "shop_items"
 
@@ -48,6 +53,26 @@ class ItemShopORM(Base):
     )
 
 
+    @classmethod
+    async def get(
+            cls,
+            item_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> "ItemShopORM | None":
+        await db.get(cls, (item_id, shop_id))
+
+
+    @classmethod
+    async def check_exists(
+            cls,
+            item_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> bool:
+        return cls.get_by_id(item_id, shop_id, db) is not None
+
+
 class ItemQueueORM(Base):
     __tablename__ = "shop_queues"
 
@@ -65,6 +90,45 @@ class ItemQueueORM(Base):
     __table_args__ = (
         PrimaryKeyConstraint(item_id, shop_id, created_at),
     )
+
+    @classmethod
+    async def get_all(
+            cls,
+            item_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> "list[ItemQueueORM]":
+
+        result = await db.execute(
+            select(cls)
+            .where(
+                (cls.item_id == item_id)
+                & (cls.shop_id == shop_id)
+            )
+            .order_by(cls.item_id)
+        )
+
+        return list(result.scalars().all())
+
+
+    @classmethod
+    async def get_next(
+            cls,
+            item_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> "ItemQueueORM | None":
+        result = await db.execute(
+            select(cls)
+            .where(
+                (cls.item_id == item_id)
+                & (cls.shop_id == shop_id)
+            )
+            .order_by(cls.created_at.asc())
+            .limit(1)
+        )
+
+        return result.scalar_one_or_none()
 
 
 class ItemCartORM(Base):
@@ -85,6 +149,16 @@ class ItemCartORM(Base):
             ["shop_items.item_id", "shop_items.shop_id"]
         )
     )
+
+    @classmethod
+    async def get(
+            cls,
+            item_id: UUID,
+            user_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> "ItemCartORM | None":
+        return await db.get(cls, (shop_id, user_id, item_id))
 
 
 class ItemSoldORM(Base):

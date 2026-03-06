@@ -11,9 +11,8 @@ from .schemas import ItemInitForm, ItemInitResponse, ItemDeleteForm, \
     ItemQueueForm, ItemQueueDeleteForm, ItemInCartSchema, \
     AddItemInCartResponse, DeleteItemInCartResponse, \
     UpdateItemInCartResponse, UpdateCartItemQuantityForm, \
-    ShopCartItemResponse, ShopCartItemForm
-from .services import add_item_shop, get_item_in_cart, get_item_in_shop, \
-    get_items_quantity, format_items_in_shop, get_queues_in_shop
+    ShopCartItemResponse, ShopCartItemForm, ItemSchema, \
+    ItemInShopSchema
 
 from responses import ResponseOK, ResponseDescriptions, ResponseDescription
 from auth.services import CurrentShopID, CurrentUserID, UserStatusISOwner, \
@@ -68,7 +67,15 @@ async def get_items(
     )
     items = list(response.unique().scalars().all())
 
-    return get_items_quantity(items)
+    return [
+        ItemResponse(
+            **ItemSchema.model_validate(item).model_dump(),
+            quantity=sum(shop.quantity for shop in item.shop_items)
+        )
+        for item in items
+        if isinstance(item, ItemORM)
+    ]
+
 
 
 @items_router.delete(
@@ -151,7 +158,25 @@ async def add_shop_item(
 ) -> ResponseOK:
     """Добавляет товар в магазин или в очередь товаров в магазине"""
 
-    return await add_item_shop(shop_id, form_data, db)
+    item_id = form_data.item_id
+
+    if not await ItemORM.check_exists(item_id, db):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="item not found"
+        )
+
+    item_exists = await ItemShopORM.check_exists(item_id, shop_id, db)
+    await db.execute(
+        insert(ItemQueueORM if item_exists else ItemShopORM)
+        .values(**form_data.model_dump(), shop_id=shop_id)
+    )
+
+    return ResponseOK(
+        status_code=status.HTTP_202_ACCEPTED
+            if item_exists else status.HTTP_201_CREATED,
+        detail=f"Item added to {'queue' if item_exists else 'shop'}"
+    )
 
 
 @item_shop_route.get(
@@ -179,8 +204,28 @@ async def get_shop_items(
     )
 
     return ItemInShopResponse(
-        items=format_items_in_shop(list(items.unique().scalars().all())),
-        queues=format_items_in_shop(list(queue.unique().scalars().all()))
+        items=[
+            ItemInShopSchema(
+                id=item.item_id,
+                name=item.item.name,
+                price=item.price,
+                quantity=item.quantity,
+                purchase_price=item.purchase_price,
+                created_at=None
+            )
+            for item in items.unique().scalars().all()
+        ],
+        queues=[
+            ItemInShopSchema(
+                id=item.item_id,
+                name=item.item.name,
+                price=item.price,
+                quantity=item.quantity,
+                purchase_price=item.purchase_price,
+                created_at=item.created_at
+            )
+            for item in queue.unique().scalars().all()
+        ]
     )
 
 
@@ -210,9 +255,8 @@ async def delete_shop_item(
                 & (ItemShopORM.shop_id == shop_id)
             )
         )
-        queues = await get_queues_in_shop(form_data.item_id, shop_id, db)
-        if (queues):
-            next_queue = queues[0]
+        next_queue = await ItemQueueORM.get_next(form_data.item_id, shop_id, db)
+        if (next_queue):
             await db.execute(
                 insert(ItemShopORM)
                 .values(
@@ -233,36 +277,6 @@ async def delete_shop_item(
             detail="It is not possible to delete an item " \
                 "because it is associated with other data."
         )
-
-
-@item_shop_route.post(
-    "/queue",
-    status_code=status.HTTP_201_CREATED,
-    dependencies=[UserStatusISAdmin],
-    responses=ResponseDescriptions((
-        ResponseDescription(
-            status_code=status.HTTP_201_CREATED,
-            model=str,
-            description="Item added to shop."
-        ),
-        ResponseDescription(
-            status_code=status.HTTP_202_ACCEPTED,
-            model=str,
-            description="Item added to shop queue."
-        )
-    ))
-)
-async def add_shop_queue(
-        shop_id: CurrentShopID,
-        form_data: ItemQueueForm,
-        db: SessionDep,
-) -> ResponseOK:
-    """
-        Принимает товар в магазин
-        Если товара в магазине нет, добавляет его, иначе – ставит в очередь.
-    """
-
-    return await add_item_shop(shop_id, form_data, db)
 
 
 @item_shop_route.delete(
@@ -309,8 +323,8 @@ async def add_cart_item(
 
     item_id = form_data.item_id
 
-    item_cart = await get_item_in_cart(user_id, shop_id, item_id, db)
-    item_shop = await get_item_in_shop(item_id, shop_id, db)
+    item_cart = await ItemCartORM.get(item_id, user_id, shop_id, db)
+    item_shop = await ItemShopORM.get(item_id, shop_id, db)
 
     if not item_shop:
         raise HTTPException(
@@ -415,7 +429,7 @@ async def del_cart_item(
 ) -> DeleteItemInCartResponse:
     """Удаляет товар из корзины"""
 
-    item = await get_item_in_cart(user_id, shop_id, form_data.item_id, db)
+    item = await ItemCartORM.get(form_data.item_id, user_id, shop_id, db)
 
     if item is None:
         raise HTTPException(
@@ -479,8 +493,8 @@ async def update_cart_item_quantity(
 
     item_id = form_data.item_id
 
-    item_cart = await get_item_in_cart(user_id, shop_id, item_id, db)
-    item_shop = await get_item_in_shop(item_id, shop_id, db)
+    item_cart = await ItemCartORM.get(item_id, user_id, shop_id, db)
+    item_shop = await ItemShopORM.get(item_id, shop_id, db)
 
     if not item_shop:
         raise HTTPException(
