@@ -49,9 +49,3 @@ class ShopAccessResponse(BaseModel):
 
     shop_id: UUID
     user_ids: list[UUID]
-
-
-class ShopAccessForm(BaseModel):
-
-    user_id: UUID
-    shop_id: UUID

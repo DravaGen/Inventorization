@@ -1,5 +1,7 @@
 import datetime
 from uuid import UUID
+from typing import Sequence
+from pydantic import BaseModel
 
 from sqlalchemy import String, ForeignKey, func, select, delete
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -34,17 +36,14 @@ class ShopORM(Base):
         overlaps="users"
     )
 
-
     @classmethod
     async def get_by_id(cls, shop_id: UUID, db: AsyncSession) -> "ShopORM | None":
         return await db.get(cls, shop_id)
-
 
     async def grant_access(self, user_id: UUID, db: AsyncSession) -> None:
         access = ShopAccessORM(shop_id=self.id, user_id=user_id)
         db.add(access)
         await db.flush()
-
 
     async def check_access(self, user_id: UUID, db: AsyncSession) -> bool:
         result = await db.execute(
@@ -56,11 +55,10 @@ class ShopORM(Base):
         )
         return result.scalar_one_or_none() is not None
 
-
     async def revoke_access(
-            self,
-            user_id: UUID,
-            db: AsyncSession
+        self,
+        user_id: UUID,
+        db: AsyncSession
     ) -> None:
         await db.execute(
             delete(ShopAccessORM)
@@ -71,14 +69,65 @@ class ShopORM(Base):
         )
         await db.flush()
 
-
-    async def list_users(self, db: AsyncSession) -> list[UUID]:
+    async def list_user_ids(self, db: AsyncSession) -> list[UUID]:
         result = await db.execute(
             select(ShopAccessORM.user_id)
             .where(ShopAccessORM.shop_id == self.id)
             .order_by(ShopAccessORM.user_id)
         )
         return list(result.scalars().all())
+
+    @staticmethod
+    async def list_shop_ids(user_id: UUID, db: AsyncSession) -> list[UUID]:
+        result = await db.execute(
+            select(ShopAccessORM.shop_id)
+            .where(ShopAccessORM.user_id == user_id)
+            .order_by(ShopAccessORM.shop_id)
+        )
+        return list(result.scalars().all())
+
+    @classmethod
+    async def create(
+        cls,
+        schema: BaseModel,
+        db: AsyncSession
+    ) -> "ShopORM":
+        shop = cls(**schema.model_dump())
+        db.add(shop)
+        await db.flush()
+
+        return shop
+
+    async def update(
+        self,
+        schema: BaseModel,
+        db: AsyncSession
+    ) -> None:
+        data = schema.model_dump(exclude_unset=True)
+
+        for key, value in data.items():
+            setattr(self, key, value)
+
+        await db.flush()
+
+    @classmethod
+    async def get_all(cls, db: AsyncSession) -> Sequence["ShopORM"]:
+        result = await db.execute(select(cls).order_by(cls.id))
+        return result.scalars().all()
+
+    @classmethod
+    async def get_for_user(
+        cls,
+        user_id: UUID,
+        db: AsyncSession
+    ) -> Sequence["ShopORM"]:
+        result = await db.execute(
+            select(cls)
+            .join(ShopAccessORM)
+            .where(ShopAccessORM.user_id == user_id)
+            .order_by(cls.id)
+        )
+        return result.scalars().all()
 
 
 class ShopAccessORM(Base):

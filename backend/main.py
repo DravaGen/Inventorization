@@ -1,6 +1,6 @@
 from typing import get_type_hints
 from fastapi import FastAPI, APIRouter, status
-from fastapi.routing import BaseRoute
+from starlette.routing import BaseRoute
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.dependencies.models import Dependant
 from responses import ResponseOK, TextResponse, \
@@ -9,13 +9,19 @@ from responses import ResponseOK, TextResponse, \
 from config import Config
 from auth.handlers import auth_router
 from users.handlers import users_router
-from shops.handlers import shops_router
+from shops.handlers import shops_router, shops_access_router
 from items.handlers import items_router
 
 from auth.services import check_user_min_status
 
 
 root_router = APIRouter()
+
+shops_router.include_router(
+    shops_access_router,
+    prefix="/access",
+    tags=["Shops Access"]
+)
 
 root_router.include_router(
     auth_router,
@@ -79,9 +85,7 @@ def openapi_prestart() -> None:
 
 
 openapi_prestart()
-app = FastAPI(
-    debug=Config.DEBUG
-)
+app = FastAPI(debug=Config.DEBUG)
 app.include_router(root_router)
 
 app.add_middleware(
