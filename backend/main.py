@@ -9,7 +9,8 @@ from responses import ResponseOK, TextResponse, \
 from config import Config
 from auth.handlers import auth_router
 from users.handlers import users_router
-from shops.handlers import shops_router, shops_access_router
+from shops.handlers import shops_router, shops_access_router, \
+    shop_items_roter, shop_cart_route
 from items.handlers import items_router
 
 from auth.services import check_user_min_status
@@ -22,6 +23,17 @@ shops_router.include_router(
     prefix="/access",
     tags=["Shops Access"]
 )
+shops_router.include_router(
+    shop_items_roter,
+    prefix="/item",
+    tags=["Shops Items"]
+)
+shops_router.include_router(
+    shop_cart_route,
+    prefix="/cart",
+    tags=["Shops Cart"]
+)
+
 
 root_router.include_router(
     auth_router,

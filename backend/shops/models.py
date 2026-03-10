@@ -1,10 +1,11 @@
-import datetime
+from datetime import datetime
 from uuid import UUID
 from typing import Sequence
-from pydantic import BaseModel
 
-from sqlalchemy import String, ForeignKey, func, select, delete
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, ForeignKey, PrimaryKeyConstraint, \
+    CheckConstraint, ForeignKeyConstraint, func, select, delete
+from sqlalchemy.orm import Mapped, mapped_column, relationship, \
+    joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from databases.sqlalchemy import Base
@@ -19,7 +20,7 @@ class ShopORM(Base):
     )
     name: Mapped[str] = mapped_column(String(32))
     address: Mapped[str] = mapped_column(String(64))
-    created_at: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         server_default=func.now()
     )
 
@@ -29,7 +30,7 @@ class ShopORM(Base):
         back_populates="shops",
         overlaps="shop_access"
     )
-    shop_items = relationship("ItemShopORM", back_populates="shop")
+    shop_items = relationship("ShopItemORM", back_populates="shop")
     shop_access = relationship(
         "ShopAccessORM",
         back_populates="shop",
@@ -89,10 +90,10 @@ class ShopORM(Base):
     @classmethod
     async def create(
         cls,
-        schema: BaseModel,
+        data: dict,
         db: AsyncSession
     ) -> "ShopORM":
-        shop = cls(**schema.model_dump())
+        shop = cls(**data)
         db.add(shop)
         await db.flush()
 
@@ -100,10 +101,9 @@ class ShopORM(Base):
 
     async def update(
         self,
-        schema: BaseModel,
+        data: dict,
         db: AsyncSession
     ) -> None:
-        data = schema.model_dump(exclude_unset=True)
 
         for key, value in data.items():
             setattr(self, key, value)
@@ -129,6 +129,51 @@ class ShopORM(Base):
         )
         return result.scalars().all()
 
+    async def add_item(
+        self,
+        data: dict,
+        db: AsyncSession
+    ) -> None:
+        item = ShopItemORM(**data, shop_id=self.id)
+        db.add(item)
+        await db.flush()
+
+    async def get_items(self, db: AsyncSession) -> Sequence["ShopItemORM"]:
+        result = await db.execute(
+            select(ShopItemORM)
+            .options(joinedload(ShopItemORM.item))
+            .where(ShopItemORM.shop_id == self.id)
+            .order_by(ShopItemORM.item_id)
+        )
+        return result.unique().scalars().all()
+
+    async def delete_item(self, item_id: UUID, db: AsyncSession) -> None:
+        await db.execute(
+            delete(ShopItemORM)
+            .where(
+                (ShopItemORM.item_id == item_id)
+                & (ShopItemORM.shop_id == self.id)
+            )
+        )
+
+    async def add_item_queue(
+        self,
+        data: dict,
+        db: AsyncSession
+    ) -> None:
+        item = ShopItemORM(**data, shop_id=self.id)
+        db.add(item)
+        await db.flush()
+
+    async def get_items_queue(self, db: AsyncSession) -> Sequence["ShopQueueORM"]:
+        result = await db.execute(
+            select(ShopQueueORM)
+            .options(joinedload(ShopQueueORM.item))
+            .where(ShopQueueORM.shop_id == self.id)
+            .order_by(ShopQueueORM.item_id)
+        )
+        return result.unique().scalars().all()
+
 
 class ShopAccessORM(Base):
     __tablename__ = "shop_access"
@@ -139,7 +184,7 @@ class ShopAccessORM(Base):
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id"), primary_key=True
     )
-    created_at: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         server_default=func.now()
     )
 
@@ -148,3 +193,147 @@ class ShopAccessORM(Base):
         back_populates="shop_access",
         overlaps="shops,users"
     )
+
+
+class ShopItemORM(Base):
+    __tablename__ = "shop_items"
+
+    item_id: Mapped[UUID] = mapped_column(ForeignKey("items.id"))
+    shop_id: Mapped[UUID] = mapped_column(ForeignKey("shops.id"))
+    price: Mapped[int]
+    quantity: Mapped[int]
+    purchase_price: Mapped[int]
+
+    item = relationship("ItemORM", back_populates="shop_items")
+    shop = relationship("ShopORM", back_populates="shop_items")
+    cart = relationship("ShopCartORM", back_populates="shop_items")
+
+    __table_args__ = (
+        PrimaryKeyConstraint(item_id, shop_id),
+        CheckConstraint("price > 0", name="check_price_positive"),
+        CheckConstraint("quantity >= 0", name="check_quantity")
+    )
+
+    @classmethod
+    async def get(
+            cls,
+            item_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> "ShopItemORM | None":
+        await db.get(cls, (item_id, shop_id))
+
+    @classmethod
+    async def check_exists(
+            cls,
+            item_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> bool:
+        return cls.get_by_id(item_id, shop_id, db) is not None
+
+
+class ShopQueueORM(Base):
+    __tablename__ = "shop_queues"
+
+    item_id: Mapped[UUID] = mapped_column(ForeignKey("items.id"))
+    shop_id: Mapped[UUID] = mapped_column(ForeignKey("shops.id"))
+    price: Mapped[int]
+    quantity: Mapped[int]
+    purchase_price: Mapped[int]
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now()
+    )
+
+    item = relationship("ItemORM", back_populates="shop_queues")
+
+    __table_args__ = (
+        PrimaryKeyConstraint(item_id, shop_id, created_at),
+    )
+
+    @classmethod
+    async def get_all(
+        cls,
+        item_id: UUID,
+        shop_id: UUID,
+        db: AsyncSession
+    ) -> "list[ShopQueueORM]":
+
+        result = await db.execute(
+            select(cls)
+            .where(
+                (cls.item_id == item_id)
+                & (cls.shop_id == shop_id)
+            )
+            .order_by(cls.item_id)
+        )
+
+        return list(result.scalars().all())
+
+
+    @classmethod
+    async def get_next(
+        cls,
+        item_id: UUID,
+        shop_id: UUID,
+        db: AsyncSession
+    ) -> "ShopQueueORM | None":
+        result = await db.execute(
+            select(cls)
+            .where(
+                (cls.item_id == item_id)
+                & (cls.shop_id == shop_id)
+            )
+            .order_by(cls.created_at.asc())
+            .limit(1)
+        )
+
+        return result.scalar_one_or_none()
+
+
+    @classmethod
+    async def delete(
+        cls,
+        shop_id: UUID,
+        item_id: UUID,
+        created_at: datetime,
+        db: AsyncSession
+    ) -> None:
+        await db.execute(
+            delete(cls)
+            .where(
+                (cls.shop_id == shop_id)
+                & (cls.item_id == item_id)
+                & (cls.created_at == created_at)
+            )
+        )
+
+
+class ShopCartORM(Base):
+    __tablename__ = "shop_cart"
+
+    shop_id: Mapped[UUID] = mapped_column()
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    item_id: Mapped[UUID] = mapped_column()
+    quantity: Mapped[int] = mapped_column(server_default="1")
+
+    shop_items = relationship("ShopItemORM", back_populates="cart")
+
+    __table_args__ = (
+        PrimaryKeyConstraint(shop_id, user_id, item_id),
+        CheckConstraint("quantity > 0", name="check_quantity_positive"),
+        ForeignKeyConstraint(
+            ["item_id", "shop_id"],
+            ["shop_items.item_id", "shop_items.shop_id"]
+        )
+    )
+
+    @classmethod
+    async def get(
+            cls,
+            item_id: UUID,
+            user_id: UUID,
+            shop_id: UUID,
+            db: AsyncSession
+    ) -> "ShopCartORM | None":
+        return await db.get(cls, (shop_id, user_id, item_id))
