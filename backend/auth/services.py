@@ -21,8 +21,8 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="/login")
 
 
 async def get_token_data(
-        token: str = Depends(oauth2_schema),
-        db: AsyncSession = Depends(get_db)
+    token: str = Depends(oauth2_schema),
+    db: AsyncSession = Depends(get_db)
 ) -> UserORM:
     """Возвращает данные из токена 'Authorization'"""
 
@@ -45,9 +45,7 @@ async def get_token_data(
     return user
 
 
-async def get_user(
-        user: UserORM = Depends(get_token_data)
-) -> UserORM:
+async def get_user(user: UserORM = Depends(get_token_data)) -> UserORM:
     """Возвращает id авторизованного пользователя"""
 
     if user.status == UserStatus.BANNED:
@@ -88,17 +86,13 @@ async def get_shop(
     return shop
 
 
-async def get_user_status(
-        user: UserORM = Depends(get_token_data)
-) -> UserStatus:
+async def get_user_status(user: UserORM = Depends(get_token_data)) -> UserStatus:
     """Возвращает status авторизованного пользователя"""
 
     return user.status
 
 
-def check_user_min_status(
-        min_status: UserStatus
-) -> Callable[[UserStatus], None]:
+def check_user_min_status(min_status: UserStatus) -> Callable[[UserStatus], None]:
     """Проверяет статус для доступа"""
 
     def logic(user_status: UserStatus = Depends(get_user_status)) -> None:

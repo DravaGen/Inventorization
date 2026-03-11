@@ -46,9 +46,9 @@ async def signup_user(
     ))
 )
 async def update_user(
-        email: EmailStr,
-        form: UserUpdateForm,
-        db: SessionDep
+    email: EmailStr,
+    form: UserUpdateForm,
+    db: SessionDep
 ) -> None:
     """Обновляет данные существующего пользователя"""
 
@@ -60,8 +60,8 @@ async def update_user(
     dependencies=[UserStatusISOwner],
 )
 async def get_users(
-        db: SessionDep,
-        data: GetUserRequest
+    db: SessionDep,
+    data: GetUserRequest
 ) -> list[UserResponse]:
     """Возвращает список пользователей в формате UserResponse"""
 
