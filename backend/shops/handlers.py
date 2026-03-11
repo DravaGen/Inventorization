@@ -275,7 +275,7 @@ async def update_cart_item_quantity(
 
 
 @shop_cart_route.post(
-    "/confirmm",
+    "/confirm",
     dependencies=[UserStatusISWorker],
     responses=ResponseDescriptions((
         ResponseDescription(
