@@ -13,7 +13,7 @@ from .jwt import JWTService
 from .schemas import AccessTokenData
 from users.models import UserORM
 from users.schemas import UserStatus, weights_user_status
-from shops.models import ShopORM
+from shops.models import ShopORM, ShopAccessORM
 from databases.sqlalchemy import get_db
 
 
@@ -73,7 +73,7 @@ async def get_shop(
         )
 
     access = (
-        await shop.check_access(user.id, db)
+        await ShopAccessORM.check_access(shop.id, user.id, db)
         or user.status == UserStatus.OWNER
     )
 
