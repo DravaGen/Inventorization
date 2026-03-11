@@ -18,8 +18,9 @@ const CartManager = () => {
         shop_id
     } = useParams()
 
-    const [itemsInShop, setItemsInShop] = useState([])
     const [itemsInCart, setItemsInCart] = useState([])
+    const [itemsInShop, setItemsInShop] = useState([])
+    const [itemsInShopQueues, setItemsInShopQueues] = useState([])
 
     const shopItemsMap = new Map(itemsInShop.map(item => [item.id, item]))
 
@@ -30,6 +31,7 @@ const CartManager = () => {
     const getItemsInShop = useCallback(async () => {
         const [ok, response] = await RestAPI.getShopItems(shop_id)
         ok && setItemsInShop(response.items)
+        ok && setItemsInShopQueues(response.queues)
     }, [shop_id, setItemsInShop])
 
     const getItemsInCart = useCallback(async () => {
@@ -54,6 +56,11 @@ const CartManager = () => {
         }
         fetchData()
     }, [shop_id, getItemsInShop, getItemsInCart])
+
+    const shopItems = [
+        ...itemsInShop.map(item => ({ ...item, isQueue: false })),
+        ...itemsInShopQueues.map(item => ({ ...item, isQueue: true }))
+    ]
 
     return (
         <Manager>
@@ -93,7 +100,7 @@ const CartManager = () => {
                 <Block>
                     <BlockHeader>Товар в магазине</BlockHeader>
                     <ManagerContentItems
-                        elements={itemsInShop}
+                        elements={shopItems}
                         elementName={"item"}
                         Component={ManagerItemShopItem}
                         useIndexInKey={true}
