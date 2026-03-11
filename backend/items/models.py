@@ -90,3 +90,14 @@ class ItemSoldORM(Base):
         )
 
         return result.scalar().all()
+
+    @classmethod
+    async def create(
+        cls,
+        data: dict,
+        db: AsyncSession
+    ) -> "ItemSoldORM":
+        sold = cls(**data)
+        db.add(sold)
+        await db.flush()
+        return sold

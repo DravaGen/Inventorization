@@ -41,7 +41,7 @@ class ShopService:
         await shop.update(form.model_dump(exclude_unset=True), db)
 
     @staticmethod
-    async def get(item_id: UUID, shop_id: UUID, db: AsyncSession) -> ShopItemORM:
+    async def get_item_by_id(item_id: UUID, shop_id: UUID, db: AsyncSession) -> ShopItemORM:
         item = await ShopItemORM.get(item_id, shop_id, db)
 
         if item is None:
@@ -175,7 +175,7 @@ class ShopService:
     ) -> CartItemSchema:
         item_id = form.item_id
 
-        item_shop = await cls.get(item_id, shop.id, db)
+        item_shop = await cls.get_item_by_id(item_id, shop.id, db)
         item_cart = await ShopCartORM.get(item_id, user.id, shop.id, db)
 
         if (
@@ -193,13 +193,9 @@ class ShopService:
             item_cart.quantity += form.quantity
 
         else:
-            item_cart = ShopCartORM(
-                shop_id=shop.id,
-                user_id=user.id,
-                **form.model_dump()
+            item_cart = await ShopCartORM.create(
+                form.model_dump(), shop.id, user.id, db
             )
-            db.add(item_cart)
-            await db.flush()
 
         return CartItemSchema(
             item_id=item_cart.item_id,
@@ -214,27 +210,8 @@ class ShopService:
     ) -> list[ShopCartItemResponse]:
         """Возвращает товары из корзины"""
 
-        cart = await db.execute(
-            select(ShopCartORM)
-            .options(
-                joinedload(ShopCartORM.shop_items)
-                .joinedload(ShopItemORM.item)  # загружаем item через shop_items
-            )
-            .where(
-                (ShopCartORM.user_id == user.id)
-                & (ShopCartORM.shop_id == shop.id)
-            )
-            .order_by(ShopCartORM.item_id)
-        )
-        cart = cart.scalars().unique().all()
-
-        return [
-            ShopCartItemResponse(
-                item_id=x.item_id,
-                name=x.shop_items.item.name,
-                quantity=x.quantity
-            ) for x in cart
-        ]
+        items = await ShopCartORM.get_all(shop.id, user.id, db)
+        return [ShopCartItemResponse.model_validate(i) for i in items]
 
     @staticmethod
     async def del_cart_item(
@@ -263,10 +240,8 @@ class ShopService:
             )
         else:
             await db.delete(item)
-            item = None
 
         return response
-
 
     @staticmethod
     async def clear_cart(
@@ -276,16 +251,11 @@ class ShopService:
     ) -> None:
         """Удаляет все товары из корзины"""
 
-        await db.execute(
-            delete(ShopCartORM)
-            .where(
-                (ShopCartORM.shop_id == shop.id)
-                & (ShopCartORM.user_id == user.id)
-            )
-        )
+        await ShopCartORM.delete_all(shop.id, user.id, db)
 
-    @staticmethod
+    @classmethod
     async def update_cart_item_quantity(
+        cls,
         user: UserORM,
         shop: ShopORM,
         form: UpdateCartQuantityForm,
@@ -295,14 +265,8 @@ class ShopService:
 
         item_id = form.item_id
 
+        item_shop = await cls.get_item_by_id(item_id, shop.id, db)
         item_cart = await ShopCartORM.get(item_id, user.id, shop.id, db)
-        item_shop = await ShopItemORM.get(item_id, shop.id, db)
-
-        if not item_shop:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="item in shop not found"
-            )
 
         if not item_cart:
             raise HTTPException(
@@ -331,7 +295,6 @@ class ShopService:
             )
         else:
             await db.delete(item_cart)
-            item_cart = None
 
         return response
 
@@ -343,20 +306,9 @@ class ShopService:
     ) -> None:
         """Подтверждает покупку"""
 
+        cart = await ShopCartORM.get_all(shop.id, user.id, db)
 
-        cart = await db.execute(
-            select(ShopCartORM)
-            .options(
-                joinedload(ShopCartORM.shop_items)
-            )
-            .where(
-                (ShopCartORM.user_id == user.id)
-                & (ShopCartORM.shop_id == shop.id)
-            )
-        )
-        cart = cart.scalars().all()
-
-        if bool(cart) is False:
+        if not cart:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="The shopping cart is empty."
@@ -374,52 +326,23 @@ class ShopService:
                         detail="There is not enough product in the store."
                     )
 
-                await db.execute(
-                    insert(ItemSoldORM)
-                    .values(
-                        item_id = cart_item.item_id,
-                        user_id = cart_item.user_id,
-                        shop_id = cart_item.shop_id,
-                        price = item.price,
-                        quantity = cart_item.quantity,
-                        income = (item.price - item.purchase_price) * cart_item.quantity
-                    )
-                )
+                sold_data = {
+                    "item_id": cart_item.item_id,
+                    "user_id": cart_item.user_id,
+                    "shop_id": cart_item.shop_id,
+                    "price": item.price,
+                    "quantity": cart_item.quantity,
+                    "income": (item.price - item.purchase_price) * cart_item.quantity
+                }
+                await ItemSoldORM.create(sold_data, db)
 
                 if item.quantity == 0:
+                    next_item = ShopQueueORM.get_next(cart_item.item_id, shop.id, db)
+                    if next_item:
+                        await shop.add_item(next_item.__dict__, db)
+                        await db.delete(next_item)
 
-                    queue = await db.execute(
-                        select(ShopQueueORM)
-                        .where(
-                            (ShopQueueORM.shop_id == shop.id)
-                            & (ShopQueueORM.item_id == cart_item.item_id)
-                        )
-                        .order_by(ShopQueueORM.created_at.asc())
-                    )
-                    queue = queue.scalars().all()
-                    queue = queue[0] if queue else None
-
-                    if not queue:
-                        continue
-
-                    await db.execute(
-                        update(ShopItemORM)
-                        .values(
-                            price=queue.price,
-                            quantity=queue.quantity,
-                            purchase_price=queue.purchase_price
-                        )
-                        .where(ShopItemORM.item_id == cart_item.item_id)
-                    )
-                    await db.delete(queue)
-
-            await db.execute(
-                delete(ShopCartORM)
-                .where(
-                    (ShopCartORM.shop_id == shop.id)
-                    & (ShopCartORM.user_id == user.id)
-                )
-            )
+            await ShopCartORM.delete_all(shop.id, user.id, db)
 
         except Exception as ex:
             await db.rollback()

@@ -117,6 +117,14 @@ class ShopCartItemResponse(BaseModel):
     name: str
     quantity: int
 
+    @model_validator(mode="before")
+    @classmethod
+    def before(cls, value):
+
+        data = dict(value.__dict__)
+        data["name"] = value.shop_items.item.name
+        return data
+
 
 class UpdateCartQuantityForm(BaseModel):
 

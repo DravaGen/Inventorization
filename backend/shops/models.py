@@ -337,3 +337,45 @@ class ShopCartORM(Base):
             db: AsyncSession
     ) -> "ShopCartORM | None":
         return await db.get(cls, (shop_id, user_id, item_id))
+
+    @classmethod
+    async def get_all(
+        cls,
+        shop_id: UUID,
+        user_id: UUID,
+        db: AsyncSession
+    ) -> Sequence["ShopCartORM"]:
+
+        result = await db.execute(
+            select(cls)
+            .options(joinedload(cls.shop_items).joinedload(cls.item))
+            .where((cls.user_id == user_id) & (cls.shop_id == shop_id))
+            .order_by(ShopCartORM.item_id)
+        )
+        return result.scalars().unique().all()
+
+    @classmethod
+    async def create(
+        cls,
+        data: dict,
+        shop_id: UUID,
+        user_id: UUID,
+        db: AsyncSession
+    ) -> "ShopCartORM":
+        item = cls(**data, shop_id=shop_id, user_id=user_id)
+        db.add(item)
+        await db.flush()
+
+        return item
+
+    @classmethod
+    async def delete_all(
+        cls,
+        shop_id: UUID,
+        user_id: UUID,
+        db: AsyncSession
+    ) -> None:
+        await db.execute(
+            delete(cls)
+            .where((cls.shop_id == shop_id) & (cls.user_id == user_id))
+        )
