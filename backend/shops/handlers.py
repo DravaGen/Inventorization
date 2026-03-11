@@ -16,7 +16,7 @@ from responses import ResponseDescription, ResponseDescriptions
 
 shops_router = APIRouter()
 shops_access_router = APIRouter()
-shop_items_roter = APIRouter()
+shop_items_router = APIRouter()
 shop_cart_route = APIRouter()
 
 
@@ -117,7 +117,7 @@ async def revoke_access(
     await ShopService.revoke_access(shop, user_id, db)
 
 
-@shop_items_roter.post(
+@shop_items_router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
     dependencies=[UserStatusISAdmin],
@@ -138,7 +138,7 @@ async def add_shop_item(
     await ShopService.add_item(shop, form, db)
 
 
-@shop_items_roter.get(
+@shop_items_router.get(
     "/",
     dependencies=[UserStatusISWorker]
 )
@@ -151,7 +151,7 @@ async def get_shop_items(
     return await ShopService.get_all_items(shop, db )
 
 
-@shop_items_roter.delete(
+@shop_items_router.delete(
     "/",
     dependencies=[UserStatusISAdmin]
 )
@@ -165,7 +165,7 @@ async def delete_shop_item(
     await ShopService.delete_item(shop, item_id, db)
 
 
-@shop_items_roter.delete(
+@shop_items_router.delete(
     "/queue",
     dependencies=[UserStatusISAdmin]
 )

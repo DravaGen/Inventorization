@@ -10,7 +10,7 @@ from config import Config
 from auth.handlers import auth_router
 from users.handlers import users_router
 from shops.handlers import shops_router, shops_access_router, \
-    shop_items_roter, shop_cart_route
+    shop_items_router, shop_cart_route
 from items.handlers import items_router
 
 from auth.services import check_user_min_status
@@ -24,7 +24,7 @@ shops_router.include_router(
     tags=["Shops Access"]
 )
 shops_router.include_router(
-    shop_items_roter,
+    shop_items_router,
     prefix="/item",
     tags=["Shops Items"]
 )

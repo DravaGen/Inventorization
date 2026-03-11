@@ -15,7 +15,7 @@ class ItemInitResponse(BaseModel):
 
 class ItemSchema(BaseModel):
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: UUID = Field(alias="item_id", serialization_alias="id")
     name: str

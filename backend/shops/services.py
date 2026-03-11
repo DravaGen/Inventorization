@@ -116,7 +116,7 @@ class ShopService:
         if await ShopItemORM.check_exists(item_id, shop.id, db):
             await ShopQueueORM.add(shop.id, data, db)
         else:
-            await ShopItemORM.add_item(shop.id, data, db)
+            await ShopItemORM.add(shop.id, data, db)
 
     @staticmethod
     async def get_all_items(

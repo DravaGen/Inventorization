@@ -23,12 +23,13 @@ class ItemService:
     @staticmethod
     async def get_items(db: AsyncSession) -> list[ItemResponse]:
 
+        items = await ItemORM.get_all(db)
         return [
             ItemResponse(
                 **ItemSchema.model_validate(item).model_dump(),
-                quantity=sum(shop.quantity for shop in item.shop_items)
+                quantity=sum(shop.quantity for shop in item.shop_items),
             )
-            for item in await ItemORM.get_all(db)
+            for item in items
         ]
 
     @staticmethod

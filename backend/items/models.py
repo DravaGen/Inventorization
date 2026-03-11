@@ -28,6 +28,7 @@ class ItemORM(Base):
     async def create(cls, data: dict, db: AsyncSession) -> "ItemORM":
         item = cls(**data)
         db.add(item)
+        await db.flush()
         return item
 
     @classmethod

@@ -21,7 +21,7 @@ const ManagerItemCartItem = ({
     const logicIncrementQuantity = useCallback(async () => {
         const [ok, response] = await RestAPI.addCartItem(shop_id, item.id, 1)
         if (ok) {
-            quantityRef.current.value = response.item.quantity.toString()
+            quantityRef.current.value = response.quantity.toString()
             getItemsInCart()
         }
     }, [shop_id, item, getItemsInCart])
@@ -29,8 +29,8 @@ const ManagerItemCartItem = ({
     const logicDecrementQuantity = useCallback(async () => {
         const [ok, response] = await RestAPI.delCartItem(shop_id, item.id, 1)
         if (ok) {
-            if (response.item) {
-                quantityRef.current.value = response.item.quantity.toString()
+            if (response) {
+                quantityRef.current.value = response.quantity.toString()
             }
             getItemsInCart()
         }
