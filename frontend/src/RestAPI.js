@@ -44,9 +44,6 @@ function saveJWTPayload(jwtPayload) {
 class RestAPI {
 
     static _addNotif = (message, type) => {}  // eslint-disable-line no-unused-vars
-    static _oldNotifMessage = null
-    static _sendNotifDatetime = null
-
     static _logouting = () => {}
 
     static setAddNotif(fn) {
@@ -58,14 +55,7 @@ class RestAPI {
     }
 
     static sendNotif(message, type) {
-        if (
-            this._oldNotifMessage == message
-            && this._sendNotifDatetime + 8000 > new Date().getTime()
-        ) return
-
         this._addNotif(message, type)
-        this._oldNotifMessage = message
-        this._sendNotifDatetime = new Date().getTime()
     }
 
     static async handleError(error) {
