@@ -1,12 +1,10 @@
 from uuid import UUID
 from typing import Sequence
 from fastapi import HTTPException, status
-from sqlalchemy import select, insert, delete, update
-from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import ShopORM, ShopItemORM, ShopQueueORM, ShopCartORM
+from .models import ShopORM, ShopAccessORM, ShopItemORM, ShopQueueORM, ShopCartORM
 from .schemas import ShopCreateForm, ShopUpdateForm, UserAccessResponse, \
     ShopAccessResponse, ShopItemForm, ShopItemSchema, ShopQueueSchema, \
     ShopItemResponse, ShopQueueDeleteForm, ShopCartItemForm, CartItemSchema, \
@@ -28,14 +26,14 @@ class ShopService:
     ) -> ShopORM:
 
         shop = await ShopORM.create(form.model_dump(), db=db)
-        await shop.grant_access(user.id, db)
+        await ShopAccessORM.grant_access(shop.id, user.id, db)
         return shop
 
     @staticmethod
     async def update_shop(
-            shop: ShopORM,
-            form: ShopUpdateForm,
-            db: AsyncSession
+        shop: ShopORM,
+        form: ShopUpdateForm,
+        db: AsyncSession
     ) -> None:
 
         await shop.update(form.model_dump(exclude_unset=True))
@@ -61,7 +59,7 @@ class ShopService:
         if user.status == UserStatus.OWNER:
             shops = await ShopORM.get_all(db)
         else:
-            shops = await ShopORM.get_for_user(user.id, db)
+            shops = await ShopORM.get_user_shops(user.id, db)
 
         return shops
 
@@ -71,8 +69,8 @@ class ShopService:
         db: AsyncSession
     ) -> ShopAccessResponse:
 
-        user_ids = await shop.list_user_ids(db)
-        return ShopAccessResponse(shop_id=shop.id, user_ids=user_ids)
+        user_ids = await ShopAccessORM.get_user_ids(shop.id, db)
+        return ShopAccessResponse(shop_id=shop.id, user_ids=list(user_ids))
 
     @staticmethod
     async def get_self_access(
@@ -81,8 +79,8 @@ class ShopService:
     )-> UserAccessResponse:
 
         user_id = user.id
-        shop_ids = await ShopORM.list_shop_ids(user_id, db)
-        return UserAccessResponse(user_id=user_id, shop_ids=shop_ids)
+        shop_ids = await ShopAccessORM.get_shop_ids(user_id, db)
+        return UserAccessResponse(user_id=user_id, shop_ids=list(shop_ids))
 
     @staticmethod
     async def grant_access(
@@ -91,10 +89,10 @@ class ShopService:
         db: AsyncSession
     ) -> None:
 
-        if await shop.check_access(user_id, db):
+        if await ShopAccessORM.check_access(shop.id, user_id, db):
             return
 
-        await shop.grant_access(user_id, db)
+        await ShopAccessORM.grant_access(shop.id, user_id, db)
 
     @staticmethod
     async def revoke_access(
@@ -103,7 +101,7 @@ class ShopService:
         db: AsyncSession
     )-> None:
 
-        await shop.revoke_access(user_id, db)
+        await ShopAccessORM.revoke_access(shop.id, user_id, db)
 
     @staticmethod
     async def add_item(
@@ -116,9 +114,9 @@ class ShopService:
 
         data = form.model_dump()
         if await ShopItemORM.check_exists(item_id, shop.id, db):
-            await shop.add_item_queue(data, db)
+            await ShopQueueORM.add(shop.id, data, db)
         else:
-            await shop.add_item(data, db)
+            await ShopItemORM.add_item(shop.id, data, db)
 
     @staticmethod
     async def get_all_items(
@@ -126,8 +124,8 @@ class ShopService:
         db: AsyncSession
     ) -> ShopItemResponse:
 
-        items = await shop.get_items(db)
-        queues = await shop.get_items_queue(db)
+        items = await ShopItemORM.get_all(shop.id, db)
+        queues = await ShopQueueORM.get_all(shop.id, db)
 
         return ShopItemResponse(
             items=[ShopItemSchema.model_validate(i) for i in items],
@@ -142,10 +140,10 @@ class ShopService:
     ) -> None:
 
         try:
-            await shop.delete_item(item_id, db)
+            await ShopItemORM.delete(item_id, shop.id, db)
             next_item = await ShopQueueORM.get_next(item_id, shop.id, db)
             if next_item:
-                await shop.add_item(next_item.__dict__, db)
+                await ShopItemORM.add(shop.id, next_item.__dict__, db)
                 await db.delete(next_item)
 
         except IntegrityError:
@@ -337,9 +335,9 @@ class ShopService:
                 await ItemSoldORM.create(sold_data, db)
 
                 if item.quantity == 0:
-                    next_item = ShopQueueORM.get_next(cart_item.item_id, shop.id, db)
+                    next_item = await ShopQueueORM.get_next(cart_item.item_id, shop.id, db)
                     if next_item:
-                        await shop.add_item(next_item.__dict__, db)
+                        await ShopItemORM.add(shop.id, next_item.__dict__, db)
                         await db.delete(next_item)
 
             await ShopCartORM.delete_all(shop.id, user.id, db)

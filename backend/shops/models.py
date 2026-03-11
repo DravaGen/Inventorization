@@ -41,66 +41,14 @@ class ShopORM(Base):
     async def get_by_id(cls, shop_id: UUID, db: AsyncSession) -> "ShopORM | None":
         return await db.get(cls, shop_id)
 
-    async def grant_access(self, user_id: UUID, db: AsyncSession) -> None:
-        access = ShopAccessORM(shop_id=self.id, user_id=user_id)
-        db.add(access)
-
-    async def check_access(self, user_id: UUID, db: AsyncSession) -> bool:
-        result = await db.execute(
-            select(ShopAccessORM)
-            .where(
-                (ShopAccessORM.shop_id == self.id)
-                & (ShopAccessORM.user_id == user_id)
-            )
-        )
-        return result.scalar_one_or_none() is not None
-
-    async def revoke_access(
-        self,
-        user_id: UUID,
-        db: AsyncSession
-    ) -> None:
-        await db.execute(
-            delete(ShopAccessORM)
-            .where(
-                (ShopAccessORM.shop_id == self.id)
-                & (ShopAccessORM.user_id == user_id)
-            )
-        )
-
-    async def list_user_ids(self, db: AsyncSession) -> list[UUID]:
-        result = await db.execute(
-            select(ShopAccessORM.user_id)
-            .where(ShopAccessORM.shop_id == self.id)
-            .order_by(ShopAccessORM.user_id)
-        )
-        return list(result.scalars().all())
-
-    @staticmethod
-    async def list_shop_ids(user_id: UUID, db: AsyncSession) -> list[UUID]:
-        result = await db.execute(
-            select(ShopAccessORM.shop_id)
-            .where(ShopAccessORM.user_id == user_id)
-            .order_by(ShopAccessORM.shop_id)
-        )
-        return list(result.scalars().all())
-
     @classmethod
-    async def create(
-        cls,
-        data: dict,
-        db: AsyncSession
-    ) -> "ShopORM":
+    async def create(cls, data: dict, db: AsyncSession) -> "ShopORM":
         shop = cls(**data)
         db.add(shop)
-
+        await db.flush()
         return shop
 
-    async def update(
-        self,
-        data: dict,
-    ) -> None:
-
+    async def update(self, data: dict) -> None:
         for key, value in data.items():
             setattr(self, key, value)
 
@@ -110,61 +58,18 @@ class ShopORM(Base):
         return result.scalars().all()
 
     @classmethod
-    async def get_for_user(
+    async def get_user_shops(
         cls,
         user_id: UUID,
         db: AsyncSession
     ) -> Sequence["ShopORM"]:
         result = await db.execute(
             select(cls)
-            .join(ShopAccessORM)
+            .options(joinedload(cls.shop_access))
             .where(ShopAccessORM.user_id == user_id)
             .order_by(cls.id)
         )
         return result.scalars().all()
-
-    async def add_item(
-        self,
-        data: dict,
-        db: AsyncSession
-    ) -> None:
-        item = ShopItemORM(**data, shop_id=self.id)
-        db.add(item)
-
-    async def get_items(self, db: AsyncSession) -> Sequence["ShopItemORM"]:
-        result = await db.execute(
-            select(ShopItemORM)
-            .options(joinedload(ShopItemORM.item))
-            .where(ShopItemORM.shop_id == self.id)
-            .order_by(ShopItemORM.item_id)
-        )
-        return result.unique().scalars().all()
-
-    async def delete_item(self, item_id: UUID, db: AsyncSession) -> None:
-        await db.execute(
-            delete(ShopItemORM)
-            .where(
-                (ShopItemORM.item_id == item_id)
-                & (ShopItemORM.shop_id == self.id)
-            )
-        )
-
-    async def add_item_queue(
-        self,
-        data: dict,
-        db: AsyncSession
-    ) -> None:
-        item = ShopQueueORM(**data, shop_id=self.id)
-        db.add(item)
-
-    async def get_items_queue(self, db: AsyncSession) -> Sequence["ShopQueueORM"]:
-        result = await db.execute(
-            select(ShopQueueORM)
-            .options(joinedload(ShopQueueORM.item))
-            .where(ShopQueueORM.shop_id == self.id)
-            .order_by(ShopQueueORM.item_id)
-        )
-        return result.unique().scalars().all()
 
 
 class ShopAccessORM(Base):
@@ -185,6 +90,44 @@ class ShopAccessORM(Base):
         back_populates="shop_access",
         overlaps="shops,users"
     )
+
+    @classmethod
+    async def grant_access(cls, shop_id: UUID, user_id: UUID, db: AsyncSession) -> None:
+        access = cls(shop_id=shop_id, user_id=user_id)
+        db.add(access)
+
+    @classmethod
+    async def check_access(cls, shop_id: UUID, user_id: UUID, db: AsyncSession) -> bool:
+        result = await db.execute(
+            select(cls)
+            .where((cls.shop_id == shop_id) & (cls.user_id == user_id))
+        )
+        return result.scalar_one_or_none() is not None
+
+    @classmethod
+    async def revoke_access(cls, shop_id: UUID, user_id: UUID, db: AsyncSession) -> None:
+        await db.execute(
+            delete(cls)
+            .where((cls.shop_id == shop_id) & (cls.user_id == user_id))
+        )
+
+    @classmethod
+    async def get_user_ids(cls, shop_id: UUID, db: AsyncSession) -> Sequence[UUID]:
+        result = await db.execute(
+            select(cls.user_id)
+            .where(cls.shop_id == shop_id)
+            .order_by(cls.user_id)
+        )
+        return result.scalars().all()
+
+    @classmethod
+    async def get_shop_ids(cls, user_id: UUID, db: AsyncSession) -> Sequence[UUID]:
+        result = await db.execute(
+            select(cls.shop_id)
+            .where(cls.user_id == user_id)
+            .order_by(cls.shop_id)
+        )
+        return result.scalars().all()
 
 
 class ShopItemORM(Base):
@@ -208,21 +151,48 @@ class ShopItemORM(Base):
 
     @classmethod
     async def get(
-            cls,
-            item_id: UUID,
-            shop_id: UUID,
-            db: AsyncSession
+        cls,
+        item_id: UUID,
+        shop_id: UUID,
+        db: AsyncSession
     ) -> "ShopItemORM | None":
         return await db.get(cls, (item_id, shop_id))
 
     @classmethod
     async def check_exists(
-            cls,
-            item_id: UUID,
-            shop_id: UUID,
-            db: AsyncSession
+        cls,
+        item_id: UUID,
+        shop_id: UUID,
+        db: AsyncSession
     ) -> bool:
-        return cls.get(item_id, shop_id, db) is not None
+        return await cls.get(item_id, shop_id, db) is not None
+
+    @classmethod
+    async def add(
+        cls,
+        shop_id: UUID,
+        data: dict,
+        db: AsyncSession
+    ) -> None:
+        item = cls(**data, shop_id=shop_id)
+        db.add(item)
+
+    @classmethod
+    async def get_all(cls, shop_id: UUID, db: AsyncSession) -> Sequence["ShopItemORM"]:
+        result = await db.execute(
+            select(cls)
+            .options(joinedload(cls.item))
+            .where(cls.shop_id == shop_id)
+            .order_by(cls.item_id)
+        )
+        return result.unique().scalars().all()
+
+    @classmethod
+    async def delete(cls, item_id: UUID, shop_id: UUID, db: AsyncSession) -> None:
+        await db.execute(
+            delete(cls)
+            .where((cls.item_id == item_id) & (cls.shop_id == shop_id))
+        )
 
 
 class ShopQueueORM(Base):
@@ -244,38 +214,30 @@ class ShopQueueORM(Base):
     )
 
     @classmethod
-    async def get_all(
+    async def add(
         cls,
-        item_id: UUID,
         shop_id: UUID,
+        data: dict,
         db: AsyncSession
-    ) -> "list[ShopQueueORM]":
-
-        result = await db.execute(
-            select(cls)
-            .where(
-                (cls.item_id == item_id)
-                & (cls.shop_id == shop_id)
-            )
-            .order_by(cls.item_id)
-        )
-
-        return list(result.scalars().all())
-
+    ) -> None:
+        item = cls(**data, shop_id=shop_id)
+        db.add(item)
 
     @classmethod
-    async def get_next(
-        cls,
-        item_id: UUID,
-        shop_id: UUID,
-        db: AsyncSession
-    ) -> "ShopQueueORM | None":
+    async def get_all(cls, shop_id: UUID, db: AsyncSession) -> Sequence["ShopQueueORM"]:
         result = await db.execute(
             select(cls)
-            .where(
-                (cls.item_id == item_id)
-                & (cls.shop_id == shop_id)
-            )
+            .options(joinedload(cls.item))
+            .where(cls.shop_id == shop_id)
+            .order_by(cls.item_id)
+        )
+        return result.unique().scalars().all()
+
+    @classmethod
+    async def get_next(cls, item_id: UUID, shop_id: UUID, db: AsyncSession) -> "ShopQueueORM | None":
+        result = await db.execute(
+            select(cls)
+            .where((cls.item_id == item_id) & (cls.shop_id == shop_id))
             .order_by(cls.created_at.asc())
             .limit(1)
         )
@@ -322,11 +284,11 @@ class ShopCartORM(Base):
 
     @classmethod
     async def get(
-            cls,
-            item_id: UUID,
-            user_id: UUID,
-            shop_id: UUID,
-            db: AsyncSession
+        cls,
+        item_id: UUID,
+        user_id: UUID,
+        shop_id: UUID,
+        db: AsyncSession
     ) -> "ShopCartORM | None":
         return await db.get(cls, (shop_id, user_id, item_id))
 
@@ -356,6 +318,7 @@ class ShopCartORM(Base):
     ) -> "ShopCartORM":
         item = cls(**data, shop_id=shop_id, user_id=user_id)
         db.add(item)
+        await db.flush()
         return item
 
     @classmethod

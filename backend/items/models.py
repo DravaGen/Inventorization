@@ -98,4 +98,5 @@ class ItemSoldORM(Base):
     ) -> "ItemSoldORM":
         sold = cls(**data)
         db.add(sold)
+        await db.flush()
         return sold
