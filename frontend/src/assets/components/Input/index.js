@@ -27,7 +27,7 @@ function isUnsignedInteger(number) {
     return isUnsignedNnumber(number) && isInteger(number)
 }
 
-function isUnsignedIntegerPositive(number) {
+async function isUnsignedIntegerPositive(number) {
     return isNnumberPositive(number) && isInteger(number)
 }
 

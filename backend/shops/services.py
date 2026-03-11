@@ -262,39 +262,31 @@ class ShopService:
         """Добавляет товар в корзину"""
 
         item_id = form.item_id
-
         item_shop = await cls.get_item_by_id(item_id, shop.id, db)
-        item_cart = await ShopCartORM.get(item_id, user.id, shop.id, db)
 
+        if (item_shop.quantity - form.quantity < 0):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Exceed available quantity"
+            )
+
+        item_cart = await ShopCartORM.get(item_id, user.id, shop.id, db)
         if not item_cart:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="item in cart not found"
             )
 
-        if (
-            item_shop.quantity
-            - (item_cart.quantity if item_cart else 0)
-            - form.quantity
-            < 0
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Exceed available quantity"
-            )
-
-        response = None
-
         if form.quantity > 0:
             item_cart.quantity = form.quantity
-            response = CartItemSchema(
+            return CartItemSchema(
                 item_id=item_cart.item_id,
                 quantity=item_cart.quantity
             )
         else:
             await db.delete(item_cart)
 
-        return response
+        return None
 
     @staticmethod
     async def confirm_cart(

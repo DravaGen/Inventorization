@@ -1,30 +1,40 @@
-import { useImperativeHandle, useState, forwardRef, useCallback} from "react"
+import { useImperativeHandle, useState, forwardRef, useCallback, useRef } from "react"
 import Input from "./Input"
 
 
-const InputValidator = forwardRef((
-    {
-        condition = () => {return true},
-        output = (e) => {return e},
-        updateForm = () => {return [() => {}, ""]},
+const InputValidator = forwardRef(({
+        condition = async () => true,
+        output = async (e) => e,
+        updateForm = () => [() => {}, ""],
         className = "",
         defaultValue = "",
         ...props
     },
     ref
 ) => {
+    const requestId = useRef(0)
     const [inputValue, setInputValue] = useState(defaultValue)
     const [error, setError] = useState(false)
     const [setForm, key] = updateForm()
 
-    const checkInvalidInput = useCallback((v) => {
-        const value = output(v)
-        const result = condition(value)
+    const checkInvalidInput = useCallback(async (v) => {
+
+        const id = ++requestId.current
+        const value = await output(v)
+        const result = await condition(value)
+
+        if (id !== requestId.current) return false
         setInputValue(value)
         setError(!result && value)
-        setForm(prev => ({...prev, [key]: result && value ? value : false}))
+
+        setForm(prev => ({
+            ...prev,
+            [key]: result && value ? value : false
+        }))
+
         return result && value ? value : false
-    }, [output, condition, setInputValue, setError, setForm, key])
+
+    }, [output, condition, setForm, key])
 
     useImperativeHandle(ref, () => ({
         set value(v) {
@@ -36,13 +46,14 @@ const InputValidator = forwardRef((
         clear() {
             checkInvalidInput("")
         }
-    }), [condition, inputValue, checkInvalidInput])
+    }), [checkInvalidInput])
 
     return (
-        <Input {...props}
+        <Input
+            {...props}
             value={inputValue}
             className={`${className} ${error ? "error" : ""}`}
-            onChange={(e) => {checkInvalidInput(e.target.value)}}
+            onChange={(e) => checkInvalidInput(e.target.value)}
         />
     )
 })
