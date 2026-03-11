@@ -38,7 +38,7 @@ class ShopService:
             db: AsyncSession
     ) -> None:
 
-        await shop.update(form.model_dump(exclude_unset=True), db)
+        await shop.update(form.model_dump(exclude_unset=True))
 
     @staticmethod
     async def get_item_by_id(item_id: UUID, shop_id: UUID, db: AsyncSession) -> ShopItemORM:
