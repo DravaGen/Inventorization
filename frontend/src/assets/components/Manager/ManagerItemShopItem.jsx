@@ -13,10 +13,16 @@ const ManagerItemShopItem = ({
         isQueue: item.isQueue
     }
 
+    let headerIndicator = "green"
+    if (item.quantity == 0)
+        headerIndicator = "red"
+    if (item.isQueue)
+        headerIndicator = "yellow"
+
     return (
         <ManagerItem
             title={item.name}
-            headerIndicator={item.isQueue ? "yellow" : "green"}
+            headerIndicator={headerIndicator}
             updateSelected={updateSelected}
             managerItemData={managerItemData}
             {...props}
