@@ -26,14 +26,14 @@ function parseJWT(jwt) {
 
     const payloadBase64 = atob(
         jwt.split(".")[1]
-            .replace("/-/g", "+")
-            .replace("/_/g", "/")
+            .replace(/-/g, "+")
+            .replace(/_/g, "/")
     )
     return JSON.parse(payloadBase64)
 }
 
 
-function savaJWTPayload(jwtPayload) {
+function saveJWTPayload(jwtPayload) {
     if (!jwtPayload) return
     Object.entries(jwtPayload).map(
         ([key, value]) => {localStorage.setItem(key, value)}
@@ -118,7 +118,8 @@ class RestAPI {
             .then(async (response) => {
                 if (response.ok) {
                     ok = true
-                    data = await response.json()
+                    const text = await response.text()
+                    data = text ? JSON.parse(text) : null
                 } else {
                     data = await this.handleError(response)
                 }
@@ -226,27 +227,15 @@ class RestAPI {
 
     static async grantAccess(userId, shopId) {
         return await this._makeRequest(
-            `${SERVER_URL}/shops/access/`,
-            {
-                method: 'POST',
-                json: {
-                    user_id: userId,
-                    shop_id: shopId
-                }
-            }
+            `${SERVER_URL}/shops/access/?user_id=${userId}&shop_id=${shopId}`,
+            {method: 'POST'}
         )
     }
 
     static async deleteAccess(userId, shopId) {
         return await this._makeRequest(
-            `${SERVER_URL}/shops/access/`,
-            {
-                method: 'DELETE',
-                json: {
-                    user_id: userId,
-                    shop_id: shopId
-                }
-            }
+            `${SERVER_URL}/shops/access/?user_id=${userId}&shop_id=${shopId}`,
+            {method: 'DELETE'}
         )
     }
 
@@ -293,7 +282,7 @@ class RestAPI {
 
     static async addShopItem(shopId, itemId, price, quantity, purchasePrice) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/item/?shop_id=${shopId}`,
             {
                 method: 'POST',
                 json: {
@@ -308,24 +297,23 @@ class RestAPI {
 
     static async getShopItems(shopId) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/item/?shop_id=${shopId}`,
             {method: 'GET'}
         )
     }
 
     static async deleteShopItem(shopId, itemId) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/shop/?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/item/?shop_id=${shopId}&item_id=${itemId}`,
             {
-                method: 'DELETE',
-                json: {item_id: itemId}
+                method: 'DELETE'
             }
         )
     }
 
     static async deleteShopItemQueue(shopId, itemId, createdAt) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/shop/queue/?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/item/queue/?shop_id=${shopId}`,
             {
                 method: 'DELETE',
                 json: {
@@ -338,7 +326,7 @@ class RestAPI {
 
     static async addShopQueue(shopId, itemId, price, quantity, purchasePrice) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/shop/queue?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/item/queue?shop_id=${shopId}`,
             {
                 method: 'POST',
                 json: {
@@ -352,7 +340,7 @@ class RestAPI {
 
     static async addCartItem(shopId, itemId, quantity) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/cart/?shop_id=${shopId}`,
             {
                 method: 'POST',
                 json: {item_id: itemId, quantity}
@@ -362,14 +350,14 @@ class RestAPI {
 
     static async getCartItems(shopId) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/cart/?shop_id=${shopId}`,
             {method: 'GET'}
         )
     }
 
     static async delCartItem(shopId, itemId, quantity) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/cart/?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/cart/?shop_id=${shopId}`,
             {
                 method: 'DELETE',
                 json: {item_id: itemId, quantity}
@@ -379,14 +367,14 @@ class RestAPI {
 
     static async clearCart(shopId) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/cart/all?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/cart/all?shop_id=${shopId}`,
             {method: 'DELETE'}
         )
     }
 
     static async updateCartItemQuantity(shopId, itemID, quantity) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/cart/quantity?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/cart/quantity?shop_id=${shopId}`,
             {
                 method: 'PATCH',
                 json: {
@@ -399,7 +387,7 @@ class RestAPI {
 
     static async confirmCart(shopId) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/cart/confirm?shop_id=${shopId}`,
+            `${SERVER_URL}/shops/cart/confirm?shop_id=${shopId}`,
             {method: 'POST'}
         )
     }
@@ -421,5 +409,5 @@ class RestAPI {
 }
 
 
-export {UserStatus, checkUserMinStatus, parseJWT, savaJWTPayload}
+export {UserStatus, checkUserMinStatus, parseJWT, saveJWTPayload}
 export default RestAPI

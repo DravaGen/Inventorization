@@ -10,13 +10,13 @@ import {
 import { Notifications } from "./assets/components/Notifications"
 import QrCodeReader from "./assets/components/QrCodeReader"
 import Header from "./assets/components/Header"
-import RestAPI, {UserStatus, parseJWT, savaJWTPayload} from "./RestAPI"
+import RestAPI, {UserStatus, parseJWT, saveJWTPayload} from "./RestAPI"
 
 
 const App = () => {
 
     const jwtPayload = parseJWT(localStorage?.access_token)
-    savaJWTPayload(jwtPayload)
+    saveJWTPayload(jwtPayload)
 
     const [login, setLogin] = useState(
         jwtPayload &&
