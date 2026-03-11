@@ -44,7 +44,6 @@ class ShopORM(Base):
     async def grant_access(self, user_id: UUID, db: AsyncSession) -> None:
         access = ShopAccessORM(shop_id=self.id, user_id=user_id)
         db.add(access)
-        await db.flush()
 
     async def check_access(self, user_id: UUID, db: AsyncSession) -> bool:
         result = await db.execute(
@@ -68,7 +67,6 @@ class ShopORM(Base):
                 & (ShopAccessORM.user_id == user_id)
             )
         )
-        await db.flush()
 
     async def list_user_ids(self, db: AsyncSession) -> list[UUID]:
         result = await db.execute(
@@ -95,20 +93,16 @@ class ShopORM(Base):
     ) -> "ShopORM":
         shop = cls(**data)
         db.add(shop)
-        await db.flush()
 
         return shop
 
     async def update(
         self,
         data: dict,
-        db: AsyncSession
     ) -> None:
 
         for key, value in data.items():
             setattr(self, key, value)
-
-        await db.flush()
 
     @classmethod
     async def get_all(cls, db: AsyncSession) -> Sequence["ShopORM"]:
@@ -136,7 +130,6 @@ class ShopORM(Base):
     ) -> None:
         item = ShopItemORM(**data, shop_id=self.id)
         db.add(item)
-        await db.flush()
 
     async def get_items(self, db: AsyncSession) -> Sequence["ShopItemORM"]:
         result = await db.execute(
@@ -163,7 +156,6 @@ class ShopORM(Base):
     ) -> None:
         item = ShopQueueORM(**data, shop_id=self.id)
         db.add(item)
-        await db.flush()
 
     async def get_items_queue(self, db: AsyncSession) -> Sequence["ShopQueueORM"]:
         result = await db.execute(
@@ -364,8 +356,6 @@ class ShopCartORM(Base):
     ) -> "ShopCartORM":
         item = cls(**data, shop_id=shop_id, user_id=user_id)
         db.add(item)
-        await db.flush()
-
         return item
 
     @classmethod
