@@ -161,7 +161,7 @@ class ShopORM(Base):
         data: dict,
         db: AsyncSession
     ) -> None:
-        item = ShopItemORM(**data, shop_id=self.id)
+        item = ShopQueueORM(**data, shop_id=self.id)
         db.add(item)
         await db.flush()
 
@@ -221,7 +221,7 @@ class ShopItemORM(Base):
             shop_id: UUID,
             db: AsyncSession
     ) -> "ShopItemORM | None":
-        await db.get(cls, (item_id, shop_id))
+        return await db.get(cls, (item_id, shop_id))
 
     @classmethod
     async def check_exists(
@@ -230,7 +230,7 @@ class ShopItemORM(Base):
             shop_id: UUID,
             db: AsyncSession
     ) -> bool:
-        return cls.get_by_id(item_id, shop_id, db) is not None
+        return cls.get(item_id, shop_id, db) is not None
 
 
 class ShopQueueORM(Base):
@@ -348,7 +348,7 @@ class ShopCartORM(Base):
 
         result = await db.execute(
             select(cls)
-            .options(joinedload(cls.shop_items).joinedload(cls.item))
+            .options(joinedload(cls.shop_items).joinedload(ShopItemORM.item))
             .where((cls.user_id == user_id) & (cls.shop_id == shop_id))
             .order_by(ShopCartORM.item_id)
         )

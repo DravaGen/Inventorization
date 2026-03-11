@@ -143,7 +143,7 @@ class ShopService:
 
         try:
             await shop.delete_item(item_id, db)
-            next_item = ShopQueueORM.get_next(item_id, shop.id, db)
+            next_item = await ShopQueueORM.get_next(item_id, shop.id, db)
             if next_item:
                 await shop.add_item(next_item.__dict__, db)
                 await db.delete(next_item)
@@ -318,13 +318,13 @@ class ShopService:
             for cart_item in cart:
                 item: ShopItemORM = cart_item.shop_items
 
-                try:
-                    item.quantity -= cart_item.quantity
-                except:
+                if item.quantity < cart_item.quantity:
                     raise HTTPException(
                         status_code=status.HTTP_409_CONFLICT,
                         detail="There is not enough product in the store."
                     )
+
+                item.quantity -= cart_item.quantity
 
                 sold_data = {
                     "item_id": cart_item.item_id,
