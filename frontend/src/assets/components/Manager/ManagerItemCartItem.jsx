@@ -36,6 +36,29 @@ const ManagerItemCartItem = ({
         }
     }, [shop_id, item, getItemsInCart])
 
+    const outputQuantity = useCallback(async (e) => {
+        if (!e.length) return "0"
+        const [ok, ] = await RestAPI.updateCartItemQuantity(
+            shop_id, item.id, +e
+        )
+        if (!ok) return form.quantity
+        return e
+    }, [shop_id, item, form])
+
+    const conditionQuantity = useCallback(async (e) => {
+        if (!e.trim().length) return false
+        const isInt = isUnsignedInteger(e)
+        if (!isInt) return false
+
+        const [ok, ] = await RestAPI.updateCartItemQuantity(
+            shop_id, item.id, +e
+        )
+        if (!ok) return false
+        getItemsInCart()
+
+        return true
+    }, [shop_id, item, getItemsInCart])
+
     const customTitle = <div className="control-item-header">
         <div className="name-item">{item.name}</div>
         <div className="control-item-block">
@@ -44,19 +67,8 @@ const ManagerItemCartItem = ({
                 ref={quantityRef}
                 defaultValue={form.quantity}
                 updateForm={() => [setForm, "quantity"]}
-                condition={async (e) => {
-                    if (!e.trim().length) return false
-                    const isInt = isUnsignedInteger(e)
-                    if (!isInt) return false
-
-                    const [ok, ] = await RestAPI.updateCartItemQuantity(
-                        shop_id, item.id, +e
-                    )
-                    if (!ok) return false
-                    getItemsInCart()
-
-                    return true
-                }}
+                output={outputQuantity}
+                condition={conditionQuantity}
             />
             <Button onClick={logicDecrementQuantity}>-</Button>
         </div>
