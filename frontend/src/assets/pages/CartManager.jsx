@@ -86,9 +86,11 @@ const CartManager = () => {
                         <div>Итог: {totalPrice}</div>
                         <div className="control-button">
                             <Button
+                                disabled={!itemsInCart.length}
                                 onClick={logicClearCart}
                             >Очистить</Button>
                             <Button
+                                disabled={!itemsInCart.length}
                                 onClick={logicConfirmCart}
                             >Подтвердить</Button>
                         </div>
