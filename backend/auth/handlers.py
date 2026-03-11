@@ -23,9 +23,9 @@ auth_router = APIRouter()
 
 @auth_router.post("/login")
 async def login(
-        form_data: OAuth2PasswordRequestForm = Depends(),
-        db: AsyncSession = Depends(get_db),
-        redis: Redis = Depends(get_redis)
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis)
 ) -> AccessTokenResponse:
 
     user = await db.execute(
@@ -71,9 +71,9 @@ async def login(
     ))
 )
 async def send_otp_code(
-        email: EmailStr,
-        db: AsyncSession = Depends(get_db),
-        redis: Redis = Depends(get_redis)
+    email: EmailStr,
+    db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis)
 ) -> JSONResponse:
     """"""
     user = await UserORM.get_by_email(email, db)
