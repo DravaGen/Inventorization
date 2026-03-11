@@ -2,7 +2,7 @@ from uuid import UUID
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, PositiveInt, \
+from pydantic import BaseModel, ConfigDict, PositiveInt, NonNegativeInt, \
     Field, model_validator
 from items.schemas import ItemSchema
 
@@ -129,4 +129,4 @@ class ShopCartItemResponse(BaseModel):
 class UpdateCartQuantityForm(BaseModel):
 
     item_id: UUID
-    quantity: PositiveInt
+    quantity: NonNegativeInt
