@@ -315,6 +315,11 @@ class ShopService:
                     )
 
                 item.quantity -= cart_item.quantity
+                if item.quantity == 0:
+                    next_item = await ShopQueueORM.get_next(cart_item.item_id, shop.id, db)
+                    if next_item:
+                        await ShopItemORM.add(shop.id, next_item.__dict__, db)
+                        await db.delete(next_item)
 
                 sold_data = {
                     "item_id": cart_item.item_id,
@@ -325,12 +330,6 @@ class ShopService:
                     "income": (item.price - item.purchase_price) * cart_item.quantity
                 }
                 await ItemSoldORM.create(sold_data, db)
-
-                if item.quantity == 0:
-                    next_item = await ShopQueueORM.get_next(cart_item.item_id, shop.id, db)
-                    if next_item:
-                        await ShopItemORM.add(shop.id, next_item.__dict__, db)
-                        await db.delete(next_item)
 
             await ShopCartORM.delete_all(shop.id, user.id, db)
 
