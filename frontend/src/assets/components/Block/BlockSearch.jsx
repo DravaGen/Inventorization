@@ -18,6 +18,7 @@ const BlockSearch = ({ search, setSearch, source={current: false} }) => {
         if (dataQrCodeReader.source.current != source.current) return
         setSearch(dataQrCodeReader.text)
         setDataQrCodeReader(null)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataQrCodeReader])
 
     return (
