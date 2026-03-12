@@ -1,12 +1,13 @@
 from uuid import UUID
+from datetime import date
 from fastapi import HTTPException, status
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import ItemORM, ItemSoldORM
-from .schemas import ItemInitForm, ItemInitResponse, ItemResponse, \
-    ItemSoldResponse, ItemSchema, ItemDeleteForm
+from .schemas import ItemInitForm, ItemInitResponse, ItemResponse, ItemSchema, \
+    ItemDeleteForm, ItemSoldDayResponse, ItemSoldItemResponse
 
 
 class ItemService:
@@ -49,18 +50,6 @@ class ItemService:
             )
 
     @staticmethod
-    async def get_solds(
-        offset: int,
-        limit: int,
-        db: AsyncSession
-    ) -> list[ItemSoldResponse]:
-
-        return [
-            ItemSoldResponse.model_validate(x)
-            for x in await ItemSoldORM.get(offset, limit, db)
-        ]
-
-    @staticmethod
     async def get(item_id: UUID, db: AsyncSession) -> ItemORM:
         item = await ItemORM.get_by_id(item_id, db)
 
@@ -71,3 +60,29 @@ class ItemService:
             )
 
         return item
+
+    @staticmethod
+    async def get_day_stats(
+        shop_id: UUID,
+        date: date,
+        db: AsyncSession
+    ) -> ItemSoldDayResponse:
+
+        day = await ItemSoldORM.get_day(shop_id, date, db)
+
+        if not day:
+            return ItemSoldDayResponse(
+                date=date, count=0, total_profit=0, total_sales=0
+            )
+
+        return ItemSoldDayResponse.model_validate(day)
+
+    @staticmethod
+    async def get_day_details(
+        shop_id: UUID,
+        date: date,
+        db: AsyncSession
+    ) -> list[ItemSoldItemResponse]:
+
+        items = await ItemSoldORM.get_day_items(shop_id, date, db)
+        return [ItemSoldItemResponse.model_validate(i) for i in items]

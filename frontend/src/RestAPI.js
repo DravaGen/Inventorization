@@ -263,10 +263,17 @@ class RestAPI {
         )
     }
 
-    static async getSolds(offset, limit) {
+    static async getDataStats(shopId, date) {
         return await this._makeRequest(
-            `${SERVER_URL}/items/sold?offset=${offset}&limit=${limit}`,
-            {method: 'GET'}
+            `${SERVER_URL}/items/stats?shop_id=${shopId}&date=${date}`,
+            { method: "GET" }
+        )
+    }
+
+    static async getItemDayStats(shopId, date) {
+        return await this._makeRequest(
+            `${SERVER_URL}/items/stats/day?shop_id=${shopId}&date=${date}`,
+            { method: "GET" }
         )
     }
 

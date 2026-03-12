@@ -1,0 +1,84 @@
+.stats-navigator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stats-navigator-day {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.stats-result {
+    font-size: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 16px;
+}
+
+.stats-result > *:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.stats-total-sales {
+    font-size: 36px;
+    font-weight: bold;
+    color: #adb5bd;
+}
+
+.stats-total-sales.positive {
+    color: #212529;
+}
+
+.stats-profit {
+    font-size: 24px;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.stats-profit.positive {
+    color: #28a745;
+    /* #e8f5e9 — светло-зеленый фон для бейджа */
+}
+
+.stats-profit.negative {
+    color: #dc3545;
+    /* #f8d7da — светло-красный фон для бейджа */
+}
+
+.stats-result-other {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    position: relative;
+    flex-wrap: wrap;
+}
+
+.stats-result-other::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #ced4da;
+}
+
+.stats-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stats-metric-label {
+    color: #6c757d;
+}
+
+.stats-metric-value {
+    font-weight: 500;
+    color: #212529;
+}

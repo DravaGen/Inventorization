@@ -1,11 +1,12 @@
+from datetime import date
 from fastapi import APIRouter, status, Query
 
 from .schemas import ItemInitForm, ItemInitResponse, ItemResponse, \
-    ItemSoldResponse, ItemDeleteForm
+    ItemDeleteForm, ItemSoldDayResponse, ItemSoldItemResponse
 from .services import ItemService
 
 from responses import ResponseDescriptions, ResponseDescription
-from auth.services import UserStatusISOwner, UserStatusISAdmin
+from auth.services import CurrentShop, UserStatusISOwner, UserStatusISAdmin
 from databases.sqlalchemy import SessionDep
 
 
@@ -58,14 +59,25 @@ async def delete_item(
 
 
 @items_router.get(
-    "/sold",
+    "/stats",
     dependencies=[UserStatusISOwner]
 )
-async def get_solds(
+async def get_day_stats(
+    shop: CurrentShop,
+    date: date,
     db: SessionDep,
-    offset: int = Query(0, ge=0),
-    limit: int = Query(7, ge=1, le=31)
-) -> list[ItemSoldResponse]:
-    """Возвращает статистику о продаже"""
+) -> ItemSoldDayResponse:
 
-    return await ItemService.get_solds(offset, limit, db)
+    return await ItemService.get_day_stats(shop.id, date, db)
+
+@items_router.get(
+    "/stats/day",
+    dependencies=[UserStatusISOwner]
+)
+async def get_day_stats_details(
+    shop: CurrentShop,
+    date: date,
+    db: SessionDep,
+) -> list[ItemSoldItemResponse]:
+
+    return await ItemService.get_day_details(shop.id, date, db)

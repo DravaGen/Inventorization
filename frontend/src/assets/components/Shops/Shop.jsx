@@ -95,7 +95,9 @@ const Shop = ({ id, name, address, initShops }) => {
                 }
                 {
                     checkUserMinStatus(UserStatus.OWNER)
-                    && <Button>Статистика</Button>
+                    && <Button
+                        onClick={() => navigate(`/stats/${id}`)}
+                    >Статистика</Button>
                 }
             </Block>
         </div>

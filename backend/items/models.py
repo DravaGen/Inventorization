@@ -2,8 +2,8 @@ import datetime
 from uuid import UUID
 from typing import Sequence
 
-from sqlalchemy import String, BigInteger, ForeignKey, CheckConstraint, \
-    PrimaryKeyConstraint, func, select, delete
+from sqlalchemy import String, BigInteger, Numeric, ForeignKey, \
+    CheckConstraint, PrimaryKeyConstraint, func, select, delete, cast
 from sqlalchemy.orm import Mapped, mapped_column, relationship, joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -57,7 +57,8 @@ class ItemSoldORM(Base):
     shop_id: Mapped[UUID] = mapped_column(ForeignKey("shops.id"))
     price: Mapped[int]
     quantity: Mapped[int] = mapped_column(server_default="1")
-    income: Mapped[int] = mapped_column(BigInteger)
+    purchase_price: Mapped[int]
+    profit: Mapped[int] = mapped_column(BigInteger)
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now()
     )
@@ -71,27 +72,6 @@ class ItemSoldORM(Base):
     )
 
     @classmethod
-    async def get(
-        cls,
-        offset: int,
-        limit: int,
-        db: AsyncSession
-    ) -> Sequence["ItemSoldORM"]:
-
-        result = await db.execute(
-            select(
-                func.date(ItemSoldORM.created_at).label("date"),
-                func.count().label("count"),
-                func.sum(ItemSoldORM.income).label("income")
-            )
-            .group_by(func.date(ItemSoldORM.created_at))
-            .offset(offset)
-            .limit(limit)
-        )
-
-        return result.scalar().all()
-
-    @classmethod
     async def create(
         cls,
         data: dict,
@@ -101,3 +81,54 @@ class ItemSoldORM(Base):
         db.add(sold)
         await db.flush()
         return sold
+
+    @classmethod
+    async def get_day(
+        cls,
+        shop_id: UUID,
+        target_date: datetime.date,
+        db: AsyncSession
+    ):
+        result = await db.execute(
+            select(
+                func.date(cls.created_at).label("date"),
+                func.sum(cls.quantity).label("count"),
+                func.sum(cls.profit).label("total_profit"),
+                func.sum(
+                    cast(cls.price, Numeric(12, 0)) * cast(cls.quantity, Numeric(12, 0))
+                ).label("total_sales")
+            )
+            .where(
+                (cls.shop_id == shop_id)
+                & (func.date(cls.created_at) == target_date)
+            )
+            .group_by(func.date(cls.created_at))
+            .order_by(func.date(cls.created_at).desc())
+        )
+
+        return result.mappings().first()
+
+    @classmethod
+    async def get_day_items(
+        cls,
+        shop_id: UUID,
+        target_date: datetime.date,
+        db: AsyncSession
+    ):
+        result = await db.execute(
+            select(
+                cls.item_id,
+                ItemORM.name,
+                func.sum(cls.quantity).label("sold"),
+                func.sum(cls.profit).label("profit")
+            )
+            .join(ItemORM, ItemORM.id == cls.item_id)
+            .where(
+                (cls.shop_id == shop_id)
+                & (func.date(cls.created_at) == target_date)
+            )
+            .group_by(cls.item_id, ItemORM.name)
+            .order_by(func.sum(cls.profit))
+        )
+
+        return result.all()

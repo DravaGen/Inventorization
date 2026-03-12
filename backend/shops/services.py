@@ -327,7 +327,8 @@ class ShopService:
                     "shop_id": cart_item.shop_id,
                     "price": item.price,
                     "quantity": cart_item.quantity,
-                    "income": (item.price - item.purchase_price) * cart_item.quantity
+                    "purchase_price": item.purchase_price,
+                    "profit": (item.price - item.purchase_price) * cart_item.quantity
                 }
                 await ItemSoldORM.create(sold_data, db)
 

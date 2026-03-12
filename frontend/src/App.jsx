@@ -5,7 +5,7 @@ import "./App.css"
 import AppContext from "./assets/AppContext"
 import {
     Login, ShopsManager, UsersManager,
-    ItemsManager, CartManager
+    ItemsManager, CartManager, StatsManager
 } from "./assets/pages"
 import { Notifications } from "./assets/components/Notifications"
 import QrCodeReader from "./assets/components/QrCodeReader"
@@ -110,6 +110,10 @@ const App = () => {
                         <Route
                             path="/cart/:shop_id"
                             element={<CartManager />}
+                        />
+                        <Route
+                            path="/stats/:shop_id"
+                            element={<StatsManager />}
                         />
                     </Routes>
                 </>
