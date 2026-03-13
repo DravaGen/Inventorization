@@ -19,8 +19,8 @@
     border-radius: 16px;
 }
 
-.stats-result > *:not(:last-child) {
-    margin-bottom: 8px;
+.stats-result > * + * {
+    margin-top: 8px;
 }
 
 .stats-total-sales {
@@ -33,6 +33,12 @@
     color: #212529;
 }
 
+.stats-profit-block {
+    gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .stats-profit {
     font-size: 24px;
     font-weight: 600;
@@ -41,12 +47,35 @@
 
 .stats-profit.positive {
     color: #28a745;
-    /* #e8f5e9 — светло-зеленый фон для бейджа */
 }
 
 .stats-profit.negative {
     color: #dc3545;
-    /* #f8d7da — светло-красный фон для бейджа */
+}
+
+.stats-change-badge {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stats-change-badge.positive {
+    color: #28a745;
+    background: #e8f5e9;
+}
+
+.stats-change-badge.negative {
+    color: #dc3545;
+    background: #f8d7da;
+}
+
+.stats-change-percent {
+    font-size: 12px;
+    opacity: 0.8;
 }
 
 .stats-result-other {

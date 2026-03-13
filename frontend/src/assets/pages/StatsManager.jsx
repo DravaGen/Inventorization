@@ -59,6 +59,7 @@ const StatsManager = () => {
                         setDaySelect={setDaySelect}
                     />
                     <StatsResult
+                        shop_id={shop_id}
                         dataStats={dataStats}
                         formatPrice={formatPrice}
                     />
