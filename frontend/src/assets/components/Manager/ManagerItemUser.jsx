@@ -1,8 +1,8 @@
-import { useCallback, useContext, useRef, useState } from "react"
+import { use, useCallback, useContext, useRef, useState } from "react"
 
 import ManagerItem from "./ManagerItem"
 import { SelectUserStatus } from "../Select"
-import { Button } from "../Button"
+import { Button, ButtonQRDownload } from "../Button"
 import RestAPI, { UserStatus } from "../../../RestAPI"
 import AppContext from "../../AppContext"
 
@@ -53,6 +53,7 @@ const ManagerItemUser = ({
     }, [managerRef, status, addNotification, getHeaderIndicator])
 
     const updateButton = <Button
+       className="line"
         disabled={localStatus == status}
         onClick={updateUser}
     >Изменить</Button>
@@ -68,6 +69,7 @@ const ManagerItemUser = ({
             <div>id: {user.id}</div>
             <div className="line">Статус: {selectElement}</div>
             {updateButton}
+            <ButtonQRDownload qrData={user.email}/>
         </ManagerItem>
     )
 }

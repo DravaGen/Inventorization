@@ -170,7 +170,15 @@
     margin: 3px;
 }
 
+.manager-block button {
+    padding: 3px;
+}
+
 .manager-item-body .item-in-queue {
     margin-top: 3px;
     font-weight: bold;
+}
+
+.manager-item-body .button-qr-download {
+    margin-top: 5px;
 }
