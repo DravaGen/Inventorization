@@ -1,13 +1,15 @@
 .manager {
     gap: 10px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 
 .manager-block {
     width: 100%;
+    max-width: 800px;
     height: 85vh;
+    margin-inline: auto;
 }
 
 .manager-block.automatic-height {
