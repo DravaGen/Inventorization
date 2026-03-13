@@ -51,7 +51,7 @@ const StatsManager = () => {
 
     return (
         <Manager>
-            <ManagerBlock>
+            <ManagerBlock automaticHeight={true}>
                 <Block>
                     <BlockHeader>Статистика продаж</BlockHeader>
                     <StatsNavigator

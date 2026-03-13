@@ -1,7 +1,18 @@
 
 
-const ManagerBlock = ({ children, ...props}) => {
-    return <div className="manager-block" {...props}>{children}</div>
+const ManagerBlock = ({
+    children,
+    automaticHeight=false,
+    ...props
+}) => {
+    return (
+        <div
+            className={`manager-block ${automaticHeight ? "automatic-height" : ""}`}
+            {...props}
+        >
+            {children}
+        </div>
+    )
 }
 
 
