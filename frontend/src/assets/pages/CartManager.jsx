@@ -12,6 +12,14 @@ import { Button } from "../components/Button"
 import RestAPI from "../../RestAPI"
 
 
+const formatPrice = (price, round=0) => {
+    return new Intl.NumberFormat('ru-RU', {
+        minimumFractionDigits: round,
+        maximumFractionDigits: round
+    }).format(price || 0) + ' ₽';
+};
+
+
 const CartManager = () => {
 
     const {
@@ -83,7 +91,7 @@ const CartManager = () => {
                         getItemsInCart={getItemsInCart}
                     />
                     <ManagerControlGroup>
-                        <div>Итог: {totalPrice}</div>
+                        <div>Итог: {formatPrice(totalPrice)}</div>
                         <div className="control-button">
                             <Button
                                 disabled={!itemsInCart.length}
