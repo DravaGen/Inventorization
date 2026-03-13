@@ -9,7 +9,12 @@ import RestAPI from "../../../RestAPI"
 import AppContext from "../../AppContext"
 
 
-const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
+const AddShopItem = ({
+    shop_id,
+    items,
+    getItemsInShop,
+    getAllItems
+}) => {
 
     const {
         addNotification
@@ -34,6 +39,7 @@ const AddShopItem = ({ shop_id, items, getItemsInShop }) => {
         )
         if (ok) {
             getItemsInShop()
+            getAllItems()
             itemRef.current.clear()
             priceRef.current.clear()
             quantityRef.current.clear()

@@ -28,7 +28,10 @@ class ItemService:
         return [
             ItemResponse(
                 **ItemSchema.model_validate(item).model_dump(),
-                quantity=sum(shop.quantity for shop in item.shop_items),
+                quantity=(
+                    sum(shop.quantity for shop in item.shop_items)
+                    + sum(queue.quantity for queue in item.shop_queues)
+                ),
             )
             for item in items
         ]

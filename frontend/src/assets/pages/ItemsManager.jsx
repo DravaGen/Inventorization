@@ -92,6 +92,7 @@ const ItemsManager = () => {
                         shop_id={shop_id}
                         items={allItems}
                         getItemsInShop={getItemsInShop}
+                        getAllItems={getAllItems}
                     />
                     <ManagerContentItems
                         elements={shopItems}

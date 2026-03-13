@@ -40,6 +40,7 @@ class ItemORM(Base):
         result = await db.execute(
             select(cls)
             .options(joinedload(cls.shop_items))
+            .options(joinedload(cls.shop_queues))
             .order_by(cls.id)
         )
         return result.unique().scalars().all()
