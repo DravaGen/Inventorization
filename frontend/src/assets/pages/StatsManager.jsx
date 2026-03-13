@@ -6,7 +6,7 @@ import {
     Manager, ManagerBlock, ManagerContentItems
 } from "../components/Manager"
 import {
-    StatsNavigator, StatsResult
+    StatsNavigator, StatsResult, StatsItems
 } from "../components/Stats"
 import RestAPI from "../../RestAPI"
 
@@ -29,6 +29,7 @@ const StatsManager = () => {
         total_profit: 0,
         total_sales: 0
     })
+    const [itemsStats, setItemsStats] = useState([])
 
     const getDataStats = useCallback(async (date) => {
         setDataStats({date: date, count: 0, total_profit: 0, total_sales: 0})
@@ -37,8 +38,10 @@ const StatsManager = () => {
     }, [shop_id, setDataStats])
 
     const getItemDayStats = useCallback(async (date) => {
+        setItemsStats([])
         const [ok, response] = await RestAPI.getItemDayStats(shop_id, date)
-    }, [shop_id])
+        ok && setItemsStats(response)
+    }, [shop_id, setItemsStats])
 
     useEffect(() => {
         async function fetchData() {
@@ -61,6 +64,10 @@ const StatsManager = () => {
                     <StatsResult
                         shop_id={shop_id}
                         dataStats={dataStats}
+                        formatPrice={formatPrice}
+                    />
+                    <StatsItems
+                        items={itemsStats}
                         formatPrice={formatPrice}
                     />
                 </Block>

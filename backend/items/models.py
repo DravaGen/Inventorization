@@ -120,7 +120,9 @@ class ItemSoldORM(Base):
                 cls.item_id,
                 ItemORM.name,
                 func.sum(cls.quantity).label("sold"),
-                func.sum(cls.profit).label("profit")
+                func.sum(cls.profit).label("profit"),
+                func.sum(cls.price * cls.quantity).label("sales"),
+                func.avg(cls.price).label("avg_price")
             )
             .join(ItemORM, ItemORM.id == cls.item_id)
             .where(
@@ -128,7 +130,7 @@ class ItemSoldORM(Base):
                 & (func.date(cls.created_at) == target_date)
             )
             .group_by(cls.item_id, ItemORM.name)
-            .order_by(func.sum(cls.profit))
+            .order_by(func.sum(cls.profit).desc())
         )
 
-        return result.all()
+        return result.mappings().all()

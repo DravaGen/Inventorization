@@ -59,3 +59,5 @@ class ItemSoldItemResponse(BaseModel):
     name: str
     sold: int
     profit: int
+    sales: int
+    avg_price: float
