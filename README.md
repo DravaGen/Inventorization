@@ -11,6 +11,7 @@ _Возможно, буду писать обновление. Смотреть 
 ![Добавление товара](screenshots/shop_items.png)
 ![Выдача доступа](screenshots/shop_access.png)
 ![Статистика](screenshots/shop_stats.png)
+![Сканер QR](screenshots/qr_scanner.png)
 
 
 ## TODO: Вещи, которые стоит сделать, чтобы проект смотрелся завершенным.
