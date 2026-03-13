@@ -27,7 +27,7 @@ const LoginForm = () => {
     useEffect(() => {
         async function loginAboutQrCode() {
             if (!dataQrCodeReader) return
-            const email = emailInput.current.setValue(dataQrCodeReader.text)
+            const email = await emailInput.current.setValue(dataQrCodeReader.text)
             setDataQrCodeReader(null)
             if (!email) return
             const [ok, ] = await RestAPI.sendOtp(email)
