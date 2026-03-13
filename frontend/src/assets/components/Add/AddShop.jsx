@@ -39,6 +39,7 @@ const AddShop = ({ initShops }) => {
                 idName={"add-shop"}
                 blockName={"Добавить магазин"}
                 addStyle={false}
+                defaultShow={true}
             >
                 <InputValidator
                     ref={nameRef}

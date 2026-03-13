@@ -6,9 +6,10 @@ const AddConstructor = ({
     idName,
     blockName,
     children,
-    addStyle = true
+    addStyle = true,
+    defaultShow = false
 }) => {
-    const [showChildrens, setShowChildrens] = useState(false)
+    const [showChildrens, setShowChildrens] = useState(defaultShow)
 
     const toggleShowChildrens = useCallback(() => {
         setShowChildrens(prev => !prev)
