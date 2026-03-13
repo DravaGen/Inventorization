@@ -69,7 +69,7 @@ class ShopORM(Base):
             .where(ShopAccessORM.user_id == user_id)
             .order_by(cls.id)
         )
-        return result.scalars().all()
+        return result.unique().scalars().all()
 
 
 class ShopAccessORM(Base):
@@ -306,7 +306,7 @@ class ShopCartORM(Base):
             .where((cls.user_id == user_id) & (cls.shop_id == shop_id))
             .order_by(ShopCartORM.item_id)
         )
-        return result.scalars().unique().all()
+        return result.unique().scalars().all()
 
     @classmethod
     async def create(
