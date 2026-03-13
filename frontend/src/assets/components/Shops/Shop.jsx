@@ -83,10 +83,10 @@ const Shop = ({ id, name, address, initShops }) => {
                         onClick={() => navigate(`/items/${id}`)}
                     >Добавить товар</Button>
                 }
-                {
+                {/* {
                     checkUserMinStatus(UserStatus.ADMIN)
                     && <Button>Принять товар</Button>
-                }
+                } */}
                 {
                     checkUserMinStatus(UserStatus.OWNER)
                     && <Button
